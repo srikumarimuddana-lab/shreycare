@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #384527;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #4f5d3d;
+  --color-on-primary-container: #c5d5ad;
+  --color-secondary: #745b1c;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #ffdc90;
+  --color-on-secondary-container: #785f20;
+  --color-tertiary: #4d4024;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #655739;
+  --color-surface: #fcf9f4;
+  --color-on-surface: #1c1c19;
+  --color-surface-dim: #dcdad5;
+  --color-surface-bright: #fcf9f4;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f6f3ee;
+  --color-surface-container: #f0ede8;
+  --color-surface-container-high: #ebe8e3;
+  --color-surface-container-highest: #e5e2dd;
+  --color-surface-variant: #e5e2dd;
+  --color-on-surface-variant: #45483f;
+  --color-on-background: #1c1c19;
+  --color-background: #fcf9f4;
+  --color-outline: #75786e;
+  --color-outline-variant: #c6c8bc;
+  --color-inverse-surface: #31302d;
+  --color-inverse-on-surface: #f3f0eb;
+  --color-inverse-primary: #bccca4;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  --color-surface-tint: #556343;
+
+  --font-headline: var(--font-noto-serif), serif;
+  --font-body: var(--font-manrope), sans-serif;
+
+  --radius: 0.125rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+
+  --shadow-botanical: 0 12px 40px rgba(56, 69, 39, 0.06);
+  --shadow-botanical-lg: 0 20px 60px rgba(56, 69, 39, 0.1);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-on-background);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-headline);
+  }
+  ::selection {
+    background-color: color-mix(in srgb, var(--color-secondary) 30%, transparent);
+  }
+}
+
+@layer components {
+  .glass-nav {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+}

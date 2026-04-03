@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Manrope:wght@300;400;600;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-surface": "#31302d",
+                    "on-surface-variant": "#45483f",
+                    "surface-container-highest": "#e5e2dd",
+                    "surface-dim": "#dcdad5",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "surface": "#fcf9f4",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed-variant": "#3e4b2d",
+                    "on-tertiary-container": "#e2cda8",
+                    "secondary": "#745b1c",
+                    "on-background": "#1c1c19",
+                    "on-primary-container": "#c5d5ad",
+                    "surface-container": "#f0ede8",
+                    "surface-bright": "#fcf9f4",
+                    "on-secondary-fixed-variant": "#5a4304",
+                    "on-error": "#ffffff",
+                    "surface-variant": "#e5e2dd",
+                    "secondary-fixed-dim": "#e4c379",
+                    "on-primary-fixed": "#131f06",
+                    "primary": "#384527",
+                    "tertiary-fixed-dim": "#d8c49f",
+                    "secondary-fixed": "#ffdf9b",
+                    "error": "#ba1a1a",
+                    "inverse-primary": "#bccca4",
+                    "surface-container-low": "#f6f3ee",
+                    "primary-fixed": "#d8e8bf",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "primary-container": "#4f5d3d",
+                    "on-surface": "#1c1c19",
+                    "surface-container-high": "#ebe8e3",
+                    "outline-variant": "#c6c8bc",
+                    "outline": "#75786e",
+                    "tertiary-container": "#655739",
+                    "primary-fixed-dim": "#bccca4",
+                    "tertiary-fixed": "#f5e0ba",
+                    "on-secondary-fixed": "#251a00",
+                    "background": "#fcf9f4",
+                    "secondary-container": "#ffdc90",
+                    "inverse-on-surface": "#f3f0eb",
+                    "on-secondary-container": "#785f20",
+                    "surface-tint": "#556343",
+                    "on-tertiary-fixed": "#241a03",
+                    "on-tertiary-fixed-variant": "#534529",
+                    "tertiary": "#4d4024"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Noto Serif"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Manrope', sans-serif; }
+        h1, h2, h3 { font-family: 'Noto Serif', serif; }
+        .glass-nav {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-background selection:bg-secondary/30">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#fcf9f4]/80 dark:bg-[#1c1c19]/80 backdrop-blur-md">
+<div class="flex justify-between items-center px-10 py-6 max-w-[1440px] mx-auto">
+<div class="font-['Noto_Serif'] text-2xl font-bold text-[#384527] dark:text-[#fcf9f4] tracking-tighter">
+                Shrey Care
+            </div>
+<div class="hidden md:flex space-x-12 items-center">
+<a class="font-['Noto_Serif'] text-lg tracking-tight text-[#384527] dark:text-[#fcf9f4] border-b border-[#745b1c] pb-1" href="#">Home</a>
+<a class="font-['Noto_Serif'] text-lg tracking-tight text-[#45483f] dark:text-[#c6c8bc] hover:text-[#384527] transition-opacity duration-300" href="#">Catalog</a>
+<a class="font-['Noto_Serif'] text-lg tracking-tight text-[#45483f] dark:text-[#c6c8bc] hover:text-[#384527] transition-opacity duration-300" href="#">About</a>
+<a class="font-['Noto_Serif'] text-lg tracking-tight text-[#45483f] dark:text-[#c6c8bc] hover:text-[#384527] transition-opacity duration-300" href="#">Ingredients</a>
+</div>
+<div class="flex items-center space-x-6">
+<span class="material-symbols-outlined text-[#384527] cursor-pointer hover:opacity-80 transition-transform duration-200 active:scale-95">search</span>
+<span class="material-symbols-outlined text-[#384527] cursor-pointer hover:opacity-80 transition-transform duration-200 active:scale-95">shopping_bag</span>
+</div>
+</div>
+</nav>
+<!-- Hero Section -->
+<header class="relative min-h-screen flex items-center pt-20 overflow-hidden">
+<div class="container mx-auto px-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+<div class="lg:col-span-6 z-10 space-y-8">
+<p class="text-label text-sm uppercase tracking-widest text-secondary font-bold">The Essence of Purity</p>
+<h1 class="text-display-lg text-6xl md:text-7xl font-bold text-primary leading-tight tracking-tighter">
+                    Nurture Your Hair with <br/><span class="italic font-normal">Nature's Finest</span>
+</h1>
+<p class="text-body-lg text-lg text-on-surface-variant max-w-lg leading-relaxed">
+                    Experience the botanical alchemy of cold-pressed oils and rare herbal infusions. Crafted in small batches for the modern atelier.
+                </p>
+<div class="pt-6 flex items-center space-x-8">
+<button class="bg-primary text-on-primary px-10 py-5 rounded-md font-bold tracking-tight hover:opacity-90 transition-all active:scale-95">
+                        Shop Collection
+                    </button>
+<a class="text-primary font-bold border-b border-primary/30 pb-1 hover:border-primary transition-all" href="#">Learn our Process</a>
+</div>
+</div>
+<div class="lg:col-span-6 relative">
+<div class="absolute -top-20 -right-20 w-96 h-96 bg-secondary/10 rounded-full blur-3xl"></div>
+<div class="relative z-0 aspect-[4/5] bg-surface-container rounded-lg overflow-hidden transform rotate-2">
+<img alt="Shrey Care Botanical Oil" class="w-full h-full object-cover" data-alt="luxury frosted glass amber hair oil bottle with gold dropper lid resting on a textured cream linen fabric with soft botanical shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCk2OIgN4ubCcuiknR8J75yt9TvjoCMqgK6cHI7A6UFwC60CL4ObZ6coD46F9IrmyWYvABg4ilhCaXxfw3oWG0-k_pJKGBpT1MLYMdNDQZV7wEq0QdID0TPkeEs75UeikqR778Bfpo77z1NoPe35eno6IBnIsxbTJ6TYfowetS0NZWktOTY6NiA7yd8LcOhD2mUgryK2inRxc2GYhdp8tAq3BwLJVwn2dOVNVTFQyqUpeC3uO7mCGCsr18pR8qZ-RW5lCmQP7-8EVQ"/>
+</div>
+<div class="absolute -bottom-10 -left-10 z-20 bg-surface-container-lowest p-8 rounded-lg shadow-xl max-w-xs transform -rotate-3 border border-surface-container">
+<p class="text-primary italic font-serif text-xl">"A transformative ritual for the senses and the scalp."</p>
+<p class="text-xs uppercase tracking-widest mt-4 text-on-surface-variant">— Vogue Beauty</p>
+</div>
+</div>
+</div>
+</header>
+<!-- Brand Story Section -->
+<section class="py-32 bg-surface-container">
+<div class="container mx-auto px-10">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+<div class="relative order-2 lg:order-1">
+<div class="grid grid-cols-2 gap-4">
+<img alt="Botanical Ingredients" class="rounded-lg transform translate-y-12" data-alt="close up of dried rosemary sprigs and lavender buds on a light wooden background in soft natural daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAURk_PaEIkyxtYFDk9NUcuYZ7I7cgEMWzx8B4vtpNimLjCFDVZMvNZOmZCxfd71U7wlWr2XCwRIHw889AJmvovYcFgzVRPl_U1iKp0opiIk6xY77m0A_AHqa_AqW-aNeN8GJzrLixv8VTruKm57JwBH56pHgQ1BcEhKN8VdW2TAlR-TU0th7et9NODv0_oA4VKfG2z1aKWQtSmFZLLTAGib3jcLZp6ZSzrxYx8VIN_ENR5w-TiT3DQG9EFB1Y9kp7WZi2WUGhxYgg"/>
+<img alt="Oil Extraction" class="rounded-lg transform -translate-y-8" data-alt="golden oil dripping slowly from a glass pipette into a clear beaker with sunlight refracting through the liquid" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADmuDxNiKUr0FhNzF6FoC3s_tA7K_DZNS5DawAdkej5v1hB_u_T3st98nrcGxpz_XixUDWc9wcItcxKTj0RlIVKRnRtdevQmEcg7lWrZkNrh6lJcyPRMzA3SzZEMT5-23aWuN-CXff607KuEvGK0Y8R1NIX_pp4ydielQy-YjjRks3yTSek05mHI3RN0ctf3vZYeX2qg3RZIqfr_Wla8FKcsOgBLblgBbLH8sciNGHL_ALo1CXWuMKF_ZGf4y1498RPWNGbEgEIUU"/>
+</div>
+</div>
+<div class="space-y-8 order-1 lg:order-2">
+<p class="text-secondary font-bold uppercase tracking-widest text-sm">Our Philosophy</p>
+<h2 class="text-4xl md:text-5xl font-bold text-primary leading-tight">Rooted in Earth, <br/>Refined by Science.</h2>
+<p class="text-on-surface-variant leading-relaxed text-lg">
+                        Shrey Care began in a small greenhouse with a single mission: to provide hair nourishment without compromise. We marry ancient Ayurvedic wisdom with modern extraction techniques to ensure every drop contains the maximum botanical potency.
+                    </p>
+<div class="grid grid-cols-2 gap-8 pt-4">
+<div>
+<p class="text-3xl font-serif text-primary">100%</p>
+<p class="text-sm text-on-surface-variant uppercase tracking-tighter">Organic Sourcing</p>
+</div>
+<div>
+<p class="text-3xl font-serif text-primary">0%</p>
+<p class="text-sm text-on-surface-variant uppercase tracking-tighter">Synthetic Fragrance</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Key Benefits (Bento Style) -->
+<section class="py-32 bg-surface">
+<div class="container mx-auto px-10">
+<div class="text-center max-w-2xl mx-auto mb-20">
+<h2 class="text-4xl font-bold text-primary mb-6">The Trinity of Care</h2>
+<p class="text-on-surface-variant">Three pillars of botanical health designed to restore, rejuvenate, and protect your crown.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Growth -->
+<div class="bg-surface-container-low p-12 rounded-xl group hover:bg-surface-container-high transition-all duration-500">
+<span class="material-symbols-outlined text-4xl text-secondary mb-8">eco</span>
+<h3 class="text-2xl font-bold text-primary mb-4">Lush Growth</h3>
+<p class="text-on-surface-variant leading-relaxed">Infused with rosemary and bhringraj to stimulate the follicle and encourage thicker, fuller hair cycles.</p>
+</div>
+<!-- Shine -->
+<div class="bg-surface-container-low p-12 rounded-xl group hover:bg-surface-container-high transition-all duration-500">
+<span class="material-symbols-outlined text-4xl text-secondary mb-8">flare</span>
+<h3 class="text-2xl font-bold text-primary mb-4">Mirror Shine</h3>
+<p class="text-on-surface-variant leading-relaxed">Argan and Camellia oils smooth the cuticle for a weightless, light-reflecting finish that never feels greasy.</p>
+</div>
+<!-- Strength -->
+<div class="bg-surface-container-low p-12 rounded-xl group hover:bg-surface-container-high transition-all duration-500">
+<span class="material-symbols-outlined text-4xl text-secondary mb-8">shield_with_heart</span>
+<h3 class="text-2xl font-bold text-primary mb-4">True Strength</h3>
+<p class="text-on-surface-variant leading-relaxed">Amla and Vitamin E work to fortify the hair shaft from within, preventing breakage and split ends.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Featured Products -->
+<section class="py-32 bg-surface-container-lowest">
+<div class="container mx-auto px-10">
+<div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+<div>
+<p class="text-secondary font-bold uppercase tracking-widest text-sm mb-4">The Collection</p>
+<h2 class="text-4xl font-bold text-primary">Selected for Your Ritual</h2>
+</div>
+<a class="text-primary font-bold border-b border-primary/20 pb-1" href="#">View All Products</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+<!-- Product 1 -->
+<div class="space-y-6 group">
+<div class="aspect-[3/4] bg-surface-container rounded-lg overflow-hidden relative">
+<img alt="Vitality Hair Oil" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="elegant hair oil bottle on a marble pedestal with a single green leaf leaning against it, high end studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVuq_EgizZQ7sQ73Z5_Q59K1PSYH-CKQexU35PSDKoR-h_u6szv47UyI7apxbhN2nbmEte9_fWny4hFGtyVTFsf1wg4_oPKrLj1HuNtPW2oo2lOOAwhpqHrLUkGvH5x6GjYfVPXXU5BLSm8KgCdrPGCWhAqxio1doc9ZYgWYiAA9tyAbXdmBycSD1nVhKvKXnlF2lls97qM1vEgjosZwtHLgEYdjB3Zc8cm0yoDwQl5ECggS1Zy9GvmxjEMbkzOLOqfFFay62yILQ"/>
+<div class="absolute bottom-4 left-4">
+<span class="bg-surface-container-lowest text-[10px] uppercase tracking-widest px-3 py-1 rounded-full text-primary font-bold">Best Seller</span>
+</div>
+</div>
+<div>
+<h3 class="text-xl font-bold text-primary">Vitality Growth Oil</h3>
+<p class="text-on-surface-variant text-sm mt-1">Rosemary &amp; Peppermint</p>
+<p class="text-secondary font-bold mt-4">$48.00</p>
+</div>
+</div>
+<!-- Product 2 -->
+<div class="space-y-6 group">
+<div class="aspect-[3/4] bg-surface-container rounded-lg overflow-hidden relative">
+<img alt="Radiance Gloss" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="luxury hair serum bottle in dark amber glass with gold lettering, floating over a soft beige background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKsHgsTuknxw1i8EApusBH1mx7vI7G4NcBCX0zhXEf7w6uITmfwvI1vaf2FV3MlRo7JfjJ5dieInXPSQef77yiS-IHNQUaVPeajNQ9YJ4Bj69VXNprI5h_su0L92NaLt5ityaX8L0IE_h1AplklTAVDbMaeTxHgEXk1RPzymJZkfpU1lfOf-WakuqEbJ3oDLgTUn7BM-mm7_pyh-K8hfdg5o1Q1ogOO7iudf8sFvSsCsd5DS8XwZp9ZRZHzY5h06BEILCr4f940J8"/>
+</div>
+<div>
+<h3 class="text-xl font-bold text-primary">Radiance Gloss Serum</h3>
+<p class="text-on-surface-variant text-sm mt-1">Jasmine &amp; Camellia</p>
+<p class="text-secondary font-bold mt-4">$42.00</p>
+</div>
+</div>
+<!-- Product 3 -->
+<div class="space-y-6 group">
+<div class="aspect-[3/4] bg-surface-container rounded-lg overflow-hidden relative">
+<img alt="Deep Repair Oil" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="aesthetic display of botanical beauty products with soft natural shadows and high-end editorial feel" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4ZfV45mNMIGyYeuCWjZYF_gxOfGNSFq8FYfpanZLDXj3lFUwXxsm_gDRNr0X5yPdGkvGavmskvCTgTF38UJQvRa9O6xeMQjZ-X_-I41LBdKIuoc_y2NFSdl5Jmtn9CfU9LvGdlvnd_CSoykfkZEFEOjF9j3Ifbr879ngi9mVGkg-m4Sf9iHOUsQBJxWVF24Ih8Vlbd_rOXlmDIxv-QpVt1X026uxYyk6D_yoNntvHPfKthjTWrv6IpcqN7mB_vkvMQ4QKEFPu3cY"/>
+</div>
+<div>
+<h3 class="text-xl font-bold text-primary">Deep Repair Fusion</h3>
+<p class="text-on-surface-variant text-sm mt-1">Amla &amp; Vitamin E</p>
+<p class="text-secondary font-bold mt-4">$54.00</p>
+</div>
+</div>
+<!-- Product 4 -->
+<div class="space-y-6 group">
+<div class="aspect-[3/4] bg-surface-container rounded-lg overflow-hidden relative">
+<img alt="Nightly Renewal" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="amber glass dropper bottle placed next to fresh green leaves on a smooth neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxaewAdR62hu4hEx_yiODmjxk6LeVvUPOMIz5Z665cKhiUfMYtJ-weX9QXs6Obngnt26uXqZSu8ZVGCQy9JA709vgptCnb_QCC-izxu6NGWnsLnBqHaaA3I9tTsktIUgFJRbI6Rz0lJJLpwmQAKK2Q8qtYU73qyWGFyW3FwKIoFrop5B4NAMqVQ1k7mpvBUOeJg8utiMTMm0wI7EXDsH6Bgrs0ladASZJL60htj_rNkcixg7ogl37Vbq7N2V_dA5drK0awAQtw-FQ"/>
+<div class="absolute bottom-4 left-4">
+<span class="bg-primary text-on-primary text-[10px] uppercase tracking-widest px-3 py-1 rounded-full font-bold">Limited Edition</span>
+</div>
+</div>
+<div>
+<h3 class="text-xl font-bold text-primary">Nightly Renewal Elixir</h3>
+<p class="text-on-surface-variant text-sm mt-1">Lavender &amp; Sandalwood</p>
+<p class="text-secondary font-bold mt-4">$62.00</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Testimonial Section -->
+<section class="py-32 bg-primary text-on-primary relative overflow-hidden">
+<div class="absolute top-0 right-0 opacity-10 pointer-events-none transform translate-x-1/4 -translate-y-1/4">
+<span class="material-symbols-outlined text-[40rem]">spa</span>
+</div>
+<div class="container mx-auto px-10 relative z-10">
+<div class="max-w-4xl mx-auto text-center space-y-12">
+<span class="material-symbols-outlined text-6xl text-secondary">format_quote</span>
+<h2 class="text-4xl md:text-5xl font-serif italic leading-relaxed">
+                    "Since incorporating Shrey Care into my weekly ritual, my hair feels like silk. It's not just an oil, it's a moment of profound self-care that I look forward to every single day."
+                </h2>
+<div class="space-y-2">
+<p class="uppercase tracking-[0.2em] font-bold text-secondary">Elena Rodriguez</p>
+<p class="text-sm opacity-60">Architect &amp; Creative Director</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Newsletter / CTA -->
+<section class="py-32 bg-surface">
+<div class="container mx-auto px-10">
+<div class="bg-surface-container rounded-2xl p-16 flex flex-col md:flex-row items-center justify-between gap-12">
+<div class="md:max-w-md space-y-4">
+<h2 class="text-3xl font-bold text-primary">Join the Atelier</h2>
+<p class="text-on-surface-variant">Receive botanical tips, exclusive early access to small batches, and 10% off your first order.</p>
+</div>
+<div class="w-full md:w-auto flex flex-col sm:flex-row gap-4">
+<input class="bg-surface-container-low border-none focus:ring-1 focus:ring-primary rounded-md px-6 py-4 min-w-[300px]" placeholder="email@example.com" type="email"/>
+<button class="bg-primary text-on-primary px-8 py-4 rounded-md font-bold hover:opacity-90">Subscribe</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-[#f0ede8] dark:bg-[#1c1c19] w-full mt-20">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12 px-10 py-16 max-w-[1440px] mx-auto">
+<div class="space-y-6">
+<div class="font-['Noto_Serif'] text-xl italic text-[#384527]">Shrey Care</div>
+<p class="text-[#45483f] font-['Manrope'] text-sm leading-relaxed max-w-xs">
+                    Curating the world's most potent botanicals for discerning individuals who seek purity and performance in every drop.
+                </p>
+</div>
+<div class="grid grid-cols-2 gap-8">
+<div class="space-y-4">
+<p class="font-['Manrope'] text-sm uppercase tracking-widest text-[#384527] font-bold">Discover</p>
+<ul class="space-y-2">
+<li><a class="font-['Manrope'] text-sm uppercase tracking-widest text-[#45483f] hover:text-[#745b1c] transition-colors duration-300" href="#">Newsletter</a></li>
+<li><a class="font-['Manrope'] text-sm uppercase tracking-widest text-[#45483f] hover:text-[#745b1c] transition-colors duration-300" href="#">Customer Service</a></li>
+<li><a class="font-['Manrope'] text-sm uppercase tracking-widest text-[#45483f] hover:text-[#745b1c] transition-colors duration-300" href="#">Sustainability</a></li>
+</ul>
+</div>
+<div class="space-y-4">
+<p class="font-['Manrope'] text-sm uppercase tracking-widest text-[#384527] font-bold">Social</p>
+<ul class="space-y-2">
+<li><a class="font-['Manrope'] text-sm uppercase tracking-widest text-[#45483f] hover:text-[#745b1c] transition-colors duration-300" href="#">Instagram</a></li>
+<li><a class="font-['Manrope'] text-sm uppercase tracking-widest text-[#45483f] hover:text-[#745b1c] transition-colors duration-300" href="#">Pinterest</a></li>
+<li><a class="font-['Manrope'] text-sm uppercase tracking-widest text-[#45483f] hover:text-[#745b1c] transition-colors duration-300" href="#">Privacy Policy</a></li>
+</ul>
+</div>
+</div>
+<div class="space-y-6 md:text-right">
+<p class="text-[#45483f] font-['Manrope'] text-sm uppercase tracking-widest">© 2024 Shrey Care. The Botanical Atelier.</p>
+<div class="flex md:justify-end space-x-4">
+<span class="material-symbols-outlined text-[#384527]">spa</span>
+<span class="material-symbols-outlined text-[#384527]">eco</span>
+<span class="material-symbols-outlined text-[#384527]">fluid_med</span>
+</div>
+</div>
+</div>
+</footer>
+</body></html>
