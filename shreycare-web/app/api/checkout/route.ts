@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import { sanityClient } from "@/lib/sanity/client";
 import { productBySlugQuery } from "@/lib/sanity/queries";
 import type { CartItem } from "@/lib/cart/types";
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       })
     );
 
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       mode: "payment",
       line_items: lineItems,
       shipping_address_collection: { allowed_countries: ["CA"] },

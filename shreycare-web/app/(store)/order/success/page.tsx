@@ -1,4 +1,4 @@
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -21,7 +21,7 @@ export default async function OrderSuccessPage({
     );
   }
 
-  const session = await stripe.checkout.sessions.retrieve(params.session_id, {
+  const session = await getStripe().checkout.sessions.retrieve(params.session_id, {
     expand: ["line_items"],
   });
 
