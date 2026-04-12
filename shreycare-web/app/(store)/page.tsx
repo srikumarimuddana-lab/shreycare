@@ -7,7 +7,20 @@ import { FeaturedProducts } from "@/components/sections/FeaturedProducts";
 import { Testimonial } from "@/components/sections/Testimonial";
 import { NewsletterSignup } from "@/components/sections/NewsletterSignup";
 
+import type { Metadata } from "next";
+
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "Premium Botanical Hair Care",
+  description: "Discover our premium botanical hair care collection. Nourish your hair with cold-pressed oils and rare herbs. Rooted in Nature, Elevated by Science.",
+  keywords: ["botanical hair care", "organic hair oil", "natural hair growth", "ayurvedic hair care"],
+  openGraph: {
+    title: "Premium Botanical Hair Care | ShreyCare Organics",
+    description: "Discover our premium botanical hair care collection. Rooted in Nature, Elevated by Science.",
+    type: "website",
+  }
+};
 
 export default async function HomePage() {
   const [products, pageContent] = await Promise.all([
@@ -16,7 +29,7 @@ export default async function HomePage() {
   ]);
 
   return (
-    <>
+    <main id="main-content">
       <Hero
         headline={pageContent?.heroHeadline}
         subtext={pageContent?.heroSubtext}
@@ -27,6 +40,6 @@ export default async function HomePage() {
       <FeaturedProducts products={products} />
       <Testimonial testimonial={pageContent?.testimonials?.[0]} />
       <NewsletterSignup />
-    </>
+    </main>
   );
 }

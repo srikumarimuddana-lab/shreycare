@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     }
 
     await resend.emails.send({
-      from: "Shrey Care Contact <onboarding@resend.dev>",
+      from: "ShreyCare Organics Contact <onboarding@resend.dev>",
       to: ["contact@shreycare.com"],
       subject: `Contact Form: ${subject || "General Inquiry"}`,
       text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\n\n${message}`,

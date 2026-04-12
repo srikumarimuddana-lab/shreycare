@@ -1,21 +1,21 @@
 const benefits = [
   {
-    icon: "🌿",
+    icon: "eco",
     title: "Lush Growth",
     description:
-      "Infused with rosemary and bhringraj to stimulate the follicle and encourage thicker, fuller hair cycles.",
+      "Infused botanical blend that nourishes roots for fuller, healthier-looking hair growth.",
   },
   {
-    icon: "✨",
-    title: "Mirror Shine",
+    icon: "flare",
+    title: "Radiant Shine",
     description:
-      "Argan and Camellia oils smooth the cuticle for a weightless, light-reflecting finish that never feels greasy.",
+      "Herbal mix that smooths strands and restores natural glossy, mirror-like shine.",
   },
   {
-    icon: "🛡️",
-    title: "True Strength",
+    icon: "shield_with_heart",
+    title: "Deep Strength",
     description:
-      "Amla and Vitamin E work to fortify the hair shaft from within, preventing breakage and split ends.",
+      "Potent plant actives that strengthen hair follicles and help reduce breakage over time.",
   },
 ];
 
@@ -28,7 +28,7 @@ export function BenefitsTrinity() {
             The Trinity of Care
           </h2>
           <p className="text-on-surface-variant">
-            Three pillars of botanical health designed to restore, rejuvenate,
+            Three pillars of botanical health designed to restore, revive,
             and protect your crown.
           </p>
         </div>
@@ -38,7 +38,9 @@ export function BenefitsTrinity() {
               key={benefit.title}
               className="bg-surface-container-low p-12 rounded-lg group hover:bg-surface-container-high transition-all duration-500"
             >
-              <div className="text-4xl mb-8">{benefit.icon}</div>
+              <span className="material-symbols-outlined text-4xl text-secondary mb-8 block">
+                {benefit.icon}
+              </span>
               <h3 className="text-2xl font-bold text-primary mb-4">
                 {benefit.title}
               </h3>

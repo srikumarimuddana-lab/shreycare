@@ -27,7 +27,7 @@ export function Button({
 
   if (href) {
     return (
-      <a href={href} className={styles}>
+      <a href={href} className={styles} {...(props as any)}>
         {children}
       </a>
     );

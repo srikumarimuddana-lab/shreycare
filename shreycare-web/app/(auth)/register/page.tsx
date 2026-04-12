@@ -32,7 +32,7 @@ export default function RegisterPage() {
     <div className="space-y-8">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-primary">Join the Atelier</h1>
-        <p className="text-on-surface-variant mt-2">Create your Shrey Care account</p>
+        <p className="text-on-surface-variant mt-2">Create your ShreyCare Organics account</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">

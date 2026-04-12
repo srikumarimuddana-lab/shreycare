@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "About Us",
   description:
-    "Beauty rooted in nature. Learn about Shrey Care's mission, ingredients, and botanical heritage.",
+    "Beauty rooted in nature. Learn about ShreyCare Organics's mission, ingredients, and botanical heritage.",
 };
 
 export default function AboutPage() {
@@ -18,7 +18,7 @@ export default function AboutPage() {
               <span className="italic font-normal">In Nature</span>
             </h1>
             <p className="text-on-surface-variant text-lg leading-relaxed max-w-lg">
-              Shrey Care was born from a belief that nature provides everything
+              ShreyCare Organics was born from a belief that nature provides everything
               our hair needs to thrive. We source the finest botanicals and
               craft them into luxurious formulations using time-honored Ayurvedic
               methods refined by modern science.
@@ -42,7 +42,7 @@ export default function AboutPage() {
             From the Garden to the Atelier
           </h2>
           <p className="text-on-surface-variant text-lg leading-relaxed">
-            Every Shrey Care product begins its journey in carefully tended
+            Every ShreyCare Organics product begins its journey in carefully tended
             botanical gardens. Our cold-pressed extraction process preserves
             the full spectrum of nutrients, ensuring that each bottle delivers
             the potency nature intended.

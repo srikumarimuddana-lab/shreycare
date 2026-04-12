@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "FAQ",
-  description: "Frequently asked questions about Shrey Care products, shipping, and orders.",
+  description: "Frequently asked questions about ShreyCare Organics products, shipping, and orders.",
 };
 
 export const revalidate = 60;

@@ -8,8 +8,8 @@ interface HeroProps {
 }
 
 export function Hero({
-  headline = "Nurture Your Hair with Nature's Finest",
-  subtext = "Experience the botanical alchemy of cold-pressed oils and rare herbal infusions. Crafted in small batches for the modern atelier.",
+  headline = "Nourish Your Hair with Nature's Essence",
+  subtext = "A rich blend of cold-pressed oils and rare herbs, traditionally processed to enhance natural potency and care.",
   ctaText = "Shop Collection",
 }: HeroProps) {
   return (
@@ -20,8 +20,8 @@ export function Hero({
             The Essence of Purity
           </p>
           <h1 className="text-5xl md:text-7xl font-bold text-primary leading-tight tracking-tighter">
-            Nurture Your Hair with <br />
-            <span className="italic font-normal">Nature&apos;s Finest</span>
+            Nourish Your Hair with <br />
+            <span className="italic font-normal">Nature&apos;s Essence</span>
           </h1>
           <p className="text-lg text-on-surface-variant max-w-lg leading-relaxed">
             {subtext}
@@ -38,7 +38,7 @@ export function Hero({
           <div className="relative z-0 aspect-[4/5] bg-surface-container rounded-lg overflow-hidden transform rotate-2">
             <Image
               src="/images/hero-product.jpg"
-              alt="Shrey Care Botanical Oil"
+              alt="ShreyCare Organics Botanical Oil"
               fill
               className="object-cover"
               sizes="(max-width: 1024px) 100vw, 50vw"

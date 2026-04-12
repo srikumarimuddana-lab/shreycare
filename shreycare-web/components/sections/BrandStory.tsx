@@ -28,26 +28,24 @@ export function BrandStory() {
               Our Philosophy
             </p>
             <h2 className="text-4xl md:text-5xl font-bold text-primary leading-tight">
-              Rooted in Earth, <br />
-              Refined by Science.
+              Rooted in Nature, <br />
+              Elevated by Science.
             </h2>
             <p className="text-on-surface-variant leading-relaxed text-lg">
-              Shrey Care began in a small greenhouse with a single mission: to
-              provide hair nourishment without compromise. We marry ancient
-              Ayurvedic wisdom with modern extraction techniques to ensure every
-              drop contains the maximum botanical potency.
+              ShreyCare Organics began with a simple mission: honest hair nourishment. Rooted in Ayurveda and refined
+              through modern science, every drop is made to deliver real care.
             </p>
             <div className="grid grid-cols-2 gap-8 pt-4">
               <div>
                 <p className="text-3xl font-headline text-primary">100%</p>
                 <p className="text-sm text-on-surface-variant uppercase tracking-tighter">
-                  Organic Sourcing
+                  Nature Sourced
                 </p>
               </div>
               <div>
                 <p className="text-3xl font-headline text-primary">0%</p>
                 <p className="text-sm text-on-surface-variant uppercase tracking-tighter">
-                  Synthetic Fragrance
+                  Artificial Additives
                 </p>
               </div>
             </div>

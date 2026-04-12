@@ -18,9 +18,10 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://shreycare.com'),
   title: {
-    default: "Shrey Care | The Botanical Atelier",
-    template: "%s | Shrey Care",
+    default: "ShreyCare Organics | Where Nature Leads",
+    template: "%s | ShreyCare Organics",
   },
   description:
     "Luxury botanical hair care crafted with cold-pressed oils and rare herbal infusions. Rooted in Ayurveda, refined by science.",
@@ -33,6 +34,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${notoSerif.variable} ${manrope.variable}`}>
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+      </head>
       <body>
         <Providers>{children}</Providers>
       </body>

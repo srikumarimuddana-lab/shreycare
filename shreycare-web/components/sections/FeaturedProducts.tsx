@@ -16,7 +16,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
               The Collection
             </p>
             <h2 className="text-4xl font-bold text-primary">
-              Selected for Your Ritual
+              Curated for Your Ritual
             </h2>
           </div>
           <a

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const discoverLinks = [
   { href: "/blog", label: "Journal" },
@@ -17,12 +18,21 @@ export function Footer() {
     <footer className="bg-surface-container">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-12 px-6 md:px-10 py-16 max-w-[1440px] mx-auto">
         <div className="space-y-6">
-          <div className="font-headline text-xl italic text-primary">
-            Shrey Care
+          <div className="flex items-center gap-3">
+            <Image
+              src="/images/logo.png"
+              alt="ShreyCare Organics Logo"
+              width={48}
+              height={48}
+              className="object-contain rounded-full"
+            />
+            <div className="font-headline text-xl italic text-primary">
+              ShreyCare Organics
+            </div>
           </div>
           <p className="text-on-surface-variant text-sm leading-relaxed max-w-xs">
-            Curating the world&apos;s most potent botanicals for discerning
-            individuals who seek purity and performance in every drop.
+            Formulating the world's most potent herbal ingredients for quality-conscious individuals who seek pure care
+            and proven results in every drop.
           </p>
         </div>
 
@@ -67,8 +77,13 @@ export function Footer() {
 
         <div className="space-y-6 md:text-right">
           <p className="text-on-surface-variant text-sm uppercase tracking-widest">
-            &copy; {new Date().getFullYear()} Shrey Care. The Botanical Atelier.
+            &copy; {new Date().getFullYear()} ShreyCare Organics. Where Nature Leads
           </p>
+          <div className="flex md:justify-end space-x-4">
+            <span className="material-symbols-outlined text-primary">spa</span>
+            <span className="material-symbols-outlined text-primary">eco</span>
+            <span className="material-symbols-outlined text-primary">fluid_med</span>
+          </div>
         </div>
       </div>
     </footer>

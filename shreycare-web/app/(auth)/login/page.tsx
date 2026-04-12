@@ -32,7 +32,7 @@ export default function LoginPage() {
     <div className="space-y-8">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-primary">Welcome Back</h1>
-        <p className="text-on-surface-variant mt-2">Sign in to your Shrey Care account</p>
+        <p className="text-on-surface-variant mt-2">Sign in to your ShreyCare Organics account</p>
       </div>
 
       <div className="flex items-center gap-4">

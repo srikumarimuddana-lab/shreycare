@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { MobileMenu } from "./MobileMenu";
 
@@ -8,7 +9,7 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/products", label: "Catalog" },
   { href: "/about", label: "About" },
-  { href: "/blog", label: "Journal" },
+  { href: "/ingredients", label: "Ingredients" },
 ];
 
 const paymentsEnabled = process.env.NEXT_PUBLIC_PAYMENTS_ENABLED === "true";
@@ -24,11 +25,17 @@ export function Navbar({ cartItemCount, onCartClick }: NavbarProps) {
   return (
     <nav className="fixed top-0 w-full z-50 bg-surface/80 glass-nav">
       <div className="flex justify-between items-center px-6 md:px-10 py-6 max-w-[1440px] mx-auto">
-        <Link
-          href="/"
-          className="font-headline text-2xl font-bold text-primary tracking-tighter"
-        >
-          Shrey Care
+        <Link href="/" className="flex items-center gap-3">
+          <Image
+            src="/images/logo.png"
+            alt="ShreyCare Organics Logo"
+            width={36}
+            height={36}
+            className="object-contain rounded-full"
+          />
+          <span className="font-headline text-2xl font-bold text-primary tracking-tighter">
+            ShreyCare Organics
+          </span>
         </Link>
 
         <div className="hidden md:flex space-x-12 items-center">

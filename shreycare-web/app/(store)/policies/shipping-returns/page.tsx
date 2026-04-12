@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Shipping & Returns",
-  description: "Shrey Care shipping and returns policy for Canadian orders.",
+  description: "ShreyCare Organics shipping and returns policy for Canadian orders.",
 };
 
 export const revalidate = 60;

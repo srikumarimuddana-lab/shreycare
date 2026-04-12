@@ -33,11 +33,11 @@ export function NewsletterSignup() {
         <div className="bg-surface-container rounded-2xl p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-12">
           <div className="md:max-w-md space-y-4">
             <h2 className="text-3xl font-bold text-primary">
-              Join the Atelier
+              Join ShreyCare Organics
             </h2>
             <p className="text-on-surface-variant">
-              Receive botanical tips, exclusive early access to small batches,
-              and 10% off your first order.
+              Get early access to small batches, exclusive offers and 10% off your first
+              order.
             </p>
           </div>
           <form
