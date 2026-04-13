@@ -38,7 +38,7 @@ export function ProductCard({
       </div>
       <div>
         <h3 className="text-xl font-bold text-primary">{name}</h3>
-        {subtitle && <p className="text-on-surface-variant text-sm mt-1">{subtitle}</p>}
+        {subtitle && <p className="text-on-surface-variant text-sm mt-1 line-clamp-2">{subtitle}</p>}
         <p className="text-secondary font-bold mt-4">
           ${price.toFixed(2)} CAD
         </p>

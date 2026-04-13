@@ -71,6 +71,7 @@ export default async function ProductCatalogPage({
               key={product._id}
               name={product.name}
               slug={product.slug}
+              subtitle={product.description}
               price={product.price}
               imageUrl={
                 product.images?.[0]
