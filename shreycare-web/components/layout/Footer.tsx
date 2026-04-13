@@ -18,14 +18,17 @@ export function Footer() {
     <footer className="bg-surface-container">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-12 px-6 md:px-10 py-16 max-w-[1440px] mx-auto">
         <div className="space-y-6">
-          <div className="flex items-center">
+          <div className="flex items-center gap-3">
             <Image
               src="/images/logo.png"
               alt="ShreyCare Organics — Hair Oil, Ayurvedic"
               width={200}
               height={200}
-              className="h-20 w-auto object-contain"
+              className="h-16 w-16 object-contain"
             />
+            <div className="font-headline text-xl italic text-primary">
+              ShreyCare Organics
+            </div>
           </div>
           <p className="text-on-surface-variant text-sm leading-relaxed max-w-xs">
             Formulating the world's most potent herbal ingredients for quality-conscious individuals who seek pure care
