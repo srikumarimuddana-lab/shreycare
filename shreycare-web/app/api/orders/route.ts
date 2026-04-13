@@ -7,9 +7,15 @@ import type { CartItem } from "@/lib/cart/types";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const ADMIN_EMAIL = process.env.ORDER_ADMIN_EMAIL || "contact@shreycare.com";
+// The FROM address is a no-reply mailbox — customers should not reply to it
+// because nobody reads it. Any replies they hit should go to support instead
+// (see SUPPORT_EMAIL below, which we also set as Reply-To on the customer
+// confirmation email).
 const FROM_EMAIL =
   process.env.ORDER_FROM_EMAIL ||
-  "ShreyCare Organics <onboarding@resend.dev>";
+  "ShreyCare Organics <no-reply@shreycare.com>";
+const SUPPORT_EMAIL =
+  process.env.ORDER_SUPPORT_EMAIL || "contact@shreycare.com";
 const CURRENCY = process.env.NEXT_PUBLIC_STORE_CURRENCY || "CAD";
 
 interface OrderPayload {
@@ -207,9 +213,9 @@ ${itemsTextBlock}
 
 Subtotal: ${CURRENCY} ${subtotal.toFixed(2)}
 
-Our team will reply to this email shortly with payment instructions. Once we confirm payment, we'll ship your order and send a shipping update.
+Our team will contact you shortly with payment instructions. Once we confirm payment, we'll ship your order and send a shipping update.
 
-If you have questions, reply to this email.
+This is an automated message from a no-reply address. For any questions about your order, please email us at ${SUPPORT_EMAIL}.
 
 — ShreyCare Organics
 `;
@@ -246,7 +252,12 @@ If you have questions, reply to this email.
     </tbody>
   </table>
 
-  <p style="margin-top:24px;">Rooted in nature, crafted with care.<br/>— The ShreyCare Organics team</p>
+  <p style="margin-top:24px;color:#45483f;font-size:12px;">
+    This is an automated message from a no-reply address. For questions
+    about your order, please email
+    <a href="mailto:${escapeHtml(SUPPORT_EMAIL)}">${escapeHtml(SUPPORT_EMAIL)}</a>.
+  </p>
+  <p style="margin-top:16px;">Rooted in nature, crafted with care.<br/>— The ShreyCare Organics team</p>
 </div>`;
 
     // Send admin first (most important). If it fails, log the real Resend
@@ -276,6 +287,9 @@ If you have questions, reply to this email.
       .send({
         from: FROM_EMAIL,
         to: [customer.email],
+        // If the customer hits Reply on the confirmation, route it to
+        // support rather than the unmonitored no-reply mailbox.
+        replyTo: SUPPORT_EMAIL,
         subject: customerSubject,
         text: customerText,
         html: customerHtml,
