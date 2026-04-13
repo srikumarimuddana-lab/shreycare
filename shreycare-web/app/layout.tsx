@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { Noto_Serif, Manrope } from "next/font/google";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { Providers } from "./providers";
 import "./globals.css";
+
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-ZJCHBKZGPL";
 
 const notoSerif = Noto_Serif({
   subsets: ["latin"],
@@ -40,6 +43,7 @@ export default function RootLayout({
       <body>
         <Providers>{children}</Providers>
       </body>
+      {GA_MEASUREMENT_ID && <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />}
     </html>
   );
 }
