@@ -40,12 +40,12 @@ export default async function ProductCatalogPage({
   return (
     <section className="py-16 bg-surface min-h-screen">
       <div className="container mx-auto px-6 md:px-10">
-        <div className="mb-16">
-          <p className="text-secondary font-bold uppercase tracking-widest text-sm mb-4">
-            The Collection
+        <div className="mb-20">
+          <p className="font-label text-xs uppercase tracking-widest text-secondary mb-4">
+            The Botanical Atelier
           </p>
-          <h1 className="text-4xl md:text-5xl font-bold text-primary italic">
-            Curated Elixirs for Organic Radiance
+          <h1 className="font-headline text-[3.5rem] leading-none tracking-tight text-primary max-w-2xl">
+            Curated Elixirs for <span className="italic">Organic Radiance</span>
           </h1>
         </div>
 
