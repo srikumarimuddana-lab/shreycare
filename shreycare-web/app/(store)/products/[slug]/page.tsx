@@ -90,8 +90,8 @@ export default async function ProductDetailPage({
               <div className="space-y-3">
                 <h3 className="text-sm uppercase tracking-widest text-primary font-bold">Key Ingredients</h3>
                 <div className="flex flex-wrap gap-2">
-                  {product.ingredients.map((ing) => (
-                    <span key={ing} className="bg-surface-container-low px-4 py-2 rounded-md text-sm text-on-surface-variant">
+                  {product.ingredients.map((ing, i) => (
+                    <span key={`${ing}-${i}`} className="bg-surface-container-low px-4 py-2 rounded-md text-sm text-on-surface-variant">
                       {ing}
                     </span>
                   ))}
