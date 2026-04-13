@@ -21,7 +21,7 @@ interface CustomerInput {
 const initial: CustomerInput = {
   name: "",
   email: "",
-  phone: "",
+  phone: "+1 ",
   addressLine1: "",
   addressLine2: "",
   city: "",
