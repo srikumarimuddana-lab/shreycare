@@ -6,8 +6,6 @@ import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/layout/CartDrawer";
 import { useCart } from "@/lib/cart/CartContext";
 
-const paymentsEnabled = process.env.NEXT_PUBLIC_PAYMENTS_ENABLED === "true";
-
 export default function StoreLayout({
   children,
 }: {
@@ -22,9 +20,7 @@ export default function StoreLayout({
       <Navbar cartItemCount={itemCount} onCartClick={() => setCartOpen(true)} />
       <main className="pt-20">{children}</main>
       <Footer />
-      {paymentsEnabled && (
-        <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
-      )}
+      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
     </>
   );
 }

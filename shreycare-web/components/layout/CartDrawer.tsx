@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useCart } from "@/lib/cart/CartContext";
 
 interface CartDrawerProps {
@@ -10,18 +11,6 @@ interface CartDrawerProps {
 
 export function CartDrawer({ open, onClose }: CartDrawerProps) {
   const { state, removeItem, updateQuantity, total } = useCart();
-
-  async function handleCheckout() {
-    const res = await fetch("/api/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items: state.items }),
-    });
-    const data = await res.json();
-    if (data.url) {
-      window.location.href = data.url;
-    }
-  }
 
   if (!open) return null;
 
@@ -116,12 +105,16 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                   ${total.toFixed(2)} CAD
                 </span>
               </div>
-              <button
-                onClick={handleCheckout}
-                className="w-full bg-primary text-on-primary py-4 rounded-md font-bold hover:opacity-90 transition-all active:scale-[0.98]"
+              <Link
+                href="/checkout"
+                onClick={onClose}
+                className="block w-full text-center bg-primary text-on-primary py-4 rounded-md font-bold hover:opacity-90 transition-all active:scale-[0.98]"
               >
                 Proceed to Checkout
-              </button>
+              </Link>
+              <p className="text-xs text-on-surface-variant text-center">
+                Place your order and our team will email you payment instructions.
+              </p>
             </div>
           </>
         )}

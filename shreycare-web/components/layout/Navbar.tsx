@@ -9,10 +9,7 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/products", label: "Catalog" },
   { href: "/about", label: "About" },
-  { href: "/ingredients", label: "Ingredients" },
 ];
-
-const paymentsEnabled = process.env.NEXT_PUBLIC_PAYMENTS_ENABLED === "true";
 
 interface NavbarProps {
   cartItemCount: number;
@@ -52,24 +49,22 @@ export function Navbar({ cartItemCount, onCartClick }: NavbarProps) {
         </div>
 
         <div className="flex items-center space-x-6">
-          {paymentsEnabled && (
-            <button
-              onClick={onCartClick}
-              className="relative text-primary hover:opacity-80 transition-transform duration-200 active:scale-95"
-              aria-label="Open cart"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
-                <line x1="3" y1="6" x2="21" y2="6"/>
-                <path d="M16 10a4 4 0 01-8 0"/>
-              </svg>
-              {cartItemCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-secondary text-on-secondary text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                  {cartItemCount}
-                </span>
-              )}
-            </button>
-          )}
+          <button
+            onClick={onCartClick}
+            className="relative text-primary hover:opacity-80 transition-transform duration-200 active:scale-95"
+            aria-label="Open cart"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <path d="M16 10a4 4 0 01-8 0"/>
+            </svg>
+            {cartItemCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-secondary text-on-secondary text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                {cartItemCount}
+              </span>
+            )}
+          </button>
 
           <button
             onClick={() => setMobileOpen(true)}

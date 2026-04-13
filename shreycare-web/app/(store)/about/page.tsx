@@ -20,8 +20,8 @@ export default function AboutPage() {
             <p className="text-on-surface-variant text-lg leading-relaxed max-w-lg">
               ShreyCare Organics was born from a belief that nature provides everything
               our hair needs to thrive. We source the finest botanicals and
-              craft them into luxurious formulations using time-honored Ayurvedic
-              methods refined by modern science.
+              craft them into luxurious formulations using time-honoured
+              Ayurvedic methods rooted in ancient herbal wisdom.
             </p>
           </div>
           <div className="aspect-[4/5] bg-surface-container rounded-lg overflow-hidden relative">
@@ -60,19 +60,19 @@ export default function AboutPage() {
         <div className="container mx-auto px-6 md:px-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className="space-y-8">
             <h2 className="text-3xl md:text-4xl font-bold">
-              Where Science Meets Spirit
+              Where Herbs Meet Spirit
             </h2>
             <p className="text-on-primary/80 text-lg leading-relaxed">
-              Our formulations are developed in collaboration with
-              trichologists and Ayurvedic practitioners. We test every batch
-              for potency and purity, combining the wisdom of ancient
-              traditions with rigorous modern standards.
+              Our formulations are developed in collaboration with Ayurvedic
+              practitioners and master herbalists. Every batch is crafted with
+              botanicals chosen for their traditional potency and purity —
+              guided by the same herbal wisdom that has nourished generations.
             </p>
           </div>
           <div className="aspect-video bg-primary-container rounded-lg overflow-hidden relative">
             <Image
               src="/images/about-science.jpg"
-              alt="Science and nature"
+              alt="Hand-harvested herbs and botanicals"
               fill
               className="object-cover"
               sizes="(max-width: 1024px) 100vw, 50vw"

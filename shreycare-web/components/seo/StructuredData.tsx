@@ -29,7 +29,7 @@ export function OrganizationSchema({ siteUrl = DEFAULT_SITE_URL }: { siteUrl?: s
         url: siteUrl,
         logo: `${siteUrl}/images/logo.png`,
         description:
-          "Luxury botanical hair care crafted with cold-pressed oils and rare herbal infusions. Rooted in Ayurveda, refined by science.",
+          "Luxury botanical hair care crafted with cold-pressed oils and rare herbal infusions. Rooted in Ayurveda, blended with ancient herbal wisdom.",
         sameAs: [
           "https://www.instagram.com/shreycareorganics",
           "https://www.pinterest.com/shreycareorganics",

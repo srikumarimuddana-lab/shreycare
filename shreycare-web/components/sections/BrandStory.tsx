@@ -29,11 +29,12 @@ export function BrandStory() {
             </p>
             <h2 className="text-4xl md:text-5xl font-bold text-primary leading-tight">
               Rooted in Nature, <br />
-              Elevated by Science.
+              Blended with Ayurveda.
             </h2>
             <p className="text-on-surface-variant leading-relaxed text-lg">
-              ShreyCare Organics began with a simple mission: honest hair nourishment. Rooted in Ayurveda and refined
-              through modern science, every drop is made to deliver real care.
+              ShreyCare Organics began with a simple mission: honest hair
+              nourishment. Rooted in Ayurveda and crafted with time-honoured
+              herbal wisdom, every drop is made to deliver real care.
             </p>
             <div className="grid grid-cols-2 gap-8 pt-4">
               <div>

@@ -28,7 +28,7 @@ const manrope = Manrope({
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://shreycare.com";
 const SITE_DESCRIPTION =
-  "Luxury botanical hair care crafted with cold-pressed oils and rare herbal infusions. Rooted in Ayurveda, refined by science.";
+  "Luxury botanical hair care crafted with cold-pressed oils and rare herbal infusions. Rooted in Ayurveda, blended with ancient herbal wisdom.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

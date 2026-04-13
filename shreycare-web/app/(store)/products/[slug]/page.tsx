@@ -187,7 +187,7 @@ export default async function ProductDetailPage({
               {[
                 { icon: "eco", label: "100% Organic" },
                 { icon: "cruelty_free", label: "Cruelty Free" },
-                { icon: "science", label: "Lab Tested" }
+                { icon: "spa", label: "Herb-Crafted" }
               ].map((item) => (
                 <div key={item.label} className="text-center">
                   <span className="material-symbols-outlined text-secondary text-3xl">{item.icon}</span>

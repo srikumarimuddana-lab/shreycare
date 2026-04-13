@@ -13,11 +13,11 @@ export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Premium Botanical Hair Care",
-  description: "Discover our premium botanical hair care collection. Nourish your hair with cold-pressed oils and rare herbs. Rooted in Nature, Elevated by Science.",
+  description: "Discover our premium botanical hair care collection. Nourish your hair with cold-pressed oils and rare herbs. Rooted in Nature, Blended with Ayurveda.",
   keywords: ["botanical hair care", "organic hair oil", "natural hair growth", "ayurvedic hair care"],
   openGraph: {
     title: "Premium Botanical Hair Care | ShreyCare Organics",
-    description: "Discover our premium botanical hair care collection. Rooted in Nature, Elevated by Science.",
+    description: "Discover our premium botanical hair care collection. Rooted in Nature, Blended with Ayurveda.",
     type: "website",
   }
 };
