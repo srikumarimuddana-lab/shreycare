@@ -27,7 +27,7 @@ const initial: CustomerInput = {
   city: "",
   state: "",
   postalCode: "",
-  country: "India",
+  country: "Canada",
   notes: "",
 };
 

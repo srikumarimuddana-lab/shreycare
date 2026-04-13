@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     url: SITE_URL,
     title: "ShreyCare Organics | Where Nature Leads",
     description: SITE_DESCRIPTION,
-    locale: "en_IN",
+    locale: "en_CA",
     images: [
       {
         url: "/images/logo.png",
