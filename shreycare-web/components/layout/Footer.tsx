@@ -20,14 +20,19 @@ export function Footer() {
         <div className="space-y-6">
           <div className="flex items-center gap-3">
             <Image
-              src="/images/logo.png"
+              src="/images/logo.svg"
               alt="ShreyCare Organics Logo"
-              width={48}
-              height={48}
-              className="object-contain rounded-full"
+              width={52}
+              height={62}
+              className="object-contain"
             />
-            <div className="font-headline text-xl italic text-primary">
-              ShreyCare Organics
+            <div className="flex flex-col leading-tight">
+              <div className="font-headline text-xl italic text-primary">
+                ShreyCare Organics
+              </div>
+              <div className="text-[10px] uppercase tracking-[0.25em] text-on-surface-variant mt-1">
+                Hair Oil &middot; Ayurvedic
+              </div>
             </div>
           </div>
           <p className="text-on-surface-variant text-sm leading-relaxed max-w-xs">
