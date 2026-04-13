@@ -2,13 +2,28 @@ import { sanityClient } from "@/lib/sanity/client";
 import { allFaqsQuery } from "@/lib/sanity/queries";
 import { AccordionItem } from "@/components/ui/Accordion";
 import { PortableText } from "next-sanity";
-import type { FAQ } from "@/types";
+import { FAQSchema } from "@/components/seo/StructuredData";
+import type { FAQ, PortableTextBlock } from "@/types";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "FAQ",
   description: "Frequently asked questions about ShreyCare Organics products, shipping, and orders.",
 };
+
+// Flatten Portable Text blocks to plain text for FAQPage structured data.
+// Google's FAQ rich result requires a plain-text answer string.
+function portableTextToPlain(blocks: PortableTextBlock[] | undefined): string {
+  if (!blocks) return "";
+  return blocks
+    .filter((b) => b._type === "block")
+    .map((b) => {
+      const children = (b.children as Array<{ text?: string }> | undefined) ?? [];
+      return children.map((c) => c.text ?? "").join("");
+    })
+    .join("\n")
+    .trim();
+}
 
 export const revalidate = 60;
 
@@ -29,8 +44,16 @@ export default async function FAQPage() {
     return acc;
   }, {});
 
+  const schemaFaqs = faqs
+    .map((f) => ({
+      question: f.question,
+      answer: portableTextToPlain(f.answer),
+    }))
+    .filter((f) => f.question && f.answer);
+
   return (
     <section className="py-16 bg-surface min-h-screen">
+      {schemaFaqs.length > 0 && <FAQSchema faqs={schemaFaqs} />}
       <div className="container mx-auto px-6 md:px-10 max-w-3xl">
         <div className="mb-16">
           <p className="text-secondary font-bold uppercase tracking-widest text-sm mb-4">

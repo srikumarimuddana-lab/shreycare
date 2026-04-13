@@ -6,8 +6,15 @@ import { productBySlugQuery, allProductsQuery, featuredProductsQuery } from "@/l
 import { urlFor } from "@/lib/sanity/image";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { AddToCartButton } from "./AddToCartButton";
+import {
+  BreadcrumbSchema,
+  ProductSchema,
+} from "@/components/seo/StructuredData";
 import type { Product } from "@/types";
 import type { Metadata } from "next";
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://shreycare.com";
 
 export const revalidate = 60;
 
@@ -24,7 +31,30 @@ export async function generateMetadata({
   const { slug } = await params;
   const product: Product | null = await sanityClient.fetch(productBySlugQuery, { slug });
   if (!product) return {};
-  return { title: product.name, description: product.description };
+
+  const ogImage = product.images?.[0]
+    ? urlFor(product.images[0]).width(1200).height(1200).url()
+    : "/images/logo.png";
+  const url = `/products/${slug}`;
+
+  return {
+    title: product.name,
+    description: product.description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "website",
+      url,
+      title: product.name,
+      description: product.description,
+      images: [{ url: ogImage, width: 1200, height: 1200, alt: product.name }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.name,
+      description: product.description,
+      images: [ogImage],
+    },
+  };
 }
 
 export default async function ProductDetailPage({
@@ -44,8 +74,31 @@ export default async function ProductDetailPage({
     ? urlFor(product.images[0]).width(800).height(1000).url()
     : "/images/placeholder-product.jpg";
 
+  const schemaImages = (product.images ?? [])
+    .slice(0, 6)
+    .map((img) => urlFor(img).width(1200).height(1200).url());
+
   return (
     <div className="bg-surface min-h-screen">
+      <ProductSchema
+        name={product.name}
+        slug={product.slug}
+        description={product.description}
+        price={product.price}
+        currency="CAD"
+        images={schemaImages.length ? schemaImages : [`${SITE_URL}/images/logo.png`]}
+        inStock={product.inStock}
+        category={product.category}
+        siteUrl={SITE_URL}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", path: "/" },
+          { name: "Shop", path: "/products" },
+          { name: product.name, path: `/products/${product.slug}` },
+        ]}
+        siteUrl={SITE_URL}
+      />
       <section className="py-16">
         <div className="container mx-auto px-6 md:px-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
           {/* Asymmetric Image Gallery logic inspired by mockup */}

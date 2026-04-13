@@ -5,8 +5,15 @@ import { sanityClient } from "@/lib/sanity/client";
 import { blogPostBySlugQuery, allBlogPostsQuery } from "@/lib/sanity/queries";
 import { urlFor } from "@/lib/sanity/image";
 import { PortableText } from "next-sanity";
+import {
+  ArticleSchema,
+  BreadcrumbSchema,
+} from "@/components/seo/StructuredData";
 import type { BlogPost } from "@/types";
 import type { Metadata } from "next";
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://shreycare.com";
 
 export const revalidate = 60;
 
@@ -23,7 +30,32 @@ export async function generateMetadata({
   const { slug } = await params;
   const post: BlogPost | null = await sanityClient.fetch(blogPostBySlugQuery, { slug });
   if (!post) return {};
-  return { title: post.title, description: post.excerpt };
+
+  const ogImage = post.featuredImage
+    ? urlFor(post.featuredImage).width(1200).height(630).url()
+    : "/images/logo.png";
+  const url = `/blog/${slug}`;
+
+  return {
+    title: post.title,
+    description: post.excerpt,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "article",
+      url,
+      title: post.title,
+      description: post.excerpt,
+      publishedTime: post.publishedAt,
+      authors: post.author ? [post.author] : undefined,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: post.title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+      images: [ogImage],
+    },
+  };
 }
 
 export default async function BlogPostPage({
@@ -36,8 +68,29 @@ export default async function BlogPostPage({
 
   if (!post) notFound();
 
+  const articleImage = post.featuredImage
+    ? urlFor(post.featuredImage).width(1200).height(630).url()
+    : undefined;
+
   return (
     <article className="py-16 bg-surface min-h-screen">
+      <ArticleSchema
+        title={post.title}
+        slug={post.slug}
+        excerpt={post.excerpt}
+        image={articleImage}
+        author={post.author}
+        publishedAt={post.publishedAt}
+        siteUrl={SITE_URL}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", path: "/" },
+          { name: "Journal", path: "/blog" },
+          { name: post.title, path: `/blog/${post.slug}` },
+        ]}
+        siteUrl={SITE_URL}
+      />
       <div className="container mx-auto px-6 md:px-10 max-w-3xl">
         <Link
           href="/blog"

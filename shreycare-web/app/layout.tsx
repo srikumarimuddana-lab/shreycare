@@ -3,6 +3,10 @@ import { Noto_Serif, Manrope } from "next/font/google";
 import Script from "next/script";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { CookieConsent } from "@/components/layout/CookieConsent";
+import {
+  OrganizationSchema,
+  WebSiteSchema,
+} from "@/components/seo/StructuredData";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -22,14 +26,66 @@ const manrope = Manrope({
   display: "swap",
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://shreycare.com";
+const SITE_DESCRIPTION =
+  "Luxury botanical hair care crafted with cold-pressed oils and rare herbal infusions. Rooted in Ayurveda, refined by science.";
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://shreycare.com'),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "ShreyCare Organics | Where Nature Leads",
     template: "%s | ShreyCare Organics",
   },
-  description:
-    "Luxury botanical hair care crafted with cold-pressed oils and rare herbal infusions. Rooted in Ayurveda, refined by science.",
+  description: SITE_DESCRIPTION,
+  applicationName: "ShreyCare Organics",
+  keywords: [
+    "ayurvedic hair oil",
+    "organic hair oil",
+    "herbal hair oil",
+    "bhringraj hair oil",
+    "amla hair oil",
+    "natural hair care",
+    "ShreyCare Organics",
+  ],
+  authors: [{ name: "ShreyCare Organics" }],
+  creator: "ShreyCare Organics",
+  publisher: "ShreyCare Organics",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    siteName: "ShreyCare Organics",
+    url: SITE_URL,
+    title: "ShreyCare Organics | Where Nature Leads",
+    description: SITE_DESCRIPTION,
+    locale: "en_IN",
+    images: [
+      {
+        url: "/images/logo.png",
+        width: 600,
+        height: 600,
+        alt: "ShreyCare Organics — Hair Oil, Ayurvedic",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ShreyCare Organics | Where Nature Leads",
+    description: SITE_DESCRIPTION,
+    images: ["/images/logo.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
 };
 
 export default function RootLayout({
@@ -76,6 +132,8 @@ export default function RootLayout({
         </Script>
       </head>
       <body>
+        <OrganizationSchema />
+        <WebSiteSchema />
         <Providers>{children}</Providers>
         <CookieConsent />
       </body>
