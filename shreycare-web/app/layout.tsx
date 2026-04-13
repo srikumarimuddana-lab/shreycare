@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Noto_Serif, Manrope } from "next/font/google";
+import Script from "next/script";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { CookieConsent } from "@/components/layout/CookieConsent";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -39,9 +41,43 @@ export default function RootLayout({
     <html lang="en" className={`${notoSerif.variable} ${manrope.variable}`}>
       <head>
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+        <Script id="consent-default" strategy="beforeInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){window.dataLayer.push(arguments);}
+            // Google Consent Mode v2 defaults — all denied until user opts in.
+            gtag('consent', 'default', {
+              ad_storage: 'denied',
+              ad_user_data: 'denied',
+              ad_personalization: 'denied',
+              analytics_storage: 'denied',
+              functionality_storage: 'denied',
+              personalization_storage: 'denied',
+              security_storage: 'granted',
+              wait_for_update: 500
+            });
+            // Redact ad data and preserve click IDs via URL while consent is denied.
+            gtag('set', 'ads_data_redaction', true);
+            gtag('set', 'url_passthrough', true);
+            try {
+              var saved = localStorage.getItem('shreycare-consent-v1');
+              if (saved === 'granted') {
+                gtag('consent', 'update', {
+                  ad_storage: 'granted',
+                  ad_user_data: 'granted',
+                  ad_personalization: 'granted',
+                  analytics_storage: 'granted',
+                  functionality_storage: 'granted',
+                  personalization_storage: 'granted'
+                });
+              }
+            } catch (e) {}
+          `}
+        </Script>
       </head>
       <body>
         <Providers>{children}</Providers>
+        <CookieConsent />
       </body>
       {GA_MEASUREMENT_ID && <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />}
     </html>

@@ -1,11 +1,15 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { openCookiePreferences } from "./CookieConsent";
 
 const discoverLinks = [
   { href: "/blog", label: "Journal" },
   { href: "/contact", label: "Customer Service" },
   { href: "/faq", label: "FAQ" },
   { href: "/policies/shipping-returns", label: "Shipping & Returns" },
+  { href: "/policies/privacy", label: "Privacy & Cookies" },
 ];
 
 const socialLinks = [
@@ -79,6 +83,13 @@ export function Footer() {
           <p className="text-on-surface-variant text-sm uppercase tracking-widest">
             &copy; {new Date().getFullYear()} ShreyCare Organics. Where Nature Leads
           </p>
+          <button
+            type="button"
+            onClick={openCookiePreferences}
+            className="text-sm uppercase tracking-widest text-on-surface-variant hover:text-secondary transition-colors duration-300"
+          >
+            Cookie Preferences
+          </button>
           <div className="flex md:justify-end space-x-4">
             <span className="material-symbols-outlined text-primary">spa</span>
             <span className="material-symbols-outlined text-primary">eco</span>
