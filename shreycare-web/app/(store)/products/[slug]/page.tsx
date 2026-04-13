@@ -47,9 +47,10 @@ export default async function ProductDetailPage({
   return (
     <div className="bg-surface min-h-screen">
       <section className="py-16">
-        <div className="container mx-auto px-6 md:px-10 grid grid-cols-1 lg:grid-cols-2 gap-16">
-          <div className="space-y-4">
-            <div className="aspect-[4/5] bg-surface-container rounded-lg overflow-hidden relative">
+        <div className="container mx-auto px-6 md:px-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
+          {/* Asymmetric Image Gallery logic inspired by mockup */}
+          <div className="lg:col-span-7 space-y-4">
+            <div className="aspect-[4/5] bg-surface-container rounded-lg overflow-hidden relative shadow-botanical">
               <Image
                 src={mainImage}
                 alt={product.name}
@@ -60,15 +61,15 @@ export default async function ProductDetailPage({
               />
             </div>
             {product.images?.length > 1 && (
-              <div className="grid grid-cols-4 gap-4">
-                {product.images.slice(1).map((img, i) => (
-                  <div key={i} className="aspect-square bg-surface-container rounded-lg overflow-hidden relative">
+              <div className="grid grid-cols-2 gap-4">
+                {product.images.slice(1, 3).map((img, i) => (
+                  <div key={i} className="aspect-square bg-surface-container rounded-lg overflow-hidden relative shadow-sm">
                     <Image
-                      src={urlFor(img).width(200).height(200).url()}
+                      src={urlFor(img).width(600).height(600).url()}
                       alt={`${product.name} ${i + 2}`}
                       fill
                       className="object-cover"
-                      sizes="100px"
+                      sizes="300px"
                     />
                   </div>
                 ))}
@@ -76,18 +77,36 @@ export default async function ProductDetailPage({
             )}
           </div>
 
-          <div className="space-y-8 lg:py-8">
-            {product.tags?.[0] && (
-              <span className="text-xs uppercase tracking-widest text-secondary font-bold">
-                {product.tags[0].replace("-", " ")}
-              </span>
-            )}
-            <h1 className="text-4xl md:text-5xl font-bold text-primary">{product.name}</h1>
-            <p className="text-2xl text-secondary font-bold">${product.price.toFixed(2)} CAD</p>
-            <p className="text-on-surface-variant text-lg leading-relaxed">{product.description}</p>
+          <div className="lg:col-span-5 space-y-8 lg:py-8 sticky top-32">
+            <div>
+              {product.tags?.[0] && (
+                <span className="font-label text-xs uppercase tracking-widest text-secondary font-bold">
+                  {product.tags[0].replace("-", " ")}
+                </span>
+              )}
+              <h1 className="text-5xl lg:text-6xl font-headline tracking-tighter text-primary mt-4 leading-tight">
+                {product.name}
+              </h1>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <div className="flex text-secondary">
+                {[...Array(4)].map((_, i) => (
+                  <span key={i} className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                ))}
+                <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0" }}>star</span>
+              </div>
+              <span className="text-sm text-on-surface-variant">(128 Reviews)</span>
+            </div>
+
+            <p className="text-3xl font-headline text-on-background">${product.price.toFixed(2)} CAD</p>
+            
+            <p className="text-on-surface-variant text-lg leading-relaxed">
+              {product.description}
+            </p>
 
             {product.ingredients?.length > 0 && (
-              <div className="space-y-3">
+              <div className="space-y-4 border-t border-outline-variant/30 pt-8">
                 <h3 className="text-sm uppercase tracking-widest text-primary font-bold">Key Ingredients</h3>
                 <div className="flex flex-wrap gap-2">
                   {product.ingredients.map((ing, i) => (
@@ -99,55 +118,75 @@ export default async function ProductDetailPage({
               </div>
             )}
 
-            <AddToCartButton
-              productId={product._id}
-              name={product.name}
-              slug={product.slug}
-              price={product.price}
-              image={mainImage}
-              inStock={product.inStock}
-            />
+            <div className="pt-4">
+              <AddToCartButton
+                productId={product._id}
+                name={product.name}
+                slug={product.slug}
+                price={product.price}
+                image={mainImage}
+                inStock={product.inStock}
+              />
+            </div>
+
+            {/* Standard Benefit Icons */}
+            <div className="grid grid-cols-3 gap-4 pt-12 border-t border-outline-variant/30">
+              {[
+                { icon: "eco", label: "100% Organic" },
+                { icon: "cruelty_free", label: "Cruelty Free" },
+                { icon: "science", label: "Lab Tested" }
+              ].map((item) => (
+                <div key={item.label} className="text-center">
+                  <span className="material-symbols-outlined text-secondary text-3xl">{item.icon}</span>
+                  <p className="font-label text-[10px] uppercase tracking-tighter mt-2">{item.label}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* How to Use & Benefits */}
-      {(product.howToUse?.length > 0 || product.benefits?.length > 0) && (
-        <section className="py-24 bg-surface-container-lowest">
-          <div className="container mx-auto px-6 md:px-10">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 max-w-5xl mx-auto">
-              {product.howToUse?.length > 0 && (
-                <div className="space-y-6">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="material-symbols-outlined text-3xl text-secondary">spa</span>
-                    <h2 className="text-2xl font-bold text-primary">How to Use</h2>
-                  </div>
-                  <div className="prose prose-sm max-w-none text-on-surface-variant leading-relaxed [&_ul]:space-y-2 [&_li]:pl-1 [&_ol]:space-y-2 [&_p]:mb-4">
-                    <PortableText value={product.howToUse} />
-                  </div>
+      {/* Benefits Section - Alchemy of Nature */}
+      {product.benefits?.length > 0 && (
+        <section className="mt-32 container mx-auto px-6 md:px-10">
+          <div className="bg-surface-container p-12 md:p-20 rounded-xl overflow-hidden relative">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+              <div>
+                <h2 className="text-4xl font-headline text-primary mb-8">The Alchemy of Nature</h2>
+                <div className="prose prose-sm max-w-none text-on-surface-variant leading-relaxed [&_p]:mb-4 [&_ul]:space-y-4">
+                  <PortableText value={product.benefits} />
                 </div>
-              )}
-
-              {product.benefits?.length > 0 && (
-                <div className="space-y-6">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="material-symbols-outlined text-3xl text-secondary">eco</span>
-                    <h2 className="text-2xl font-bold text-primary">Benefits</h2>
-                  </div>
-                  <div className="prose prose-sm max-w-none text-on-surface-variant leading-relaxed [&_ul]:space-y-2 [&_li]:pl-1 [&_ol]:space-y-2 [&_p]:mb-4">
-                    <PortableText value={product.benefits} />
-                  </div>
+              </div>
+              <div className="relative">
+                <div className="aspect-[4/5] bg-surface-container-highest rounded-lg overflow-hidden transform lg:rotate-2 shadow-2xl">
+                  <Image 
+                    src="/images/ingredients.jpg" 
+                    alt="Botanical Ingredients" 
+                    fill 
+                    className="object-cover"
+                  />
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </section>
       )}
 
+      {/* How to Use - The Ritual */}
+      {product.howToUse?.length > 0 && (
+        <section className="mt-32 max-w-4xl mx-auto px-6 md:px-10 text-center">
+          <span className="font-label text-sm uppercase tracking-[0.2em] text-secondary">The Ritual</span>
+          <h2 className="text-4xl font-headline text-primary mt-4 mb-16">How to Use</h2>
+          <div className="prose prose-sm max-w-none text-on-surface-variant leading-relaxed text-left grid grid-cols-1 md:grid-cols-2 gap-12">
+             <PortableText value={product.howToUse} />
+          </div>
+        </section>
+      )}
+
       {crossSell.length > 0 && (
-        <section className="py-32 bg-surface-container">
+        <section className="py-32 bg-surface-container mt-32">
           <div className="container mx-auto px-6 md:px-10">
-            <h2 className="text-3xl font-bold text-primary mb-12">Complete the Ritual</h2>
+            <h2 className="text-4xl font-headline text-primary mb-12 text-center">Complete the Atelier Ritual</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
               {crossSell.map((p) => (
                 <ProductCard
