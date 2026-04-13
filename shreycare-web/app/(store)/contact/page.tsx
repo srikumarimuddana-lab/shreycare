@@ -55,6 +55,16 @@ export default function ContactPage() {
           <p className="text-on-surface-variant mt-4 text-lg">
             Have a question about our products or your order? We&apos;d love to hear from you.
           </p>
+          <p className="text-on-surface-variant mt-2 text-lg">
+            You can also email us directly at{" "}
+            <a
+              href="mailto:support@shreycare.com"
+              className="text-primary underline hover:text-secondary"
+            >
+              support@shreycare.com
+            </a>
+            .
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">

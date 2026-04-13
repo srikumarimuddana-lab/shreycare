@@ -35,8 +35,17 @@ export function Footer() {
             </div>
           </div>
           <p className="text-on-surface-variant text-sm leading-relaxed max-w-xs">
-            Formulating the world's most potent herbal ingredients for quality-conscious individuals who seek pure care
+            Formulating the world&apos;s most potent herbal ingredients for quality-conscious individuals who seek pure care
             and proven results in every drop.
+          </p>
+          <p className="text-on-surface-variant text-sm">
+            Support:{" "}
+            <a
+              href="mailto:support@shreycare.com"
+              className="text-primary hover:text-secondary transition-colors duration-300"
+            >
+              support@shreycare.com
+            </a>
           </p>
         </div>
 

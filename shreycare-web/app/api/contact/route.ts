@@ -3,6 +3,11 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || "support@shreycare.com";
+const FROM_EMAIL =
+  process.env.EMAIL_FROM ||
+  "ShreyCare Organics <no-reply@shreycare.com>";
+
 export async function POST(request: NextRequest) {
   try {
     const { name, email, subject, message } = await request.json();
@@ -14,15 +19,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await resend.emails.send({
-      from: "ShreyCare Organics Contact <onboarding@resend.dev>",
-      to: ["contact@shreycare.com"],
+    const result = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [SUPPORT_EMAIL],
+      // One-click reply goes straight to the customer.
+      replyTo: email,
       subject: `Contact Form: ${subject || "General Inquiry"}`,
       text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\n\n${message}`,
     });
 
+    if (result.error) {
+      console.error("[contact] Resend error:", result.error);
+      return NextResponse.json(
+        { error: "Failed to send message" },
+        { status: 502 }
+      );
+    }
+
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (err) {
+    console.error("[contact] Unexpected error:", err);
     return NextResponse.json(
       { error: "Failed to send message" },
       { status: 500 }

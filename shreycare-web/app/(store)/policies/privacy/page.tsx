@@ -72,10 +72,10 @@ export default async function PrivacyPolicyPage() {
                 You can request access to, correction of, or deletion of your
                 personal data at any time. Contact us at{" "}
                 <a
-                  href="mailto:contact@shreycare.com"
+                  href="mailto:support@shreycare.com"
                   className="text-primary underline hover:text-secondary"
                 >
-                  contact@shreycare.com
+                  support@shreycare.com
                 </a>
                 .
               </p>

@@ -39,8 +39,14 @@ export default async function ShippingReturnsPage() {
               <h2 className="text-2xl font-bold text-primary mb-4">Returns</h2>
               <p>
                 We accept returns within 30 days of delivery for unopened
-                products. Please contact us at contact@shreycare.com to initiate
-                a return.
+                products. Please contact us at{" "}
+                <a
+                  href="mailto:support@shreycare.com"
+                  className="text-primary underline hover:text-secondary"
+                >
+                  support@shreycare.com
+                </a>{" "}
+                to initiate a return.
               </p>
             </div>
           </div>

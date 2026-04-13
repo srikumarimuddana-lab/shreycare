@@ -6,16 +6,15 @@ import type { CartItem } from "@/lib/cart/types";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const ADMIN_EMAIL = process.env.ORDER_ADMIN_EMAIL || "contact@shreycare.com";
-// The FROM address is a no-reply mailbox — customers should not reply to it
-// because nobody reads it. Any replies they hit should go to support instead
-// (see SUPPORT_EMAIL below, which we also set as Reply-To on the customer
-// confirmation email).
+// One human-monitored mailbox. Used as:
+//   - recipient of new-order notifications
+//   - Reply-To on the customer confirmation (so a reply lands here)
+//   - contact address surfaced on the site
+const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || "support@shreycare.com";
+// Outbound sender — no-reply mailbox, must be on a Resend-verified domain.
 const FROM_EMAIL =
-  process.env.ORDER_FROM_EMAIL ||
+  process.env.EMAIL_FROM ||
   "ShreyCare Organics <no-reply@shreycare.com>";
-const SUPPORT_EMAIL =
-  process.env.ORDER_SUPPORT_EMAIL || "contact@shreycare.com";
 const CURRENCY = process.env.NEXT_PUBLIC_STORE_CURRENCY || "CAD";
 
 interface OrderPayload {
@@ -266,7 +265,7 @@ This is an automated message from a no-reply address. For any questions about yo
     // messages, etc.) to the customer.
     const adminResult = await resend.emails.send({
       from: FROM_EMAIL,
-      to: [ADMIN_EMAIL],
+      to: [SUPPORT_EMAIL],
       replyTo: customer.email,
       subject: adminSubject,
       text: adminText,
