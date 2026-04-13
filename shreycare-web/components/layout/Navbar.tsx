@@ -25,22 +25,15 @@ export function Navbar({ cartItemCount, onCartClick }: NavbarProps) {
   return (
     <nav className="fixed top-0 w-full z-50 bg-surface/80 glass-nav">
       <div className="flex justify-between items-center px-6 md:px-10 py-6 max-w-[1440px] mx-auto">
-        <Link href="/" className="flex items-center gap-3">
+        <Link href="/" className="flex items-center" aria-label="ShreyCare Organics home">
           <Image
-            src="/images/logo.svg"
-            alt="ShreyCare Organics Logo"
-            width={40}
-            height={48}
-            className="object-contain"
+            src="/images/logo.png"
+            alt="ShreyCare Organics — Hair Oil, Ayurvedic"
+            width={180}
+            height={180}
+            priority
+            className="h-14 w-auto md:h-16 object-contain"
           />
-          <span className="flex flex-col leading-none">
-            <span className="font-headline text-2xl font-bold text-primary tracking-tighter">
-              ShreyCare Organics
-            </span>
-            <span className="hidden sm:block text-[10px] uppercase tracking-[0.25em] text-on-surface-variant mt-1">
-              Hair Oil &middot; Ayurvedic
-            </span>
-          </span>
         </Link>
 
         <div className="hidden md:flex space-x-12 items-center">
