@@ -249,10 +249,10 @@ If you have questions, reply to this email.
   <p style="margin-top:24px;">Rooted in nature, crafted with care.<br/>— The ShreyCare Organics team</p>
 </div>`;
 
-    // Send admin first (most important). If it fails, surface the error; if
-    // the customer confirmation fails separately, we still consider the
-    // order placed — we don't want the customer to see an error after their
-    // order is already in the admin inbox.
+    // Send admin first (most important). If it fails, log the real Resend
+    // error server-side but return a generic message to the client so we
+    // never leak provider internals (verified-domain errors, API keys in
+    // messages, etc.) to the customer.
     const adminResult = await resend.emails.send({
       from: FROM_EMAIL,
       to: [ADMIN_EMAIL],
@@ -262,7 +262,14 @@ If you have questions, reply to this email.
       html: adminHtml,
     });
     if (adminResult.error) {
-      throw new Error(adminResult.error.message || "Failed to notify team");
+      console.error("[orders] Resend admin email failed:", adminResult.error);
+      return NextResponse.json(
+        {
+          error:
+            "We couldn't submit your order right now. Please try again in a moment or email us directly.",
+        },
+        { status: 502 },
+      );
     }
 
     await resend.emails
@@ -274,13 +281,15 @@ If you have questions, reply to this email.
         html: customerHtml,
       })
       .catch((err) => {
-        console.error("Failed to send customer confirmation", err);
+        console.error("[orders] Resend customer confirmation failed:", err);
       });
 
     return NextResponse.json({ success: true, orderNumber });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Unable to place order.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[orders] Unexpected error:", error);
+    return NextResponse.json(
+      { error: "Unable to place order. Please try again." },
+      { status: 500 },
+    );
   }
 }
