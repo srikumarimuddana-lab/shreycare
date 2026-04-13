@@ -7,8 +7,8 @@ interface TestimonialProps {
 const defaultTestimonial: TestimonialType = {
   quote:
     "Since incorporating ShreyCare Organics into my weekly ritual, my hair feels like silk. It's not just an oil, it's a moment of profound self-care that I look forward to every single day.",
-  name: "Elena Rodriguez",
-  title: "Architect & Creative Director",
+  name: "Bhavana",
+  // title: "Founder, ShreyCare Organics",
 };
 
 export function Testimonial({

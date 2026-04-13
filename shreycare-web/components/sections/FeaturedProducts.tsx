@@ -32,7 +32,6 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
               key={product._id}
               name={product.name}
               slug={product.slug}
-              subtitle={product.ingredients?.slice(0, 2).join(" & ") ?? ""}
               price={product.price}
               imageUrl={
                 product.images?.[0]

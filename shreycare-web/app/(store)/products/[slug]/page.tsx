@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import { PortableText } from "next-sanity";
 import { sanityClient } from "@/lib/sanity/client";
 import { productBySlugQuery, allProductsQuery, featuredProductsQuery } from "@/lib/sanity/queries";
 import { urlFor } from "@/lib/sanity/image";
@@ -110,6 +111,39 @@ export default async function ProductDetailPage({
         </div>
       </section>
 
+      {/* How to Use & Benefits */}
+      {(product.howToUse?.length > 0 || product.benefits?.length > 0) && (
+        <section className="py-24 bg-surface-container-lowest">
+          <div className="container mx-auto px-6 md:px-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 max-w-5xl mx-auto">
+              {product.howToUse?.length > 0 && (
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="material-symbols-outlined text-3xl text-secondary">spa</span>
+                    <h2 className="text-2xl font-bold text-primary">How to Use</h2>
+                  </div>
+                  <div className="prose prose-sm max-w-none text-on-surface-variant leading-relaxed [&_ul]:space-y-2 [&_li]:pl-1 [&_ol]:space-y-2 [&_p]:mb-4">
+                    <PortableText value={product.howToUse} />
+                  </div>
+                </div>
+              )}
+
+              {product.benefits?.length > 0 && (
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="material-symbols-outlined text-3xl text-secondary">eco</span>
+                    <h2 className="text-2xl font-bold text-primary">Benefits</h2>
+                  </div>
+                  <div className="prose prose-sm max-w-none text-on-surface-variant leading-relaxed [&_ul]:space-y-2 [&_li]:pl-1 [&_ol]:space-y-2 [&_p]:mb-4">
+                    <PortableText value={product.benefits} />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
       {crossSell.length > 0 && (
         <section className="py-32 bg-surface-container">
           <div className="container mx-auto px-6 md:px-10">
@@ -120,7 +154,6 @@ export default async function ProductDetailPage({
                   key={p._id}
                   name={p.name}
                   slug={p.slug}
-                  subtitle={p.ingredients?.slice(0, 2).join(" & ") ?? ""}
                   price={p.price}
                   imageUrl={p.images?.[0] ? urlFor(p.images[0]).width(600).height(800).url() : "/images/placeholder-product.jpg"}
                   tag={p.tags?.[0]?.replace("-", " ")}
@@ -133,3 +166,4 @@ export default async function ProductDetailPage({
     </div>
   );
 }
+

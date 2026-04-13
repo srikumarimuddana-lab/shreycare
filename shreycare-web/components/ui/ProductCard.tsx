@@ -4,7 +4,7 @@ import Link from "next/link";
 interface ProductCardProps {
   name: string;
   slug: string;
-  subtitle: string;
+  subtitle?: string;
   price: number;
   imageUrl: string;
   tag?: string;
@@ -38,7 +38,7 @@ export function ProductCard({
       </div>
       <div>
         <h3 className="text-xl font-bold text-primary">{name}</h3>
-        <p className="text-on-surface-variant text-sm mt-1">{subtitle}</p>
+        {subtitle && <p className="text-on-surface-variant text-sm mt-1">{subtitle}</p>}
         <p className="text-secondary font-bold mt-4">
           ${price.toFixed(2)} CAD
         </p>
