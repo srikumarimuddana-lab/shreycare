@@ -196,7 +196,7 @@ export function CheckoutForm() {
           </legend>
           <textarea
             id="notes" rows={3}
-            placeholder="Preferred payment method (UPI, bank transfer), delivery instructions, or anything else."
+            placeholder="Preferred payment method (Interac e-Transfer or cash), delivery instructions, or anything else."
             value={customer.notes}
             onChange={(e) => update("notes", e.target.value)}
             className={fieldClass}
