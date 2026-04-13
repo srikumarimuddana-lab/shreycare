@@ -45,7 +45,7 @@ export interface FAQ {
 export interface Testimonial {
   quote: string;
   name: string;
-  title: string;
+  title?: string;
 }
 
 export interface SiteSettings {
