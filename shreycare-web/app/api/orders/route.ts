@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { sanityClient } from "@/lib/sanity/client";
+import { supabaseAdmin } from "@/lib/supabase";
 import { productBySlugQuery } from "@/lib/sanity/queries";
 import type { CartItem } from "@/lib/cart/types";
 
@@ -295,6 +296,31 @@ This is an automated message from a no-reply address. For any questions about yo
       })
       .catch((err) => {
         console.error("[orders] Resend customer confirmation failed:", err);
+      });
+
+    // Auto-log to Supabase ledger so the admin dashboard shows it.
+    await supabaseAdmin
+      .from("sales")
+      .insert({
+        order_number: orderNumber,
+        type: "online",
+        sale_date: placedAt,
+        customer_name: customer.name,
+        customer_email: customer.email,
+        customer_phone: customer.phone,
+        items: validatedItems.map((i) => ({
+          productName: i.name,
+          quantity: i.quantity,
+          unitPrice: i.price,
+        })),
+        subtotal,
+        payment_method: "interac",
+        payment_status: "pending",
+        fulfillment: "pending",
+        notes: customer.notes || null,
+      })
+      .then(({ error: dbErr }) => {
+        if (dbErr) console.error("[orders] Supabase insert failed:", dbErr);
       });
 
     return NextResponse.json({ success: true, orderNumber });
