@@ -226,13 +226,22 @@ export function CheckoutForm() {
               </li>
             ))}
           </ul>
-          <div className="flex justify-between items-center border-t border-outline-variant pt-4">
-            <span className="text-on-surface-variant uppercase tracking-widest text-xs">Subtotal</span>
-            <span className="text-primary font-bold text-xl">${total.toFixed(2)}</span>
+          <div className="space-y-2 border-t border-outline-variant pt-4">
+            <div className="flex justify-between text-sm">
+              <span className="text-on-surface-variant">Subtotal</span>
+              <span className="text-on-surface">${total.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-on-surface-variant">GST (5%)</span>
+              <span className="text-on-surface">${(total * 0.05).toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center pt-2 border-t border-outline-variant/50">
+              <span className="text-on-surface-variant uppercase tracking-widest text-xs font-semibold">Total</span>
+              <span className="text-primary font-bold text-xl">${(total * 1.05).toFixed(2)}</span>
+            </div>
           </div>
           <p className="text-xs text-on-surface-variant leading-relaxed">
-            Shipping and taxes will be confirmed by our team in the payment
-            instructions email.
+            Shipping will be confirmed by our team in the payment instructions email.
           </p>
           <button
             type="submit"

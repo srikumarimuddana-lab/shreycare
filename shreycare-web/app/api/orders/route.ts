@@ -107,6 +107,12 @@ export async function POST(request: NextRequest) {
       (sum, i) => sum + i.price * i.quantity,
       0,
     );
+    const TAX_RATE = Number(process.env.STORE_TAX_RATE ?? 0.05);
+    const taxAmount = Math.round(subtotal * TAX_RATE * 100) / 100;
+    const total = subtotal + taxAmount;
+    const taxLabel = process.env.STORE_TAX_LABEL || "GST";
+    const taxPercent = `${(TAX_RATE * 100).toFixed(1)}%`;
+
     const orderNumber = generateOrderNumber();
     const placedAt = new Date().toISOString();
 
@@ -155,6 +161,8 @@ ${customer.notes ? `Notes from customer:\n${customer.notes}\n\n` : ""}Items:
 ${itemsTextBlock}
 
 Subtotal: ${CURRENCY} ${subtotal.toFixed(2)}
+${taxLabel} (${taxPercent}): ${CURRENCY} ${taxAmount.toFixed(2)}
+Total: ${CURRENCY} ${total.toFixed(2)}
 
 Reply to ${customer.email} with payment instructions to complete the order.
 `;
@@ -188,8 +196,16 @@ Reply to ${customer.email} with payment instructions to complete the order.
     </thead>
     <tbody>${itemsHtmlRows}
       <tr>
-        <td colspan="3" style="padding:12px 8px;text-align:right;font-weight:bold;">Subtotal</td>
-        <td style="padding:12px 8px;text-align:right;font-weight:bold;">${CURRENCY} ${subtotal.toFixed(2)}</td>
+        <td colspan="3" style="padding:8px;text-align:right;">Subtotal</td>
+        <td style="padding:8px;text-align:right;">${CURRENCY} ${subtotal.toFixed(2)}</td>
+      </tr>
+      <tr>
+        <td colspan="3" style="padding:8px;text-align:right;">${taxLabel} (${taxPercent})</td>
+        <td style="padding:8px;text-align:right;">${CURRENCY} ${taxAmount.toFixed(2)}</td>
+      </tr>
+      <tr>
+        <td colspan="3" style="padding:12px 8px;text-align:right;font-weight:bold;border-top:2px solid #384527;">Total</td>
+        <td style="padding:12px 8px;text-align:right;font-weight:bold;border-top:2px solid #384527;">${CURRENCY} ${total.toFixed(2)}</td>
       </tr>
     </tbody>
   </table>
@@ -212,6 +228,8 @@ Items:
 ${itemsTextBlock}
 
 Subtotal: ${CURRENCY} ${subtotal.toFixed(2)}
+${taxLabel} (${taxPercent}): ${CURRENCY} ${taxAmount.toFixed(2)}
+Total: ${CURRENCY} ${total.toFixed(2)}
 
 Our team will contact you shortly with payment instructions. Once we confirm payment, we'll ship your order and send a shipping update.
 
@@ -246,8 +264,16 @@ This is an automated message from a no-reply address. For any questions about yo
         )
         .join("")}
       <tr>
-        <td colspan="2" style="padding:12px 8px;text-align:right;font-weight:bold;">Subtotal</td>
-        <td style="padding:12px 8px;text-align:right;font-weight:bold;">${CURRENCY} ${subtotal.toFixed(2)}</td>
+        <td colspan="2" style="padding:8px;text-align:right;">Subtotal</td>
+        <td style="padding:8px;text-align:right;">${CURRENCY} ${subtotal.toFixed(2)}</td>
+      </tr>
+      <tr>
+        <td colspan="2" style="padding:8px;text-align:right;">${taxLabel} (${taxPercent})</td>
+        <td style="padding:8px;text-align:right;">${CURRENCY} ${taxAmount.toFixed(2)}</td>
+      </tr>
+      <tr>
+        <td colspan="2" style="padding:12px 8px;text-align:right;font-weight:bold;border-top:2px solid #384527;">Total</td>
+        <td style="padding:12px 8px;text-align:right;font-weight:bold;border-top:2px solid #384527;">${CURRENCY} ${total.toFixed(2)}</td>
       </tr>
     </tbody>
   </table>
@@ -314,6 +340,9 @@ This is an automated message from a no-reply address. For any questions about yo
           unitPrice: i.price,
         })),
         subtotal,
+        tax_rate: TAX_RATE,
+        tax_amount: taxAmount,
+        total,
         payment_method: "interac",
         payment_status: "pending",
         fulfillment: "pending",
