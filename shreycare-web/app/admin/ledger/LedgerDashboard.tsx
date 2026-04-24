@@ -37,6 +37,10 @@ interface Summary {
   offlineCount: number;
   onlineRevenue: number;
   offlineRevenue: number;
+  fulfillmentPending: number;
+  fulfillmentShipped: number;
+  fulfillmentDelivered: number;
+  fulfillmentCancelled: number;
 }
 
 const statusBadge: Record<string, string> = {
@@ -154,7 +158,7 @@ export function LedgerDashboard() {
   return (
     <div className="space-y-6">
       {/* ── Summary cards ── */}
-      {summary && (
+      {summary && (<>
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
           <SummaryCard
             icon="payments"
@@ -190,7 +194,39 @@ export function LedgerDashboard() {
             sub={`$${summary.onlineRevenue.toFixed(2)} / $${summary.offlineRevenue.toFixed(2)}`}
           />
         </div>
-      )}
+
+        {/* Fulfillment stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+          <SummaryCard
+            icon="pending_actions"
+            label="To fulfill"
+            value={`${summary.fulfillmentPending}`}
+            sub="Orders pending"
+            accent="text-yellow-700"
+          />
+          <SummaryCard
+            icon="local_shipping"
+            label="Shipped"
+            value={`${summary.fulfillmentShipped}`}
+            sub="In transit"
+            accent="text-blue-700"
+          />
+          <SummaryCard
+            icon="inventory"
+            label="Delivered"
+            value={`${summary.fulfillmentDelivered}`}
+            sub="Completed"
+            accent="text-green-700"
+          />
+          <SummaryCard
+            icon="cancel"
+            label="Cancelled"
+            value={`${summary.fulfillmentCancelled}`}
+            sub="Cancelled orders"
+            accent="text-red-700"
+          />
+        </div>
+      </>)}
 
       {/* ── Actions + Filters ── */}
       <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 space-y-4">

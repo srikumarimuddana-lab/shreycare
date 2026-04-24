@@ -2,7 +2,7 @@
 
 create table if not exists sales (
   id            uuid primary key default gen_random_uuid(),
-  order_number  text not null,
+  order_number  text not null unique,
   type          text not null check (type in ('online', 'offline')),
   sale_date     timestamptz not null default now(),
   customer_name text not null,

@@ -20,12 +20,16 @@ interface Row {
 export async function GET(req: NextRequest) {
   if (!authorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const [all, paid, pending, online, offline] = await Promise.all([
+  const [all, paid, pending, online, offline, fPending, fShipped, fDelivered, fCancelled] = await Promise.all([
     supabaseAdmin.from("sales").select("subtotal, tax_amount, total"),
     supabaseAdmin.from("sales").select("subtotal, tax_amount, total").eq("payment_status", "paid"),
     supabaseAdmin.from("sales").select("subtotal, tax_amount, total").eq("payment_status", "pending"),
     supabaseAdmin.from("sales").select("subtotal, tax_amount, total").eq("type", "online"),
     supabaseAdmin.from("sales").select("subtotal, tax_amount, total").eq("type", "offline"),
+    supabaseAdmin.from("sales").select("id").eq("fulfillment", "pending"),
+    supabaseAdmin.from("sales").select("id").eq("fulfillment", "shipped"),
+    supabaseAdmin.from("sales").select("id").eq("fulfillment", "delivered"),
+    supabaseAdmin.from("sales").select("id").eq("fulfillment", "cancelled"),
   ]);
 
   const sumField = (rows: Row[] | null, field: keyof Row) =>
@@ -42,5 +46,9 @@ export async function GET(req: NextRequest) {
     offlineCount: offline.data?.length ?? 0,
     onlineRevenue: sumField(online.data as Row[] | null, "total"),
     offlineRevenue: sumField(offline.data as Row[] | null, "total"),
+    fulfillmentPending: fPending.data?.length ?? 0,
+    fulfillmentShipped: fShipped.data?.length ?? 0,
+    fulfillmentDelivered: fDelivered.data?.length ?? 0,
+    fulfillmentCancelled: fCancelled.data?.length ?? 0,
   });
 }

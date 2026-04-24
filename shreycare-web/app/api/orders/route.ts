@@ -42,14 +42,26 @@ function escapeHtml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function generateOrderNumber(): string {
-  // Short, human-readable order ref: SC-YYMMDD-XXXX
-  const d = new Date();
-  const y = String(d.getUTCFullYear()).slice(2);
-  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(d.getUTCDate()).padStart(2, "0");
-  const rand = Math.floor(1000 + Math.random() * 9000);
-  return `SC-${y}${m}${day}-${rand}`;
+function randomCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return `SC-${code}`;
+}
+
+async function generateUniqueOrderNumber(): Promise<string> {
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const num = randomCode();
+    const { data } = await supabaseAdmin
+      .from("sales")
+      .select("id")
+      .eq("order_number", num)
+      .limit(1);
+    if (!data || data.length === 0) return num;
+  }
+  return `SC-${Date.now().toString(36).toUpperCase()}`;
 }
 
 export async function POST(request: NextRequest) {
@@ -109,7 +121,7 @@ export async function POST(request: NextRequest) {
     );
     const total = subtotal;
 
-    const orderNumber = generateOrderNumber();
+    const orderNumber = await generateUniqueOrderNumber();
     const placedAt = new Date().toISOString();
 
     const itemsTextLines = validatedItems.map(
