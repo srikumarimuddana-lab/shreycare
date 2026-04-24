@@ -5,7 +5,7 @@ import Image from "next/image";
 import { openCookiePreferences } from "./CookieConsent";
 
 const discoverLinks = [
-  { href: "/blog", label: "Journal" },
+  { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Customer Service" },
   { href: "/faq", label: "FAQ" },
   { href: "/policies/shipping-returns", label: "Shipping & Returns" },

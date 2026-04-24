@@ -86,7 +86,7 @@ export default async function BlogPostPage({
       <BreadcrumbSchema
         items={[
           { name: "Home", path: "/" },
-          { name: "Journal", path: "/blog" },
+          { name: "Blog", path: "/blog" },
           { name: post.title, path: `/blog/${post.slug}` },
         ]}
         siteUrl={SITE_URL}
@@ -96,7 +96,7 @@ export default async function BlogPostPage({
           href="/blog"
           className="text-sm text-on-surface-variant hover:text-primary transition-colors mb-8 inline-block"
         >
-          &larr; Back to Journal
+          &larr; Back to Blog
         </Link>
 
         {post.category && (

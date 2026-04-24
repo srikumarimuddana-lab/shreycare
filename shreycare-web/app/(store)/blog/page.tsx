@@ -23,10 +23,10 @@ export default async function BlogPage() {
       <div className="container mx-auto px-6 md:px-10">
         <div className="mb-16">
           <p className="text-secondary font-bold uppercase tracking-widest text-sm mb-4">
-            The Journal
+            Our Blog
           </p>
           <h1 className="text-4xl md:text-5xl font-bold text-primary">
-            Botanical Wisdom
+            Ayurvedic Hair Care Tips &amp; Guides
           </h1>
         </div>
 
@@ -68,7 +68,7 @@ export default async function BlogPage() {
 
         {posts.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-on-surface-variant text-lg">Journal entries coming soon.</p>
+            <p className="text-on-surface-variant text-lg">Blog posts coming soon.</p>
           </div>
         )}
       </div>
