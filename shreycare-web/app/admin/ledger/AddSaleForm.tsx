@@ -20,9 +20,18 @@ function generateOrderNumber(): string {
   return `SC-${code}`;
 }
 
+// Returns current local date-time formatted for <input type="datetime-local">
+function nowLocal(): string {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export function AddSaleForm({ onDone }: { onDone: () => void }) {
   const [customerName, setCustomerName] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
   const [customerPhone, setCustomerPhone] = useState("+1 ");
+  const [saleDate, setSaleDate] = useState(nowLocal());
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [paymentStatus, setPaymentStatus] = useState("paid");
   const [items, setItems] = useState<LineItem[]>([{ productName: "", quantity: 1, unitPrice: 0 }]);
@@ -57,9 +66,10 @@ export function AddSaleForm({ onDone }: { onDone: () => void }) {
       body: JSON.stringify({
         orderNumber: generateOrderNumber(),
         type: "offline",
-        date: new Date().toISOString(),
+        date: new Date(saleDate).toISOString(),
         customerName,
-        customerPhone: customerPhone.trim() || null,
+        customerEmail: customerEmail.trim() || null,
+        customerPhone: customerPhone.trim() && customerPhone.trim() !== "+1" ? customerPhone.trim() : null,
         items: items.filter((i) => i.productName),
         subtotal,
         paymentMethod,
@@ -82,31 +92,56 @@ export function AddSaleForm({ onDone }: { onDone: () => void }) {
     <form onSubmit={onSubmit} className="bg-surface-container-lowest border border-outline-variant rounded-lg p-6 space-y-5">
       <h2 className="font-headline text-xl text-primary font-bold">Add offline sale</h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-semibold text-primary uppercase tracking-widest mb-1">Customer name</label>
+          <label className="block text-xs font-semibold text-primary uppercase tracking-widest mb-1">
+            Customer name <span className="text-error">*</span>
+          </label>
           <input required value={customerName} onChange={(e) => setCustomerName(e.target.value)} className={fieldClass} />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-primary uppercase tracking-widest mb-1">Phone</label>
+          <label className="block text-xs font-semibold text-primary uppercase tracking-widest mb-1">
+            Date &amp; time
+          </label>
+          <input
+            type="datetime-local"
+            value={saleDate}
+            onChange={(e) => setSaleDate(e.target.value)}
+            className={fieldClass}
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-primary uppercase tracking-widest mb-1">
+            Email <span className="text-on-surface-variant font-normal normal-case">(optional — sends receipt)</span>
+          </label>
+          <input
+            type="email"
+            value={customerEmail}
+            onChange={(e) => setCustomerEmail(e.target.value)}
+            className={fieldClass}
+            placeholder="customer@example.com"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-primary uppercase tracking-widest mb-1">
+            Phone <span className="text-on-surface-variant font-normal normal-case">(optional)</span>
+          </label>
           <input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className={fieldClass} />
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-semibold text-primary uppercase tracking-widest mb-1">Payment</label>
-            <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className={fieldClass}>
-              <option value="cash">Cash</option>
-              <option value="interac">Interac</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-primary uppercase tracking-widest mb-1">Status</label>
-            <select value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)} className={fieldClass}>
-              <option value="paid">Paid</option>
-              <option value="pending">Pending</option>
-            </select>
-          </div>
+        <div>
+          <label className="block text-xs font-semibold text-primary uppercase tracking-widest mb-1">Payment method</label>
+          <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className={fieldClass}>
+            <option value="cash">Cash</option>
+            <option value="interac">Interac</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-primary uppercase tracking-widest mb-1">Payment status</label>
+          <select value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)} className={fieldClass}>
+            <option value="paid">Paid</option>
+            <option value="pending">Pending</option>
+          </select>
         </div>
       </div>
 
