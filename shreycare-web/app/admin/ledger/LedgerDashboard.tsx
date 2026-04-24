@@ -59,12 +59,16 @@ export function LedgerDashboard() {
   const [showForm, setShowForm] = useState(false);
   const [filterType, setFilterType] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [filterFrom, setFilterFrom] = useState("");
+  const [filterTo, setFilterTo] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     const params = new URLSearchParams();
     if (filterType) params.set("type", filterType);
     if (filterStatus) params.set("status", filterStatus);
+    if (filterFrom) params.set("from", filterFrom);
+    if (filterTo) params.set("to", filterTo);
 
     const [salesRes, summaryRes] = await Promise.all([
       fetch(`/api/admin/sales?${params}`),
@@ -81,7 +85,7 @@ export function LedgerDashboard() {
     setSales(Array.isArray(salesData) ? salesData : []);
     setSummary(summaryData);
     setLoading(false);
-  }, [filterType, filterStatus, router]);
+  }, [filterType, filterStatus, filterFrom, filterTo, router]);
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchData(); }, [fetchData]);
@@ -93,6 +97,46 @@ export function LedgerDashboard() {
       body: JSON.stringify({ id, [field]: value }),
     });
     fetchData();
+  }
+
+  function exportCSV() {
+    if (sales.length === 0) return;
+    const header = [
+      "Order Number", "Type", "Date", "Customer", "Email", "Phone",
+      "Items", "Subtotal", "Tax", "Total", "Payment Method",
+      "Payment Status", "Fulfillment", "Notes",
+    ];
+    const rows = sales.map((s) => [
+      s.order_number,
+      s.type,
+      new Date(s.sale_date).toLocaleDateString("en-CA"),
+      s.customer_name,
+      s.customer_email ?? "",
+      s.customer_phone ?? "",
+      (s.items as SaleItem[])
+        ?.map((i) => `${i.productName} x${i.quantity} @$${i.unitPrice}`)
+        .join("; ") ?? "",
+      Number(s.subtotal).toFixed(2),
+      "0.00",
+      Number(s.subtotal).toFixed(2),
+      s.payment_method,
+      s.payment_status,
+      s.fulfillment,
+      (s.notes ?? "").replace(/\n/g, " "),
+    ]);
+    const csv = [header, ...rows]
+      .map((row) =>
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+      )
+      .join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const dateStr = new Date().toISOString().slice(0, 10);
+    a.download = `shreycare-sales-${dateStr}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   if (loading) {
@@ -149,17 +193,46 @@ export function LedgerDashboard() {
       )}
 
       {/* ── Actions + Filters ── */}
-      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-primary text-on-primary px-6 py-3 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-        >
-          <span className="material-symbols-outlined text-lg">
-            {showForm ? "close" : "add_circle"}
-          </span>
-          {showForm ? "Cancel" : "Add offline sale"}
-        </button>
-        <div className="flex gap-2 text-sm">
+      <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 space-y-4">
+        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="bg-primary text-on-primary px-6 py-3 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+          >
+            <span className="material-symbols-outlined text-lg">
+              {showForm ? "close" : "add_circle"}
+            </span>
+            {showForm ? "Cancel" : "Add offline sale"}
+          </button>
+          <button
+            onClick={exportCSV}
+            disabled={sales.length === 0}
+            className="border border-primary text-primary px-5 py-3 rounded-lg font-bold text-sm hover:bg-primary/5 transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <span className="material-symbols-outlined text-lg">download</span>
+            Export CSV
+          </button>
+        </div>
+
+        <div className="flex flex-wrap gap-2 text-sm items-end">
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-semibold text-primary uppercase tracking-widest">From</label>
+            <input
+              type="date"
+              value={filterFrom}
+              onChange={(e) => setFilterFrom(e.target.value)}
+              className={selectClass}
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-semibold text-primary uppercase tracking-widest">To</label>
+            <input
+              type="date"
+              value={filterTo}
+              onChange={(e) => setFilterTo(e.target.value)}
+              className={selectClass}
+            />
+          </div>
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
@@ -179,6 +252,19 @@ export function LedgerDashboard() {
             <option value="paid">Paid</option>
             <option value="refunded">Refunded</option>
           </select>
+          {(filterFrom || filterTo || filterType || filterStatus) && (
+            <button
+              onClick={() => {
+                setFilterFrom("");
+                setFilterTo("");
+                setFilterType("");
+                setFilterStatus("");
+              }}
+              className="text-error text-xs font-semibold hover:underline px-2 py-1.5"
+            >
+              Clear filters
+            </button>
+          )}
         </div>
       </div>
 
