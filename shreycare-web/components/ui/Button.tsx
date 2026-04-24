@@ -1,11 +1,19 @@
-import { ButtonHTMLAttributes } from "react";
+import { type ButtonHTMLAttributes, type AnchorHTMLAttributes } from "react";
+import Link from "next/link";
 
 type ButtonVariant = "primary" | "secondary" | "tertiary";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+type ButtonAsButton = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
-  href?: string;
-}
+  href?: undefined;
+};
+
+type ButtonAsLink = AnchorHTMLAttributes<HTMLAnchorElement> & {
+  variant?: ButtonVariant;
+  href: string;
+};
+
+type ButtonProps = ButtonAsButton | ButtonAsLink;
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
@@ -16,25 +24,22 @@ const variantStyles: Record<ButtonVariant, string> = {
     "text-primary font-bold border-b border-primary/30 pb-1 hover:border-primary transition-all bg-transparent",
 };
 
-export function Button({
-  variant = "primary",
-  className = "",
-  children,
-  href,
-  ...props
-}: ButtonProps) {
+export function Button(props: ButtonProps) {
+  const { variant = "primary", className = "", children, ...rest } = props;
   const styles = `${variantStyles[variant]} ${className}`;
 
-  if (href) {
+  if (rest.href != null) {
+    const { href, ...linkRest } = rest as ButtonAsLink;
     return (
-      <a href={href} className={styles} {...(props as any)}>
+      <Link href={href} className={styles} {...linkRest}>
         {children}
-      </a>
+      </Link>
     );
   }
 
+  const { ...buttonRest } = rest as ButtonAsButton;
   return (
-    <button className={styles} {...props}>
+    <button className={styles} {...buttonRest}>
       {children}
     </button>
   );

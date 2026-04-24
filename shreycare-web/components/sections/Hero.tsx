@@ -8,7 +8,6 @@ interface HeroProps {
 }
 
 export function Hero({
-  headline = "Nourish Your Hair with Nature's Essence",
   subtext = "A rich blend of cold-pressed oils and rare herbs, traditionally processed to enhance natural potency and care.",
   ctaText = "Shop Collection",
 }: HeroProps) {

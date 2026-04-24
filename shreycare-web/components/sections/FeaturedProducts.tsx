@@ -1,4 +1,5 @@
 import { ProductCard } from "@/components/ui/ProductCard";
+import Link from "next/link";
 import { urlFor } from "@/lib/sanity/image";
 import type { Product } from "@/types";
 
@@ -19,12 +20,12 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
               Curated for Your Ritual
             </h2>
           </div>
-          <a
+          <Link
             href="/products"
             className="text-primary font-bold border-b border-primary/20 pb-1"
           >
             View All Products
-          </a>
+          </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {products.map((product) => (

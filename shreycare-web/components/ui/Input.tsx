@@ -17,6 +17,7 @@ export function Input({ label, className = "", id, ...props }: InputProps) {
           className="text-xs uppercase tracking-widest font-bold text-primary"
         >
           {label}
+          {props.required && <span className="text-error ml-1">*</span>}
         </label>
       )}
       <input
@@ -42,6 +43,7 @@ export function Textarea({
           className="text-xs uppercase tracking-widest font-bold text-primary"
         >
           {label}
+          {props.required && <span className="text-error ml-1">*</span>}
         </label>
       )}
       <textarea
