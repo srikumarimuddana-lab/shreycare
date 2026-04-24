@@ -2,9 +2,10 @@ import Image from "next/image";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About Us",
+  title: "About Us — Our Ayurvedic Hair Care Story",
   description:
-    "Beauty rooted in nature. Learn about ShreyCare Organics's mission, ingredients, and botanical heritage.",
+    "ShreyCare Organics is a Canadian ayurvedic hair care brand crafting cold-pressed hair oils with bhringraj, amla, and rare botanicals. 100% organic, cruelty-free, made with ancient herbal wisdom.",
+  alternates: { canonical: "/about" },
 };
 
 export default function AboutPage() {

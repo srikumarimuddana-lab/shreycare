@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "ShreyCare Organics",
     short_name: "ShreyCare",
     description:
-      "Luxury botanical hair care crafted with cold-pressed oils and rare herbal infusions. Rooted in Ayurveda, blended with ancient herbal wisdom.",
+      "Shop the best ayurvedic hair oil in Canada. Cold-pressed, organic hair oils with bhringraj, amla, and rare herbs. Shipped across Canada.",
     start_url: "/",
     display: "standalone",
     background_color: "#fcf9f4",

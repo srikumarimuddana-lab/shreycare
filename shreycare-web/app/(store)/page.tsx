@@ -12,14 +12,28 @@ import type { Metadata } from "next";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Premium Botanical Hair Care",
-  description: "Discover our premium botanical hair care collection. Nourish your hair with cold-pressed oils and rare herbs. Rooted in Nature, Blended with Ayurveda.",
-  keywords: ["botanical hair care", "organic hair oil", "natural hair growth", "ayurvedic hair care"],
+  title: "Best Ayurvedic Hair Oil in Canada — Organic & Cold-Pressed",
+  description:
+    "Buy the best ayurvedic hair oil in Canada. ShreyCare Organics offers organic, cold-pressed bhringraj & amla hair oils for hair growth, dry scalp, and hair fall. Cruelty-free, shipped across Canada.",
+  keywords: [
+    "best hair oil Canada",
+    "ayurvedic hair oil Canada",
+    "organic hair oil for hair growth",
+    "cold-pressed hair oil",
+    "bhringraj hair oil Canada",
+    "amla hair oil",
+    "hair oil for hair fall",
+    "natural hair oil Canada",
+    "herbal hair oil",
+    "cruelty-free hair oil",
+  ],
+  alternates: { canonical: "/" },
   openGraph: {
-    title: "Premium Botanical Hair Care | ShreyCare Organics",
-    description: "Discover our premium botanical hair care collection. Rooted in Nature, Blended with Ayurveda.",
+    title: "Best Ayurvedic Hair Oil in Canada | ShreyCare Organics",
+    description:
+      "Organic, cold-pressed ayurvedic hair oils for hair growth, dry scalp, and hair fall. Shipped across Canada.",
     type: "website",
-  }
+  },
 };
 
 export default async function HomePage() {

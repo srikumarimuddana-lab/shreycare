@@ -7,8 +7,10 @@ import type { BlogPost } from "@/types";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Journal",
-  description: "Botanical wisdom, hair care rituals, and ingredient deep-dives.",
+  title: "Blog — Ayurvedic Hair Care Tips & Ingredient Guides",
+  description:
+    "Learn how to use ayurvedic hair oil, discover bhringraj & amla benefits, and get expert tips for hair growth, dry scalp, and natural hair care. By ShreyCare Organics Canada.",
+  alternates: { canonical: "/blog" },
 };
 
 export const revalidate = 60;

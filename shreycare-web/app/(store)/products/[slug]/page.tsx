@@ -37,21 +37,26 @@ export async function generateMetadata({
     : "/images/logo.png";
   const url = `/products/${slug}`;
 
+  const seoTitle = `${product.name} — Buy Ayurvedic Hair Oil Online in Canada`;
+  const seoDesc = product.description
+    ? `${product.description} Shop ${product.name} from ShreyCare Organics. Organic, cold-pressed, shipped across Canada.`
+    : `Buy ${product.name} from ShreyCare Organics — organic, cold-pressed ayurvedic hair oil shipped across Canada.`;
+
   return {
-    title: product.name,
-    description: product.description,
+    title: seoTitle,
+    description: seoDesc,
     alternates: { canonical: url },
     openGraph: {
       type: "website",
       url,
-      title: product.name,
-      description: product.description,
+      title: seoTitle,
+      description: seoDesc,
       images: [{ url: ogImage, width: 1200, height: 1200, alt: product.name }],
     },
     twitter: {
       card: "summary_large_image",
-      title: product.name,
-      description: product.description,
+      title: seoTitle,
+      description: seoDesc,
       images: [ogImage],
     },
   };
@@ -160,7 +165,7 @@ export default async function ProductDetailPage({
 
             {product.ingredients?.length > 0 && (
               <div className="space-y-4 border-t border-outline-variant/30 pt-8">
-                <h3 className="text-sm uppercase tracking-widest text-primary font-bold">Key Ingredients</h3>
+                <h2 className="text-sm uppercase tracking-widest text-primary font-bold">Key Ingredients</h2>
                 <div className="flex flex-wrap gap-2">
                   {product.ingredients.map((ing, i) => (
                     <span key={`${ing}-${i}`} className="bg-surface-container-low px-4 py-2 rounded-md text-sm text-on-surface-variant">

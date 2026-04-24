@@ -6,8 +6,16 @@ import type { Product } from "@/types";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Product Catalog",
-  description: "Explore our curated collection of botanical hair oils and treatments.",
+  title: "Shop Ayurvedic Hair Oils & Hair Care Products",
+  description:
+    "Browse our collection of organic, cold-pressed ayurvedic hair oils, hair masks, and botanical treatments. Bhringraj, amla, brahmi & more. Ships across Canada.",
+  alternates: { canonical: "/products" },
+  openGraph: {
+    title: "Shop Ayurvedic Hair Oils | ShreyCare Organics Canada",
+    description:
+      "Organic hair oils and treatments crafted with rare Ayurvedic herbs. Shipped across Canada.",
+    type: "website",
+  },
 };
 
 export const revalidate = 60;

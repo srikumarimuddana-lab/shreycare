@@ -29,7 +29,7 @@ export function OrganizationSchema({ siteUrl = DEFAULT_SITE_URL }: { siteUrl?: s
         url: siteUrl,
         logo: `${siteUrl}/images/logo.png`,
         description:
-          "Luxury botanical hair care crafted with cold-pressed oils and rare herbal infusions. Rooted in Ayurveda, blended with ancient herbal wisdom.",
+          "Shop the best ayurvedic hair oil in Canada. ShreyCare Organics crafts cold-pressed, organic hair oils with bhringraj, amla, and rare herbs. Shipped across Canada.",
         sameAs: [
           "https://www.instagram.com/shreycareorganics",
           "https://www.pinterest.com/shreycareorganics",

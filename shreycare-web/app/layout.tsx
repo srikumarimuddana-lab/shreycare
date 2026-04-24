@@ -28,23 +28,31 @@ const manrope = Manrope({
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://shreycare.com";
 const SITE_DESCRIPTION =
-  "Luxury botanical hair care crafted with cold-pressed oils and rare herbal infusions. Rooted in Ayurveda, blended with ancient herbal wisdom.";
+  "Shop the best ayurvedic hair oil in Canada. ShreyCare Organics crafts cold-pressed, organic hair oils with bhringraj, amla, and rare herbs. Free Canadian shipping on qualifying orders.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "ShreyCare Organics | Where Nature Leads",
-    template: "%s | ShreyCare Organics",
+    default: "ShreyCare Organics — Best Ayurvedic Hair Oil in Canada",
+    template: "%s | ShreyCare Organics Canada",
   },
   description: SITE_DESCRIPTION,
   applicationName: "ShreyCare Organics",
   keywords: [
-    "ayurvedic hair oil",
-    "organic hair oil",
+    "ayurvedic hair oil Canada",
+    "best hair oil Canada",
+    "organic hair oil Canada",
     "herbal hair oil",
     "bhringraj hair oil",
-    "amla hair oil",
-    "natural hair care",
+    "amla hair oil Canada",
+    "natural hair oil for hair growth",
+    "cold-pressed hair oil",
+    "hair oil for hair fall",
+    "hair oil for dry scalp",
+    "cruelty-free hair oil Canada",
+    "buy hair oil online Canada",
+    "ayurvedic hair care products Canada",
+    "natural hair care Canada",
     "ShreyCare Organics",
   ],
   authors: [{ name: "ShreyCare Organics" }],
@@ -57,7 +65,7 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "ShreyCare Organics",
     url: SITE_URL,
-    title: "ShreyCare Organics | Where Nature Leads",
+    title: "ShreyCare Organics — Best Ayurvedic Hair Oil in Canada",
     description: SITE_DESCRIPTION,
     locale: "en_CA",
     images: [
@@ -71,7 +79,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ShreyCare Organics | Where Nature Leads",
+    title: "ShreyCare Organics — Best Ayurvedic Hair Oil in Canada",
     description: SITE_DESCRIPTION,
     images: ["/images/logo.png"],
   },

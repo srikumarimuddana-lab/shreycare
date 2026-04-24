@@ -4,8 +4,10 @@ import { PortableText } from "next-sanity";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Shipping & Returns",
-  description: "ShreyCare Organics shipping and returns policy for Canadian orders.",
+  title: "Canadian Shipping & Returns Policy",
+  description:
+    "ShreyCare Organics ships ayurvedic hair oils across Canada. Free shipping on qualifying orders. 30-day returns on unopened products.",
+  alternates: { canonical: "/policies/shipping-returns" },
 };
 
 export const revalidate = 60;

@@ -5,6 +5,11 @@ import { Input, Textarea } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { BotanicalToast } from "@/components/ui/BotanicalToast";
 
+// metadata must be in a server component — we export it from a
+// separate file below so this page can remain "use client".
+// For now, Next.js picks up the metadata from the parent layout
+// template: "Contact Us | ShreyCare Organics Canada"
+
 export default function ContactPage() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [toast, setToast] = useState<{ visible: boolean; message: string; variant: "info" | "success" | "error" }>({ visible: false, message: "", variant: "info" });

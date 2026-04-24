@@ -7,8 +7,10 @@ import type { FAQ, PortableTextBlock } from "@/types";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "FAQ",
-  description: "Frequently asked questions about ShreyCare Organics products, shipping, and orders.",
+  title: "FAQ — Ayurvedic Hair Oil Questions & Canadian Shipping",
+  description:
+    "Answers to common questions about ayurvedic hair oil, how to use it, shipping across Canada, returns, and ShreyCare Organics products.",
+  alternates: { canonical: "/faq" },
 };
 
 // Flatten Portable Text blocks to plain text for FAQPage structured data.
