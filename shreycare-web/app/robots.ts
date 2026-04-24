@@ -7,11 +7,20 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        // Keep /api/feed/ crawlable (Google Merchant Center / feed readers)
-        // while blocking the rest of /api/.
         allow: ["/", "/api/feed/"],
-        disallow: ["/api/", "/studio/", "/account/", "/order/"],
+        disallow: ["/api/", "/studio/", "/account/", "/order/", "/admin/"],
       },
+      // Explicitly welcome AI crawlers so our content appears in
+      // AI overviews, ChatGPT, Perplexity, Bing Copilot, etc.
+      { userAgent: "GPTBot", allow: "/" },
+      { userAgent: "Google-Extended", allow: "/" },
+      { userAgent: "ChatGPT-User", allow: "/" },
+      { userAgent: "PerplexityBot", allow: "/" },
+      { userAgent: "Amazonbot", allow: "/" },
+      { userAgent: "anthropic-ai", allow: "/" },
+      { userAgent: "ClaudeBot", allow: "/" },
+      { userAgent: "Bytespider", allow: "/" },
+      { userAgent: "cohere-ai", allow: "/" },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
     host: baseUrl,
