@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/ToastProvider";
 
 export default function AdminLedgerLayout({
   children,
@@ -10,9 +11,11 @@ export default function AdminLedgerLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const toast = useToast();
 
   async function handleLogout() {
     await fetch("/api/admin/auth", { method: "DELETE" });
+    toast("Signed out.", "info");
     router.push("/admin/login");
   }
 

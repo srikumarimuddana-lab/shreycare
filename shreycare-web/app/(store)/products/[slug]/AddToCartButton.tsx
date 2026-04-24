@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useCart } from "@/lib/cart/CartContext";
+import { useToast } from "@/components/ui/ToastProvider";
 
 interface AddToCartButtonProps {
   productId: string;
@@ -14,6 +15,7 @@ interface AddToCartButtonProps {
 
 export function AddToCartButton({ productId, name, slug, price, image, inStock }: AddToCartButtonProps) {
   const { addItem } = useCart();
+  const toast = useToast();
   const [added, setAdded] = useState(false);
 
   if (!inStock) {
@@ -27,6 +29,7 @@ export function AddToCartButton({ productId, name, slug, price, image, inStock }
   function handleAdd() {
     addItem({ productId, name, slug, price, quantity: 1, image });
     setAdded(true);
+    toast(`${name} added to cart.`, "success");
     setTimeout(() => setAdded(false), 2000);
   }
 

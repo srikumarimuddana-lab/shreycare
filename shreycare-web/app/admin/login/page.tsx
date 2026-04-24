@@ -3,9 +3,11 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/ToastProvider";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const toast = useToast();
   const [secret, setSecret] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,9 +22,11 @@ export default function AdminLoginPage() {
       body: JSON.stringify({ secret }),
     });
     if (res.ok) {
+      toast("Welcome back, admin.", "success");
       router.push("/admin/ledger");
     } else {
       setError("Invalid passphrase. Try again.");
+      toast("Invalid passphrase.", "error");
       setLoading(false);
     }
   }

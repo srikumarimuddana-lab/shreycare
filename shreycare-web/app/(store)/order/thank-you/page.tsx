@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { Celebration } from "./Celebration";
 
 export const metadata: Metadata = {
   title: "Order received",
@@ -14,7 +15,8 @@ export default async function ThankYouPage({
   const { ref } = await searchParams;
 
   return (
-    <section className="min-h-[70vh] py-24 bg-surface">
+    <section className="min-h-[70vh] py-24 bg-surface relative">
+      <Celebration />
       <div className="container mx-auto px-6 md:px-10 max-w-2xl text-center space-y-8">
         <span className="material-symbols-outlined text-secondary text-6xl">
           spa

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCart } from "@/lib/cart/CartContext";
+import { useToast } from "@/components/ui/ToastProvider";
 
 interface CustomerInput {
   name: string;
@@ -38,6 +39,7 @@ const labelClass =
 
 export function CheckoutForm() {
   const router = useRouter();
+  const toast = useToast();
   const { state, total, clearCart } = useCart();
   const [customer, setCustomer] = useState<CustomerInput>(initial);
   const [submitting, setSubmitting] = useState(false);
@@ -66,7 +68,9 @@ export function CheckoutForm() {
       clearCart();
       router.push(`/order/thank-you?ref=${encodeURIComponent(data.orderNumber)}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to place order.");
+      const msg = err instanceof Error ? err.message : "Unable to place order.";
+      setError(msg);
+      toast(msg, "error");
       setSubmitting(false);
     }
   }

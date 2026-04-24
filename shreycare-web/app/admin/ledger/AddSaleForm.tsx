@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useToast } from "@/components/ui/ToastProvider";
 
 interface LineItem {
   productName: string;
@@ -27,7 +28,8 @@ function nowLocal(): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function AddSaleForm({ onDone }: { onDone: () => void }) {
+export function AddSaleForm({ onDone }: { onDone: (emailed: boolean) => void }) {
+  const toast = useToast();
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerPhone, setCustomerPhone] = useState("+1 ");
@@ -82,10 +84,11 @@ export function AddSaleForm({ onDone }: { onDone: () => void }) {
     if (!res.ok) {
       const data = await res.json();
       setError(data.error || "Failed to save.");
+      toast(data.error || "Failed to save sale.", "error");
       setSubmitting(false);
       return;
     }
-    onDone();
+    onDone(!!customerEmail.trim());
   }
 
   return (

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AddSaleForm } from "./AddSaleForm";
+import { useToast } from "@/components/ui/ToastProvider";
 
 interface SaleItem {
   productName: string;
@@ -57,6 +58,7 @@ const selectClass =
 
 export function LedgerDashboard() {
   const router = useRouter();
+  const toast = useToast();
   const [sales, setSales] = useState<Sale[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(true);
@@ -95,16 +97,25 @@ export function LedgerDashboard() {
   useEffect(() => { fetchData(); }, [fetchData]);
 
   async function updateSale(id: string, field: string, value: string) {
-    await fetch("/api/admin/sales", {
+    const res = await fetch("/api/admin/sales", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, [field]: value }),
     });
-    fetchData();
+    if (res.ok) {
+      const label = field === "paymentStatus" ? "Payment" : "Fulfillment";
+      toast(`${label} updated to ${value}.`, "success");
+      fetchData();
+    } else {
+      toast("Update failed. Please try again.", "error");
+    }
   }
 
   function exportCSV() {
-    if (sales.length === 0) return;
+    if (sales.length === 0) {
+      toast("No sales to export.", "error");
+      return;
+    }
     const header = [
       "Order Number", "Type", "Date", "Customer", "Email", "Phone",
       "Items", "Subtotal", "Tax", "Total", "Payment Method",
@@ -141,6 +152,7 @@ export function LedgerDashboard() {
     a.download = `shreycare-sales-${dateStr}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+    toast(`Exported ${sales.length} sales to CSV.`, "success");
   }
 
   if (loading) {
@@ -307,8 +319,14 @@ export function LedgerDashboard() {
       {/* ── Add sale form ── */}
       {showForm && (
         <AddSaleForm
-          onDone={() => {
+          onDone={(emailed) => {
             setShowForm(false);
+            toast(
+              emailed
+                ? "Sale saved. Receipt emailed to customer."
+                : "Sale saved.",
+              "success",
+            );
             fetchData();
           }}
         />
