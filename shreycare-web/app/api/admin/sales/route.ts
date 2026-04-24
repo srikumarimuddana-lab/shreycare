@@ -4,7 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
 const resend = new Resend(process.env.RESEND_API_KEY);
-const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || "support@shreycare.com";
+const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || "contact@shreycare.com";
 const FROM_EMAIL =
   process.env.EMAIL_FROM ||
   "ShreyCare Organics <no-reply@shreycare.com>";

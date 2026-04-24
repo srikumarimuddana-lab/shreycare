@@ -43,10 +43,10 @@ export default async function ShippingReturnsPage() {
                 We accept returns within 30 days of delivery for unopened
                 products. Please contact us at{" "}
                 <a
-                  href="mailto:support@shreycare.com"
+                  href="mailto:contact@shreycare.com"
                   className="text-primary underline hover:text-secondary"
                 >
-                  support@shreycare.com
+                  contact@shreycare.com
                 </a>{" "}
                 to initiate a return.
               </p>

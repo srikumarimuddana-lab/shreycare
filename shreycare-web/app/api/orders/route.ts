@@ -11,7 +11,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 //   - recipient of new-order notifications
 //   - Reply-To on the customer confirmation (so a reply lands here)
 //   - contact address surfaced on the site
-const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || "support@shreycare.com";
+const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || "contact@shreycare.com";
 // Outbound sender — no-reply mailbox, must be on a Resend-verified domain.
 const FROM_EMAIL =
   process.env.EMAIL_FROM ||

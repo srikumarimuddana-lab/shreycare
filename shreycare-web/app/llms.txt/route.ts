@@ -17,7 +17,7 @@ ShreyCare Organics is a Canadian ayurvedic hair care brand specializing in cold-
 - [About Us](${baseUrl}/about) — Our story, ingredients, and Ayurvedic heritage
 - [Blog](${baseUrl}/blog) — Hair care tips, ingredient guides, and Ayurvedic wisdom
 - [FAQ](${baseUrl}/faq) — Common questions about hair oil, shipping, and orders
-- [Contact](${baseUrl}/contact) — Reach us at support@shreycare.com
+- [Contact](${baseUrl}/contact) — Reach us at contact@shreycare.com
 
 ## Policies
 - [Shipping & Returns](${baseUrl}/policies/shipping-returns) — Canadian shipping policy
@@ -31,7 +31,7 @@ ShreyCare Organics is a Canadian ayurvedic hair care brand specializing in cold-
 - **Products:** Ayurvedic hair oils, hair masks, face masks
 - **Key Ingredients:** Bhringraj, Amla, Brahmi, Hibiscus, Neem, Coconut Oil
 - **Certifications:** 100% Organic, Cruelty-Free
-- **Contact:** support@shreycare.com
+- **Contact:** contact@shreycare.com
 
 ## Sitemap
 - [sitemap.xml](${baseUrl}/sitemap.xml)

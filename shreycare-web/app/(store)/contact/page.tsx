@@ -63,10 +63,10 @@ export default function ContactPage() {
           <p className="text-on-surface-variant mt-2 text-lg">
             You can also email us directly at{" "}
             <a
-              href="mailto:support@shreycare.com"
+              href="mailto:contact@shreycare.com"
               className="text-primary underline hover:text-secondary"
             >
-              support@shreycare.com
+              contact@shreycare.com
             </a>
             .
           </p>

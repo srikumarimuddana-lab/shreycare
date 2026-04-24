@@ -41,10 +41,10 @@ export function Footer() {
           <p className="text-on-surface-variant text-sm">
             Support:{" "}
             <a
-              href="mailto:support@shreycare.com"
+              href="mailto:contact@shreycare.com"
               className="text-primary hover:text-secondary transition-colors duration-300"
             >
-              support@shreycare.com
+              contact@shreycare.com
             </a>
           </p>
         </div>

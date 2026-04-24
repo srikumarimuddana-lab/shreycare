@@ -103,11 +103,11 @@ export function MobileMenu({ open, onClose, links }: MobileMenuProps) {
             Support
           </p>
           <a
-            href="mailto:support@shreycare.com"
+            href="mailto:contact@shreycare.com"
             className="block text-primary hover:text-secondary"
             onClick={onClose}
           >
-            support@shreycare.com
+            contact@shreycare.com
           </a>
         </div>
       </div>
