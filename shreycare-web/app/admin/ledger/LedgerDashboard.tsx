@@ -96,6 +96,8 @@ export function LedgerDashboard() {
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  const [editingSale, setEditingSale] = useState<Sale | null>(null);
+
   async function updateSale(id: string, field: string, value: string) {
     const res = await fetch("/api/admin/sales", {
       method: "PATCH",
@@ -108,6 +110,47 @@ export function LedgerDashboard() {
       fetchData();
     } else {
       toast("Update failed. Please try again.", "error");
+    }
+  }
+
+  async function deleteSale(id: string, orderNumber: string) {
+    if (!confirm(`Delete order ${orderNumber}? This cannot be undone.`)) return;
+    const res = await fetch("/api/admin/sales", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    if (res.ok) {
+      toast(`Order ${orderNumber} deleted.`, "success");
+      fetchData();
+    } else {
+      toast("Delete failed. Please try again.", "error");
+    }
+  }
+
+  async function saveEdit(sale: Sale) {
+    const res = await fetch("/api/admin/sales", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: sale.id,
+        customerName: sale.customer_name,
+        customerEmail: sale.customer_email,
+        customerPhone: sale.customer_phone,
+        paymentMethod: sale.payment_method,
+        paymentStatus: sale.payment_status,
+        fulfillment: sale.fulfillment,
+        notes: sale.notes,
+        items: sale.items,
+        subtotal: sale.subtotal,
+      }),
+    });
+    if (res.ok) {
+      toast("Sale updated.", "success");
+      setEditingSale(null);
+      fetchData();
+    } else {
+      toast("Update failed.", "error");
     }
   }
 
@@ -345,6 +388,7 @@ export function LedgerDashboard() {
               <th className="px-4 py-3.5 font-semibold text-primary">Payment</th>
               <th className="px-4 py-3.5 font-semibold text-primary">Status</th>
               <th className="px-4 py-3.5 font-semibold text-primary">Fulfillment</th>
+              <th className="px-4 py-3.5 font-semibold text-primary text-center">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-outline-variant/50">
@@ -392,11 +436,29 @@ export function LedgerDashboard() {
                     <option value="cancelled">Cancelled</option>
                   </select>
                 </td>
+                <td className="px-4 py-3.5">
+                  <div className="flex items-center justify-center gap-1">
+                    <button
+                      onClick={() => setEditingSale({ ...s })}
+                      className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors"
+                      title="Edit"
+                    >
+                      <span className="material-symbols-outlined text-lg">edit</span>
+                    </button>
+                    <button
+                      onClick={() => deleteSale(s.id, s.order_number)}
+                      className="p-1.5 rounded-lg hover:bg-error-container text-on-surface-variant hover:text-error transition-colors"
+                      title="Delete"
+                    >
+                      <span className="material-symbols-outlined text-lg">delete</span>
+                    </button>
+                  </div>
+                </td>
               </tr>
             ))}
             {sales.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-16 text-center text-on-surface-variant">
+                <td colSpan={9} className="px-4 py-16 text-center text-on-surface-variant">
                   <span className="material-symbols-outlined text-4xl text-outline mb-2 block">receipt_long</span>
                   No sales found. Add your first sale above.
                 </td>
@@ -498,11 +560,219 @@ export function LedgerDashboard() {
                       </select>
                     </div>
                   </div>
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      onClick={() => setEditingSale({ ...s })}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-primary text-primary text-sm font-semibold hover:bg-primary/5 transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-lg">edit</span>
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => deleteSale(s.id, s.order_number)}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-error text-error text-sm font-semibold hover:bg-error-container transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-lg">delete</span>
+                      Delete
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
           );
         })}
+      </div>
+
+      {/* ── Edit modal ── */}
+      {editingSale && (
+        <EditSaleModal
+          sale={editingSale}
+          onChange={setEditingSale}
+          onSave={() => saveEdit(editingSale)}
+          onCancel={() => setEditingSale(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+function EditSaleModal({
+  sale,
+  onChange,
+  onSave,
+  onCancel,
+}: {
+  sale: Sale;
+  onChange: (s: Sale) => void;
+  onSave: () => void;
+  onCancel: () => void;
+}) {
+  const fieldClass =
+    "w-full px-3 py-2 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20";
+  const labelClass =
+    "block text-[10px] font-semibold text-primary uppercase tracking-widest mb-1";
+
+  function updateItem(idx: number, field: string, value: string | number) {
+    const items = [...(sale.items as SaleItem[])];
+    items[idx] = { ...items[idx], [field]: value };
+    const subtotal = items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
+    onChange({ ...sale, items, subtotal });
+  }
+
+  function addItem() {
+    const items = [...(sale.items as SaleItem[]), { productName: "", quantity: 1, unitPrice: 0 }];
+    onChange({ ...sale, items });
+  }
+
+  function removeItem(idx: number) {
+    const items = (sale.items as SaleItem[]).filter((_, i) => i !== idx);
+    const subtotal = items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
+    onChange({ ...sale, items, subtotal });
+  }
+
+  return (
+    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-on-background/50" onClick={onCancel} />
+      <div className="relative bg-surface-container-lowest rounded-xl shadow-botanical-lg border border-outline-variant w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 space-y-5">
+        <div className="flex items-center justify-between">
+          <h2 className="font-headline text-xl text-primary font-bold">
+            Edit {sale.order_number}
+          </h2>
+          <button onClick={onCancel} className="text-on-surface-variant hover:text-primary text-2xl">&times;</button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className={labelClass}>Customer name *</label>
+            <input
+              value={sale.customer_name}
+              onChange={(e) => onChange({ ...sale, customer_name: e.target.value })}
+              className={fieldClass}
+              required
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Email</label>
+            <input
+              type="email"
+              value={sale.customer_email || ""}
+              onChange={(e) => onChange({ ...sale, customer_email: e.target.value || null })}
+              className={fieldClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Phone</label>
+            <input
+              value={sale.customer_phone || ""}
+              onChange={(e) => onChange({ ...sale, customer_phone: e.target.value || null })}
+              className={fieldClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Payment method</label>
+            <select
+              value={sale.payment_method}
+              onChange={(e) => onChange({ ...sale, payment_method: e.target.value })}
+              className={fieldClass}
+            >
+              <option value="cash">Cash</option>
+              <option value="interac">Interac</option>
+              <option value="stripe">Stripe</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelClass}>Payment status</label>
+            <select
+              value={sale.payment_status}
+              onChange={(e) => onChange({ ...sale, payment_status: e.target.value })}
+              className={fieldClass}
+            >
+              <option value="pending">Pending</option>
+              <option value="paid">Paid</option>
+              <option value="refunded">Refunded</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelClass}>Fulfillment</label>
+            <select
+              value={sale.fulfillment}
+              onChange={(e) => onChange({ ...sale, fulfillment: e.target.value })}
+              className={fieldClass}
+            >
+              <option value="pending">Pending</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className={labelClass}>Items</label>
+          {(sale.items as SaleItem[]).map((item, idx) => (
+            <div key={idx} className="grid grid-cols-12 gap-2 items-center">
+              <input
+                value={item.productName}
+                onChange={(e) => updateItem(idx, "productName", e.target.value)}
+                className={`${fieldClass} col-span-6`}
+                placeholder="Product name"
+              />
+              <input
+                type="number"
+                min={1}
+                value={item.quantity}
+                onChange={(e) => updateItem(idx, "quantity", Number(e.target.value))}
+                className={`${fieldClass} col-span-2 text-center`}
+              />
+              <input
+                type="number"
+                min={0}
+                step={0.01}
+                value={item.unitPrice || ""}
+                onChange={(e) => updateItem(idx, "unitPrice", Number(e.target.value))}
+                className={`${fieldClass} col-span-3`}
+              />
+              <button
+                onClick={() => removeItem(idx)}
+                className="col-span-1 text-error hover:text-on-error-container text-lg text-center"
+              >
+                &times;
+              </button>
+            </div>
+          ))}
+          <button onClick={addItem} className="text-sm text-primary font-semibold hover:underline">
+            + Add item
+          </button>
+        </div>
+
+        <div>
+          <label className={labelClass}>Notes</label>
+          <textarea
+            value={sale.notes || ""}
+            onChange={(e) => onChange({ ...sale, notes: e.target.value || null })}
+            rows={2}
+            className={fieldClass}
+          />
+        </div>
+
+        <div className="flex items-center justify-between pt-2 border-t border-outline-variant">
+          <p className="text-lg font-bold text-primary">Subtotal: ${Number(sale.subtotal).toFixed(2)}</p>
+          <div className="flex gap-2">
+            <button
+              onClick={onCancel}
+              className="px-6 py-2.5 rounded-lg border border-outline text-on-surface-variant text-sm font-semibold hover:bg-surface-container transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onSave}
+              className="px-6 py-2.5 rounded-lg bg-primary text-on-primary text-sm font-bold hover:opacity-90 transition-opacity"
+            >
+              Save changes
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

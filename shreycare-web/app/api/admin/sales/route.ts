@@ -220,6 +220,11 @@ export async function PATCH(req: NextRequest) {
   if (body.paymentStatus) updates.payment_status = body.paymentStatus;
   if (body.fulfillment) updates.fulfillment = body.fulfillment;
   if (body.paymentMethod) updates.payment_method = body.paymentMethod;
+  if (body.customerName) updates.customer_name = body.customerName;
+  if (body.customerEmail !== undefined) updates.customer_email = body.customerEmail || null;
+  if (body.customerPhone !== undefined) updates.customer_phone = body.customerPhone || null;
+  if (body.items) updates.items = body.items;
+  if (body.subtotal !== undefined) updates.subtotal = body.subtotal;
   if (body.notes !== undefined) updates.notes = body.notes;
 
   const { data, error } = await supabaseAdmin
@@ -234,4 +239,24 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
   return NextResponse.json(data);
+}
+
+export async function DELETE(req: NextRequest) {
+  if (!authorized(req)) return unauthorized();
+
+  const { id } = await req.json();
+  if (!id) {
+    return NextResponse.json({ error: "id required" }, { status: 400 });
+  }
+
+  const { error } = await supabaseAdmin
+    .from("sales")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error("[admin/sales] DELETE error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+  return NextResponse.json({ ok: true });
 }
