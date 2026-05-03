@@ -29,10 +29,10 @@ export function OrganizationSchema({ siteUrl = DEFAULT_SITE_URL }: { siteUrl?: s
         url: siteUrl,
         logo: `${siteUrl}/images/logo.png`,
         description:
-          "Shop the best ayurvedic hair oil in Canada. ShreyCare Organics crafts cold-pressed, organic hair oils with bhringraj, amla, and rare herbs. Shipped across Canada.",
+          "ShreyCare Organics is a Canadian ayurvedic hair care brand offering natural solutions for hair loss, dandruff, and hair growth. Cold-pressed, organic hair oils crafted with bhringraj, amla, brahmi, and rare Ayurvedic herbs. Three signature oils: Holistic Hair Oil, Anti-Dandruff Hair Oil, and Hair Growth Hair Oil. Shipped across Canada.",
         sameAs: [
-          "https://www.instagram.com/shreycareorganics",
-          "https://www.pinterest.com/shreycareorganics",
+          "https://www.instagram.com/shreycare_hair_love/",
+          "https://www.facebook.com/people/ShreyCare-Hair-Love/61568316414767/",
         ],
       }}
     />

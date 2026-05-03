@@ -13,8 +13,8 @@ const discoverLinks = [
 ];
 
 const socialLinks = [
-  { href: "#", label: "Instagram" },
-  { href: "#", label: "Pinterest" },
+  { href: "https://www.instagram.com/shreycare_hair_love/", label: "Instagram" },
+  { href: "https://www.facebook.com/people/ShreyCare-Hair-Love/61568316414767/", label: "Facebook" },
 ];
 
 export function Footer() {

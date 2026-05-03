@@ -54,7 +54,7 @@ export interface SiteSettings {
   contactPhone: string;
   socialLinks: {
     instagram: string;
-    pinterest: string;
+    facebook: string;
   };
   announcementBar?: string;
 }

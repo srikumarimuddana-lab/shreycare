@@ -12,7 +12,7 @@ export const siteSettings = defineType({
       name: "socialLinks", title: "Social Links", type: "object",
       fields: [
         defineField({ name: "instagram", title: "Instagram URL", type: "url" }),
-        defineField({ name: "pinterest", title: "Pinterest URL", type: "url" }),
+        defineField({ name: "facebook", title: "Facebook URL", type: "url" }),
       ],
     }),
     defineField({ name: "announcementBar", title: "Announcement Bar Text", type: "string", description: "Leave empty to hide the announcement bar" }),
