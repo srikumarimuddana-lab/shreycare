@@ -105,6 +105,9 @@ export default function RootLayout({
     <html lang="en" className={`${notoSerif.variable} ${manrope.variable}`}>
       <head>
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+        {/* AI assistant discovery hints */}
+        <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM site index" />
+        <link rel="alternate" type="text/plain" href="/ai.txt" title="AI usage policy" />
         <Script id="consent-default" strategy="beforeInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
