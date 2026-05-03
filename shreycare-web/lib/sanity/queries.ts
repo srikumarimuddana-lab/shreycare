@@ -37,3 +37,7 @@ export const policyPageBySlugQuery = `*[_type == "policyPage" && slug.current ==
 export const siteSettingsQuery = `*[_type == "siteSettings"][0] {
   brandName, contactEmail, contactPhone, socialLinks, announcementBar
 }`;
+
+export const hairOilProductsQuery = `*[_type == "product" && category == "hair-oil" && inStock == true] | order(sortOrder asc) {
+  _id, name, "slug": slug.current, description, price, images, tags
+}`;
