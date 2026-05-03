@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
   const payload = {
     host,
     key,
-    keyLocation: `${baseUrl}/api/indexnow/key`,
+    keyLocation: `${baseUrl}/9142bec81ff74417abc3f86b35813678.txt`,
     urlList,
   };
 
