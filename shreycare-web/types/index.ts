@@ -55,7 +55,6 @@ export interface SiteSettings {
   socialLinks: {
     instagram: string;
     facebook: string;
-    pinterest: string;
   };
   announcementBar?: string;
 }
