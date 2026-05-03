@@ -34,7 +34,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/api/feed/"],
+        allow: ["/", "/api/feed/", "/api/indexnow/key", "/llms.txt", "/ai.txt"],
         disallow: ["/api/", "/studio/", "/account/", "/order/", "/admin/"],
       },
       // Welcome every known AI crawler so content appears in AI
