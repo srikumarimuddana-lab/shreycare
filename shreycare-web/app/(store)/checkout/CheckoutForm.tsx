@@ -313,7 +313,7 @@ export function CheckoutForm() {
           {/* Grand total */}
           <div className="flex justify-between items-center border-t-2 border-primary/20 pt-4">
             <span className="text-on-surface-variant uppercase tracking-widest text-xs font-semibold">Total</span>
-            <span className="text-primary font-bold text-xl">${grandTotal.toFixed(2)} CAD</span>
+            <span className="text-primary font-bold text-xl whitespace-nowrap">${grandTotal.toFixed(2)} CAD</span>
           </div>
 
           {/* Regina free delivery badge */}
