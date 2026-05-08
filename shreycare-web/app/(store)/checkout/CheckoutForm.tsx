@@ -89,6 +89,19 @@ export function CheckoutForm() {
 
   const grandTotal = total + shipping + tax.amount;
 
+  const shippingNudgeTiers = useMemo(() => {
+    if (isLocalDelivery || hasFreeShipping || shipping === 0) return [];
+    const until = bottlesUntilFreeShipping(bottleCount);
+    return Array.from({ length: until }, (_, i) => {
+      const add = until - i; // descending: 3, 2, 1
+      const newCount = bottleCount + add;
+      const newShipping = newCount >= 4 ? 0 : calculateShipping(newCount);
+      const saved = +(shipping - newShipping).toFixed(2);
+      const pct = Math.round((saved / grandTotal) * 100);
+      return { add, newShipping, saved, pct, isFree: newCount >= 4 };
+    });
+  }, [isLocalDelivery, hasFreeShipping, shipping, bottleCount, grandTotal]);
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (state.items.length === 0) return;
@@ -323,27 +336,35 @@ export function CheckoutForm() {
             </div>
           )}
 
-          {/* Shipping nudge — only when shipping is being charged */}
-          {!isLocalDelivery && !hasFreeShipping && shipping > 0 && (() => {
-            const until = bottlesUntilFreeShipping(bottleCount);
-            const savingPct = Math.round((shipping / grandTotal) * 100);
-            return (
-              <div className="bg-secondary/10 border border-secondary/20 rounded-md px-4 py-3 text-sm leading-snug text-center space-y-1">
-                <p className="font-semibold text-primary">
-                  Add {until} more bottle{until > 1 ? "s" : ""} — save {savingPct}% on this order!
-                </p>
-                <p className="text-on-surface-variant text-xs">
-                  Free shipping unlocks at 4 bottles (saves ${shipping.toFixed(2)})
-                </p>
+          {/* Shipping nudge tiers — largest saving first */}
+          {shippingNudgeTiers.length > 0 && (
+            <div className="border border-secondary/20 rounded-md overflow-hidden text-sm">
+              <p className="bg-secondary/10 px-4 py-2 text-xs font-semibold text-primary uppercase tracking-widest">
+                Save more by adding bottles
+              </p>
+              <ul className="divide-y divide-outline-variant/40">
+                {shippingNudgeTiers.map(({ add, saved, pct, isFree }) => (
+                  <li key={add} className={`flex items-center justify-between gap-3 px-4 py-3 ${isFree ? "bg-primary/5" : ""}`}>
+                    <span className="text-on-surface">
+                      Add <span className="font-semibold">{add}</span> more bottle{add > 1 ? "s" : ""}
+                    </span>
+                    <span className={`whitespace-nowrap font-bold ${isFree ? "text-primary" : "text-secondary"}`}>
+                      {isFree ? "FREE shipping" : `–$${saved.toFixed(2)}`}
+                      <span className="ml-1 text-xs font-normal text-on-surface-variant">({pct}% off)</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <div className="px-4 py-2 bg-surface-container-low">
                 <Link
                   href="/products"
-                  className="block mt-1.5 text-xs font-semibold underline text-primary hover:opacity-80"
+                  className="block text-center text-xs font-semibold text-primary underline hover:opacity-80"
                 >
                   Go back and add more →
                 </Link>
               </div>
-            );
-          })()}
+            </div>
+          )}
 
           <button
             type="submit"
