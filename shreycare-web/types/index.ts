@@ -11,6 +11,8 @@ export interface Product {
   howToUse: PortableTextBlock[];
   tags: string[];
   inStock: boolean;
+  bottleCount?: number;
+  qualifiesForFreeShipping?: boolean;
 }
 
 export interface SanityImage {

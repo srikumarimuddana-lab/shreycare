@@ -3,6 +3,8 @@ import { Resend } from "resend";
 import { sanityClient } from "@/lib/sanity/client";
 import { supabaseAdmin } from "@/lib/supabase";
 import { productBySlugQuery } from "@/lib/sanity/queries";
+import { calculateShipping } from "@/lib/cart/shipping";
+import { calculateTax } from "@/lib/cart/tax";
 import type { CartItem } from "@/lib/cart/types";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -111,6 +113,8 @@ export async function POST(request: NextRequest) {
           price: product.price as number,
           quantity: Math.max(1, Math.floor(item.quantity)),
           inStock: product.inStock as boolean,
+          bottleCount: (product.bottleCount as number) ?? 1,
+          qualifiesForFreeShipping: (product.qualifiesForFreeShipping as boolean) ?? false,
         };
       }),
     );
@@ -119,7 +123,21 @@ export async function POST(request: NextRequest) {
       (sum, i) => sum + i.price * i.quantity,
       0,
     );
-    const total = subtotal;
+
+    // Server-side shipping and tax — never trust client values.
+    const isLocalDelivery = customer.city.trim().toLowerCase() === "regina";
+    const totalBottles = validatedItems.reduce(
+      (sum, i) => sum + i.quantity * i.bottleCount,
+      0,
+    );
+    const hasBundle = validatedItems.some((i) => i.qualifiesForFreeShipping);
+    const shipping =
+      isLocalDelivery || hasBundle || totalBottles >= 4
+        ? 0
+        : calculateShipping(totalBottles);
+    const province = isLocalDelivery ? "SK" : customer.state;
+    const tax = calculateTax(subtotal + shipping, province);
+    const total = +(subtotal + shipping + tax.amount).toFixed(2);
 
     const orderNumber = await generateUniqueOrderNumber();
     const placedAt = new Date().toISOString();
@@ -151,7 +169,7 @@ export async function POST(request: NextRequest) {
     }\n${customer.city}, ${customer.state} ${customer.postalCode}\n${customer.country}`;
 
     // --- Email to admin ---
-    const adminSubject = `New order ${orderNumber} — ${customer.name} — ${CURRENCY} ${subtotal.toFixed(2)}`;
+    const adminSubject = `New order ${orderNumber} — ${customer.name} — ${CURRENCY} ${total.toFixed(2)}`;
     const adminText = `New order placed on ShreyCare Organics.
 
 Order: ${orderNumber}
@@ -168,6 +186,8 @@ ${shippingBlock}
 ${customer.notes ? `Notes from customer:\n${customer.notes}\n\n` : ""}Items:
 ${itemsTextBlock}
 
+Subtotal: ${CURRENCY} ${subtotal.toFixed(2)}
+Shipping: ${shipping === 0 ? `FREE${isLocalDelivery ? " (local delivery — Regina)" : ""}` : `${CURRENCY} ${shipping.toFixed(2)}`}${tax.amount > 0 ? `\nPST (6%): ${CURRENCY} ${tax.amount.toFixed(2)}` : ""}
 Total: ${CURRENCY} ${total.toFixed(2)}
 
 Reply to ${customer.email} with payment instructions to complete the order.
@@ -328,8 +348,9 @@ This is an automated message from a no-reply address. For any questions about yo
           unitPrice: i.price,
         })),
         subtotal,
-        tax_rate: 0,
-        tax_amount: 0,
+        shipping_amount: shipping,
+        tax_rate: tax.rate,
+        tax_amount: tax.amount,
         total,
         payment_method: "interac",
         payment_status: "pending",

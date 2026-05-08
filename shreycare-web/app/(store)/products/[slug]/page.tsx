@@ -184,6 +184,8 @@ export default async function ProductDetailPage({
                 price={product.price}
                 image={mainImage}
                 inStock={product.inStock}
+                bottleCount={product.bottleCount ?? 1}
+                qualifiesForFreeShipping={product.qualifiesForFreeShipping ?? false}
               />
             </div>
 

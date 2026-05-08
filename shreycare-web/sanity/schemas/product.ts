@@ -37,6 +37,8 @@ export const product = defineType({
     }),
     defineField({ name: "inStock", title: "In Stock", type: "boolean", initialValue: true }),
     defineField({ name: "sortOrder", title: "Sort Order", type: "number", initialValue: 0 }),
+    defineField({ name: "bottleCount", title: "Bottles per SKU", type: "number", description: "Number of bottles included. 1 for single bottles, 4 for a 4-pack bundle.", initialValue: 1, validation: (Rule) => Rule.required().positive().integer() }),
+    defineField({ name: "qualifiesForFreeShipping", title: "Qualifies for Free Shipping", type: "boolean", description: "Enable for bundles that always ship free regardless of cart quantity.", initialValue: false }),
   ],
   preview: { select: { title: "name", media: "images.0" } },
 });
