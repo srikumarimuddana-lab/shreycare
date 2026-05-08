@@ -324,21 +324,26 @@ export function CheckoutForm() {
           )}
 
           {/* Shipping nudge — only when shipping is being charged */}
-          {!isLocalDelivery && !hasFreeShipping && shipping > 0 && (
-            <div className="bg-secondary/10 rounded-md px-4 py-3 text-sm text-on-surface leading-snug text-center">
-              <span className="font-semibold text-primary">
-                Add {bottlesUntilFreeShipping(bottleCount)} more bottle{bottlesUntilFreeShipping(bottleCount) > 1 ? "s" : ""}
-              </span>{" "}
-              to unlock FREE shipping and save{" "}
-              <span className="font-semibold text-primary">${shipping.toFixed(2)}</span>!
-              <Link
-                href="/products"
-                className="block mt-2 text-xs underline text-primary hover:opacity-80"
-              >
-                Go back and add more →
-              </Link>
-            </div>
-          )}
+          {!isLocalDelivery && !hasFreeShipping && shipping > 0 && (() => {
+            const until = bottlesUntilFreeShipping(bottleCount);
+            const savingPct = Math.round((shipping / grandTotal) * 100);
+            return (
+              <div className="bg-secondary/10 border border-secondary/20 rounded-md px-4 py-3 text-sm leading-snug text-center space-y-1">
+                <p className="font-semibold text-primary">
+                  Add {until} more bottle{until > 1 ? "s" : ""} — save {savingPct}% on this order!
+                </p>
+                <p className="text-on-surface-variant text-xs">
+                  Free shipping unlocks at 4 bottles (saves ${shipping.toFixed(2)})
+                </p>
+                <Link
+                  href="/products"
+                  className="block mt-1.5 text-xs font-semibold underline text-primary hover:opacity-80"
+                >
+                  Go back and add more →
+                </Link>
+              </div>
+            );
+          })()}
 
           <button
             type="submit"
