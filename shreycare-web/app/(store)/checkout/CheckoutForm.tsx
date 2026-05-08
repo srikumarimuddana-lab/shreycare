@@ -267,19 +267,19 @@ export function CheckoutForm() {
 
           <ul className="space-y-3 divide-y divide-outline-variant/50">
             {state.items.map((item) => (
-              <li key={item.productId} className="pt-3 first:pt-0 flex justify-between gap-3 text-sm">
-                <span className="text-on-surface">
-                  {item.name}
-                  <span className="text-on-surface-variant"> × {item.quantity}</span>
-                </span>
-                <span className="text-on-surface font-semibold whitespace-nowrap">
-                  ${(item.price * item.quantity).toFixed(2)}
-                </span>
+              <li key={item.productId} className="pt-3 first:pt-0 text-sm">
+                <div className="flex justify-between items-start gap-2">
+                  <span className="text-on-surface leading-snug">{item.name}</span>
+                  <span className="text-on-surface font-semibold whitespace-nowrap">
+                    ${(item.price * item.quantity).toFixed(2)}
+                  </span>
+                </div>
+                <span className="text-on-surface-variant text-xs">Qty: {item.quantity}</span>
               </li>
             ))}
           </ul>
 
-          <div className="border-t border-outline-variant pt-4 space-y-2 text-sm">
+          <div className="border-t border-outline-variant pt-4 space-y-3 text-sm">
             {/* Subtotal */}
             <div className="flex justify-between items-center">
               <span className="text-on-surface-variant">Subtotal</span>
@@ -287,10 +287,13 @@ export function CheckoutForm() {
             </div>
 
             {/* Shipping */}
-            <div className="flex justify-between items-center">
-              <span className="text-on-surface-variant">Shipping</span>
+            <div className="flex justify-between items-start gap-2">
+              <span className="text-on-surface-variant shrink-0">Shipping</span>
               {isLocalDelivery ? (
-                <span className="text-primary font-bold">FREE (local delivery)</span>
+                <span className="text-primary font-bold text-right leading-snug">
+                  FREE
+                  <span className="block text-xs font-normal text-primary/70">local delivery</span>
+                </span>
               ) : shipping === 0 ? (
                 <span className="text-primary font-bold">FREE</span>
               ) : (
@@ -308,15 +311,15 @@ export function CheckoutForm() {
           </div>
 
           {/* Grand total */}
-          <div className="flex justify-between items-center border-t border-outline-variant pt-4">
+          <div className="flex justify-between items-center border-t-2 border-primary/20 pt-4">
             <span className="text-on-surface-variant uppercase tracking-widest text-xs font-semibold">Total</span>
             <span className="text-primary font-bold text-xl">${grandTotal.toFixed(2)} CAD</span>
           </div>
 
           {/* Regina free delivery badge */}
           {isLocalDelivery && (
-            <div className="bg-primary/10 rounded-md px-4 py-3 text-sm text-primary font-semibold text-center">
-              🌿 Great news — you&apos;re in Regina! We offer FREE local delivery on all orders.
+            <div className="bg-primary/10 rounded-md px-4 py-3 text-sm text-primary font-semibold text-center leading-snug">
+              🌿 You&apos;re in Regina — FREE local delivery on all orders!
             </div>
           )}
 
