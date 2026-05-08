@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useMemo } from "react";
 import { useCart } from "@/lib/cart/CartContext";
 import { useToast } from "@/components/ui/ToastProvider";
-import { calculateShipping } from "@/lib/cart/shipping";
+import { calculateShipping, bottlesUntilFreeShipping } from "@/lib/cart/shipping";
 import { calculateTax } from "@/lib/cart/tax";
 
 interface CustomerInput {
@@ -320,6 +320,23 @@ export function CheckoutForm() {
           {isLocalDelivery && (
             <div className="bg-primary/10 rounded-md px-4 py-3 text-sm text-primary font-semibold text-center leading-snug">
               🌿 You&apos;re in Regina — FREE local delivery on all orders!
+            </div>
+          )}
+
+          {/* Shipping nudge — only when shipping is being charged */}
+          {!isLocalDelivery && !hasFreeShipping && shipping > 0 && (
+            <div className="bg-secondary/10 rounded-md px-4 py-3 text-sm text-on-surface leading-snug text-center">
+              <span className="font-semibold text-primary">
+                Add {bottlesUntilFreeShipping(bottleCount)} more bottle{bottlesUntilFreeShipping(bottleCount) > 1 ? "s" : ""}
+              </span>{" "}
+              to unlock FREE shipping and save{" "}
+              <span className="font-semibold text-primary">${shipping.toFixed(2)}</span>!
+              <Link
+                href="/products"
+                className="block mt-2 text-xs underline text-primary hover:opacity-80"
+              >
+                Go back and add more →
+              </Link>
             </div>
           )}
 
