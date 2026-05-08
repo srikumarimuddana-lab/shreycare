@@ -2,17 +2,32 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cart/CartContext";
+import { bottlesUntilFreeShipping } from "@/lib/cart/shipping";
 
 interface CartDrawerProps {
   open: boolean;
   onClose: () => void;
 }
 
+function readReginaCookie(): boolean {
+  if (typeof document === "undefined") return false;
+  return document.cookie.split(";").some((c) => c.trim().startsWith("shreycare-is-regina="));
+}
+
 export function CartDrawer({ open, onClose }: CartDrawerProps) {
-  const { state, removeItem, updateQuantity, total } = useCart();
+  const { state, removeItem, updateQuantity, total, bottleCount, shipping, hasFreeShipping } = useCart();
+  const [isRegina, setIsRegina] = useState(false);
+
+  useEffect(() => {
+    setIsRegina(readReginaCookie());
+  }, [open]);
 
   if (!open) return null;
+
+  const until = bottlesUntilFreeShipping(bottleCount);
+  const progressPct = Math.min((bottleCount / 4) * 100, 100);
 
   return (
     <div className="fixed inset-0 z-50">
@@ -65,20 +80,14 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                     </p>
                     <div className="flex items-center gap-3 mt-2">
                       <button
-                        onClick={() =>
-                          updateQuantity(item.productId, item.quantity - 1)
-                        }
+                        onClick={() => updateQuantity(item.productId, item.quantity - 1)}
                         className="w-7 h-7 rounded-md bg-surface-container-low text-primary text-sm flex items-center justify-center hover:bg-surface-container-high"
                       >
                         -
                       </button>
-                      <span className="text-sm text-on-surface font-bold">
-                        {item.quantity}
-                      </span>
+                      <span className="text-sm text-on-surface font-bold">{item.quantity}</span>
                       <button
-                        onClick={() =>
-                          updateQuantity(item.productId, item.quantity + 1)
-                        }
+                        onClick={() => updateQuantity(item.productId, item.quantity + 1)}
                         className="w-7 h-7 rounded-md bg-surface-container-low text-primary text-sm flex items-center justify-center hover:bg-surface-container-high"
                       >
                         +
@@ -97,14 +106,52 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
             </div>
 
             <div className="px-8 py-6 bg-surface-container-low space-y-4">
+              {/* Shipping nudge */}
+              {isRegina ? (
+                <div className="bg-primary/10 rounded-md px-4 py-3 text-sm text-primary font-semibold text-center">
+                  📍 You&apos;re in Regina — FREE local delivery on all orders!
+                </div>
+              ) : hasFreeShipping ? (
+                <div className="bg-primary/10 rounded-md px-4 py-3 text-sm text-primary font-semibold text-center">
+                  🌿 You unlocked FREE shipping!
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary rounded-full transition-all duration-500"
+                      style={{ width: `${progressPct}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-on-surface-variant text-center">
+                    {until === 0
+                      ? "🌿 You unlocked FREE shipping!"
+                      : `Add ${until} more bottle${until > 1 ? "s" : ""} to unlock FREE shipping & save $${shipping.toFixed(2)}!`}
+                  </p>
+                  <p className="text-xs text-on-surface-variant text-center italic">
+                    📍 In Regina? You get FREE local delivery — just enter your city at checkout.
+                  </p>
+                </div>
+              )}
+
+              {/* Subtotal */}
               <div className="flex justify-between items-center">
-                <span className="text-on-surface-variant text-sm uppercase tracking-widest">
-                  Subtotal
-                </span>
-                <span className="text-primary font-bold text-xl">
-                  ${total.toFixed(2)} CAD
-                </span>
+                <span className="text-on-surface-variant text-sm uppercase tracking-widest">Subtotal</span>
+                <span className="text-primary font-bold text-xl">${total.toFixed(2)} CAD</span>
               </div>
+
+              {/* Estimated shipping */}
+              {!isRegina && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-on-surface-variant">Est. shipping</span>
+                  {hasFreeShipping ? (
+                    <span className="text-primary font-bold">FREE</span>
+                  ) : (
+                    <span className="text-on-surface-variant">${shipping.toFixed(2)} CAD</span>
+                  )}
+                </div>
+              )}
+
               <Link
                 href="/checkout"
                 onClick={onClose}

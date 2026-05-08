@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useCart } from "@/lib/cart/CartContext";
 import { useToast } from "@/components/ui/ToastProvider";
+import { calculateShipping } from "@/lib/cart/shipping";
+import { calculateTax } from "@/lib/cart/tax";
 
 interface CustomerInput {
   name: string;
@@ -26,11 +28,27 @@ const initial: CustomerInput = {
   addressLine1: "",
   addressLine2: "",
   city: "",
-  state: "",
+  state: "SK",
   postalCode: "",
   country: "Canada",
   notes: "",
 };
+
+const PROVINCES = [
+  { value: "AB", label: "Alberta" },
+  { value: "BC", label: "British Columbia" },
+  { value: "MB", label: "Manitoba" },
+  { value: "NB", label: "New Brunswick" },
+  { value: "NL", label: "Newfoundland & Labrador" },
+  { value: "NS", label: "Nova Scotia" },
+  { value: "NT", label: "Northwest Territories" },
+  { value: "NU", label: "Nunavut" },
+  { value: "ON", label: "Ontario" },
+  { value: "PE", label: "Prince Edward Island" },
+  { value: "QC", label: "Quebec" },
+  { value: "SK", label: "Saskatchewan" },
+  { value: "YT", label: "Yukon" },
+];
 
 const fieldClass =
   "w-full px-4 py-3 rounded-md border border-outline-variant bg-surface-container-lowest text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition";
@@ -40,14 +58,36 @@ const labelClass =
 export function CheckoutForm() {
   const router = useRouter();
   const toast = useToast();
-  const { state, total, clearCart } = useCart();
+  const { state, total, bottleCount, hasFreeShipping, clearCart } = useCart();
   const [customer, setCustomer] = useState<CustomerInput>(initial);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   function update<K extends keyof CustomerInput>(key: K, value: CustomerInput[K]) {
-    setCustomer((c) => ({ ...c, [key]: value }));
+    setCustomer((c) => {
+      const next = { ...c, [key]: value };
+      // When city becomes "Regina", lock province to SK.
+      if (key === "city" && (value as string).trim().toLowerCase() === "regina") {
+        next.state = "SK";
+      }
+      return next;
+    });
   }
+
+  const isLocalDelivery = customer.city.trim().toLowerCase() === "regina";
+  const province = isLocalDelivery ? "SK" : customer.state;
+
+  const shipping = useMemo(() => {
+    if (isLocalDelivery || hasFreeShipping) return 0;
+    return calculateShipping(bottleCount);
+  }, [isLocalDelivery, hasFreeShipping, bottleCount]);
+
+  const tax = useMemo(
+    () => calculateTax(total + shipping, province),
+    [total, shipping, province]
+  );
+
+  const grandTotal = total + shipping + tax.amount;
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -55,16 +95,19 @@ export function CheckoutForm() {
     setSubmitting(true);
     setError(null);
 
+    const payload = {
+      customer: { ...customer, state: province },
+      items: state.items,
+    };
+
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customer, items: state.items }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Unable to place order.");
-      }
+      if (!res.ok) throw new Error(data.error || "Unable to place order.");
       clearCart();
       router.push(`/order/thank-you?ref=${encodeURIComponent(data.orderNumber)}`);
     } catch (err) {
@@ -79,9 +122,7 @@ export function CheckoutForm() {
     return (
       <div className="bg-surface-container-lowest rounded-lg border border-outline-variant p-10 text-center space-y-6">
         <h2 className="font-headline text-2xl text-primary">Your cart is empty</h2>
-        <p className="text-on-surface-variant">
-          Add a product before checking out.
-        </p>
+        <p className="text-on-surface-variant">Add a product before checking out.</p>
         <Link
           href="/products"
           className="inline-block bg-primary text-on-primary px-8 py-3 rounded-md font-bold hover:opacity-90 transition-opacity"
@@ -96,9 +137,7 @@ export function CheckoutForm() {
     <form onSubmit={onSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-10">
       <div className="lg:col-span-2 space-y-10">
         <fieldset className="space-y-5">
-          <legend className="font-headline text-xl text-primary mb-4">
-            Your details
-          </legend>
+          <legend className="font-headline text-xl text-primary mb-4">Your details</legend>
           <div>
             <label htmlFor="name" className={labelClass}>Full name</label>
             <input
@@ -131,9 +170,7 @@ export function CheckoutForm() {
         </fieldset>
 
         <fieldset className="space-y-5">
-          <legend className="font-headline text-xl text-primary mb-4">
-            Shipping address
-          </legend>
+          <legend className="font-headline text-xl text-primary mb-4">Shipping address</legend>
           <div>
             <label htmlFor="addressLine1" className={labelClass}>Address line 1</label>
             <input
@@ -164,17 +201,26 @@ export function CheckoutForm() {
                 className={fieldClass}
               />
             </div>
+
+            {/* Province — hidden for Regina (always SK) */}
+            {!isLocalDelivery && (
+              <div>
+                <label htmlFor="state" className={labelClass}>Province</label>
+                <select
+                  id="state" required autoComplete="address-level1"
+                  value={customer.state}
+                  onChange={(e) => update("state", e.target.value)}
+                  className={fieldClass}
+                >
+                  {PROVINCES.map((p) => (
+                    <option key={p.value} value={p.value}>{p.label}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div>
-              <label htmlFor="state" className={labelClass}>State / Province</label>
-              <input
-                id="state" type="text" required autoComplete="address-level1"
-                value={customer.state}
-                onChange={(e) => update("state", e.target.value)}
-                className={fieldClass}
-              />
-            </div>
-            <div>
-              <label htmlFor="postalCode" className={labelClass}>Postal / PIN code</label>
+              <label htmlFor="postalCode" className={labelClass}>Postal code</label>
               <input
                 id="postalCode" type="text" required autoComplete="postal-code"
                 value={customer.postalCode}
@@ -214,9 +260,11 @@ export function CheckoutForm() {
         )}
       </div>
 
+      {/* Order summary */}
       <aside className="lg:col-span-1">
         <div className="bg-surface-container-lowest border border-outline-variant rounded-lg p-6 space-y-5 sticky top-28">
           <h2 className="font-headline text-xl text-primary">Order summary</h2>
+
           <ul className="space-y-3 divide-y divide-outline-variant/50">
             {state.items.map((item) => (
               <li key={item.productId} className="pt-3 first:pt-0 flex justify-between gap-3 text-sm">
@@ -230,13 +278,48 @@ export function CheckoutForm() {
               </li>
             ))}
           </ul>
+
+          <div className="border-t border-outline-variant pt-4 space-y-2 text-sm">
+            {/* Subtotal */}
+            <div className="flex justify-between items-center">
+              <span className="text-on-surface-variant">Subtotal</span>
+              <span className="text-on-surface font-semibold">${total.toFixed(2)}</span>
+            </div>
+
+            {/* Shipping */}
+            <div className="flex justify-between items-center">
+              <span className="text-on-surface-variant">Shipping</span>
+              {isLocalDelivery ? (
+                <span className="text-primary font-bold">FREE (local delivery)</span>
+              ) : shipping === 0 ? (
+                <span className="text-primary font-bold">FREE</span>
+              ) : (
+                <span className="text-on-surface font-semibold">${shipping.toFixed(2)}</span>
+              )}
+            </div>
+
+            {/* PST — only for SK */}
+            {tax.amount > 0 && (
+              <div className="flex justify-between items-center">
+                <span className="text-on-surface-variant">PST (6%)</span>
+                <span className="text-on-surface font-semibold">${tax.amount.toFixed(2)}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Grand total */}
           <div className="flex justify-between items-center border-t border-outline-variant pt-4">
             <span className="text-on-surface-variant uppercase tracking-widest text-xs font-semibold">Total</span>
-            <span className="text-primary font-bold text-xl">${total.toFixed(2)} CAD</span>
+            <span className="text-primary font-bold text-xl">${grandTotal.toFixed(2)} CAD</span>
           </div>
-          <p className="text-xs text-on-surface-variant leading-relaxed">
-            Shipping will be confirmed by our team in the payment instructions email.
-          </p>
+
+          {/* Regina free delivery badge */}
+          {isLocalDelivery && (
+            <div className="bg-primary/10 rounded-md px-4 py-3 text-sm text-primary font-semibold text-center">
+              🌿 Great news — you&apos;re in Regina! We offer FREE local delivery on all orders.
+            </div>
+          )}
+
           <button
             type="submit"
             disabled={submitting}

@@ -5,6 +5,8 @@ export interface CartItem {
   price: number;
   quantity: number;
   image: string;
+  bottleCount?: number;
+  qualifiesForFreeShipping?: boolean;
 }
 
 export interface CartState {
