@@ -21,10 +21,27 @@ interface Sale {
   customer_phone: string | null;
   items: SaleItem[];
   subtotal: number;
+  tax_rate: number;
+  tax_amount: number;
+  total: number;
   payment_method: string;
   payment_status: string;
   fulfillment: string;
   notes: string | null;
+}
+
+interface ChannelBreakdown {
+  count: number;
+  revenue: number;
+  subtotal: number;
+  tax: number;
+  paidRevenue: number;
+  pendingRevenue: number;
+  refundedRevenue: number;
+  fulfillmentPending: number;
+  fulfillmentShipped: number;
+  fulfillmentDelivered: number;
+  fulfillmentCancelled: number;
 }
 
 interface Summary {
@@ -34,6 +51,7 @@ interface Summary {
   totalTax: number;
   paidRevenue: number;
   pendingRevenue: number;
+  refundedRevenue: number;
   onlineCount: number;
   offlineCount: number;
   onlineRevenue: number;
@@ -42,6 +60,18 @@ interface Summary {
   fulfillmentShipped: number;
   fulfillmentDelivered: number;
   fulfillmentCancelled: number;
+  breakdown: {
+    online: ChannelBreakdown;
+    offline: ChannelBreakdown;
+  };
+}
+
+// Effective total for a sale row: prefer the stored `total`, fall back to
+// subtotal + tax_amount so legacy offline rows (total=0) still render right.
+function saleTotal(s: Sale): number {
+  const t = Number(s.total ?? 0);
+  if (t > 0) return t;
+  return Number(s.subtotal ?? 0) + Number(s.tax_amount ?? 0);
 }
 
 const statusBadge: Record<string, string> = {
@@ -143,6 +173,8 @@ export function LedgerDashboard() {
         notes: sale.notes,
         items: sale.items,
         subtotal: sale.subtotal,
+        taxRate: sale.tax_rate,
+        taxAmount: sale.tax_amount,
       }),
     });
     if (res.ok) {
@@ -174,9 +206,9 @@ export function LedgerDashboard() {
       (s.items as SaleItem[])
         ?.map((i) => `${i.productName} x${i.quantity} @$${i.unitPrice}`)
         .join("; ") ?? "",
-      Number(s.subtotal).toFixed(2),
-      "0.00",
-      Number(s.subtotal).toFixed(2),
+      Number(s.subtotal ?? 0).toFixed(2),
+      Number(s.tax_amount ?? 0).toFixed(2),
+      saleTotal(s).toFixed(2),
       s.payment_method,
       s.payment_status,
       s.fulfillment,
@@ -214,12 +246,14 @@ export function LedgerDashboard() {
     <div className="space-y-6">
       {/* ── Summary cards ── */}
       {summary && (<>
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
           <SummaryCard
             icon="payments"
             label="Total Revenue"
             value={`$${summary.totalRevenue.toFixed(2)}`}
             sub={`${summary.totalSales} sales`}
+            online={`$${summary.breakdown.online.revenue.toFixed(2)}`}
+            offline={`$${summary.breakdown.offline.revenue.toFixed(2)}`}
           />
           <SummaryCard
             icon="check_circle"
@@ -227,6 +261,8 @@ export function LedgerDashboard() {
             value={`$${summary.paidRevenue.toFixed(2)}`}
             sub="Paid"
             accent="text-green-700"
+            online={`$${summary.breakdown.online.paidRevenue.toFixed(2)}`}
+            offline={`$${summary.breakdown.offline.paidRevenue.toFixed(2)}`}
           />
           <SummaryCard
             icon="schedule"
@@ -234,6 +270,8 @@ export function LedgerDashboard() {
             value={`$${summary.pendingRevenue.toFixed(2)}`}
             sub="Awaiting payment"
             accent="text-yellow-700"
+            online={`$${summary.breakdown.online.pendingRevenue.toFixed(2)}`}
+            offline={`$${summary.breakdown.offline.pendingRevenue.toFixed(2)}`}
           />
           <SummaryCard
             icon="receipt_long"
@@ -241,23 +279,29 @@ export function LedgerDashboard() {
             value={`$${summary.totalTax.toFixed(2)}`}
             sub={`On $${summary.totalSubtotal.toFixed(2)} in sales`}
             accent="text-secondary"
+            online={`$${summary.breakdown.online.tax.toFixed(2)}`}
+            offline={`$${summary.breakdown.offline.tax.toFixed(2)}`}
           />
           <SummaryCard
             icon="sync_alt"
-            label="Online / Offline"
-            value={`${summary.onlineCount} / ${summary.offlineCount}`}
-            sub={`$${summary.onlineRevenue.toFixed(2)} / $${summary.offlineRevenue.toFixed(2)}`}
+            label="Sales count"
+            value={`${summary.totalSales}`}
+            sub="All sales"
+            online={`${summary.breakdown.online.count}`}
+            offline={`${summary.breakdown.offline.count}`}
           />
         </div>
 
         {/* Fulfillment stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <SummaryCard
             icon="pending_actions"
             label="To fulfill"
             value={`${summary.fulfillmentPending}`}
             sub="Orders pending"
             accent="text-yellow-700"
+            online={`${summary.breakdown.online.fulfillmentPending}`}
+            offline={`${summary.breakdown.offline.fulfillmentPending}`}
           />
           <SummaryCard
             icon="local_shipping"
@@ -265,6 +309,8 @@ export function LedgerDashboard() {
             value={`${summary.fulfillmentShipped}`}
             sub="In transit"
             accent="text-blue-700"
+            online={`${summary.breakdown.online.fulfillmentShipped}`}
+            offline={`${summary.breakdown.offline.fulfillmentShipped}`}
           />
           <SummaryCard
             icon="inventory"
@@ -272,6 +318,8 @@ export function LedgerDashboard() {
             value={`${summary.fulfillmentDelivered}`}
             sub="Completed"
             accent="text-green-700"
+            online={`${summary.breakdown.online.fulfillmentDelivered}`}
+            offline={`${summary.breakdown.offline.fulfillmentDelivered}`}
           />
           <SummaryCard
             icon="cancel"
@@ -279,6 +327,8 @@ export function LedgerDashboard() {
             value={`${summary.fulfillmentCancelled}`}
             sub="Cancelled orders"
             accent="text-red-700"
+            online={`${summary.breakdown.online.fulfillmentCancelled}`}
+            offline={`${summary.breakdown.offline.fulfillmentCancelled}`}
           />
         </div>
       </>)}
@@ -408,7 +458,12 @@ export function LedgerDashboard() {
                   )}
                 </td>
                 <td className="px-4 py-3.5 text-right font-bold text-on-surface">
-                  ${Number(s.subtotal).toFixed(2)}
+                  ${saleTotal(s).toFixed(2)}
+                  {Number(s.tax_amount ?? 0) > 0 && (
+                    <div className="text-[10px] font-normal text-on-surface-variant">
+                      incl. ${Number(s.tax_amount).toFixed(2)} tax
+                    </div>
+                  )}
                 </td>
                 <td className="px-4 py-3.5 capitalize text-on-surface-variant text-xs font-medium">
                   {s.payment_method}
@@ -497,7 +552,12 @@ export function LedgerDashboard() {
                   <div className="text-on-surface-variant text-xs">{formatDate(s.sale_date)}</div>
                 </div>
                 <div className="text-right pl-4">
-                  <div className="text-on-surface font-bold">${Number(s.subtotal).toFixed(2)}</div>
+                  <div className="text-on-surface font-bold">${saleTotal(s).toFixed(2)}</div>
+                  {Number(s.tax_amount ?? 0) > 0 && (
+                    <div className="text-[10px] text-on-surface-variant">
+                      incl. ${Number(s.tax_amount).toFixed(2)} tax
+                    </div>
+                  )}
                   <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold mt-1 ${statusBadge[s.payment_status] || ""}`}>
                     {s.payment_status}
                   </span>
@@ -612,11 +672,20 @@ function EditSaleModal({
   const labelClass =
     "block text-[10px] font-semibold text-primary uppercase tracking-widest mb-1";
 
+  // Recompute subtotal/tax/total whenever line items change, using the sale's
+  // existing tax rate so PST stays proportional after edits.
+  function recompute(items: SaleItem[]): Partial<Sale> {
+    const subtotal = +items.reduce((s, i) => s + i.quantity * i.unitPrice, 0).toFixed(2);
+    const taxRate = Number(sale.tax_rate ?? 0);
+    const tax_amount = +(subtotal * taxRate).toFixed(2);
+    const total = +(subtotal + tax_amount).toFixed(2);
+    return { items, subtotal, tax_amount, total };
+  }
+
   function updateItem(idx: number, field: string, value: string | number) {
     const items = [...(sale.items as SaleItem[])];
     items[idx] = { ...items[idx], [field]: value };
-    const subtotal = items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
-    onChange({ ...sale, items, subtotal });
+    onChange({ ...sale, ...recompute(items) });
   }
 
   function addItem() {
@@ -626,8 +695,7 @@ function EditSaleModal({
 
   function removeItem(idx: number) {
     const items = (sale.items as SaleItem[]).filter((_, i) => i !== idx);
-    const subtotal = items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
-    onChange({ ...sale, items, subtotal });
+    onChange({ ...sale, ...recompute(items) });
   }
 
   return (
@@ -756,8 +824,12 @@ function EditSaleModal({
           />
         </div>
 
-        <div className="flex items-center justify-between pt-2 border-t border-outline-variant">
-          <p className="text-lg font-bold text-primary">Subtotal: ${Number(sale.subtotal).toFixed(2)}</p>
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 pt-2 border-t border-outline-variant">
+          <div className="text-sm space-y-0.5">
+            <p className="text-on-surface-variant">Subtotal: <span className="text-on-surface font-medium">${Number(sale.subtotal ?? 0).toFixed(2)}</span></p>
+            <p className="text-on-surface-variant">Tax: <span className="text-on-surface font-medium">${Number(sale.tax_amount ?? 0).toFixed(2)}</span></p>
+            <p className="text-lg font-bold text-primary">Total: ${saleTotal(sale).toFixed(2)}</p>
+          </div>
           <div className="flex gap-2">
             <button
               onClick={onCancel}
@@ -784,12 +856,16 @@ function SummaryCard({
   value,
   sub,
   accent = "text-primary",
+  online,
+  offline,
 }: {
   icon: string;
   label: string;
   value: string;
   sub: string;
   accent?: string;
+  online?: string;
+  offline?: string;
 }) {
   return (
     <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 sm:p-5 shadow-sm">
@@ -801,6 +877,24 @@ function SummaryCard({
       </div>
       <p className={`text-xl sm:text-2xl font-bold ${accent}`}>{value}</p>
       <p className="text-xs text-on-surface-variant mt-0.5">{sub}</p>
+      {(online !== undefined || offline !== undefined) && (
+        <div className="mt-3 pt-3 border-t border-outline-variant/50 grid grid-cols-2 gap-2 text-xs">
+          <div className="flex flex-col">
+            <span className="flex items-center gap-1 text-on-surface-variant text-[10px] uppercase tracking-wider font-semibold">
+              <span className="material-symbols-outlined text-xs">language</span>
+              Online
+            </span>
+            <span className="text-on-surface font-semibold">{online ?? "—"}</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="flex items-center gap-1 text-on-surface-variant text-[10px] uppercase tracking-wider font-semibold">
+              <span className="material-symbols-outlined text-xs">storefront</span>
+              Offline
+            </span>
+            <span className="text-on-surface font-semibold">{offline ?? "—"}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

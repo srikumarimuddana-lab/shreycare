@@ -31,6 +31,8 @@ async function sendReceipt(opts: {
   saleDate: string;
   items: SaleItem[];
   subtotal: number;
+  taxAmount: number;
+  total: number;
   paymentMethod: string;
   paymentStatus: string;
 }) {
@@ -69,7 +71,8 @@ Payment: ${opts.paymentMethod} (${opts.paymentStatus})
 Items:
 ${itemsText}
 
-Total: ${CURRENCY} ${opts.subtotal.toFixed(2)}
+Subtotal: ${CURRENCY} ${opts.subtotal.toFixed(2)}${opts.taxAmount > 0 ? `\nTax: ${CURRENCY} ${opts.taxAmount.toFixed(2)}` : ""}
+Total: ${CURRENCY} ${opts.total.toFixed(2)}
 
 This is an automated message from a no-reply address. For any questions about your order, please email us at ${SUPPORT_EMAIL}.
 
@@ -98,8 +101,16 @@ This is an automated message from a no-reply address. For any questions about yo
     <tbody>
       ${itemsRows}
       <tr>
+        <td colspan="2" style="padding:8px;text-align:right;color:#45483f;border-top:1px solid #e5e2dd;">Subtotal</td>
+        <td style="padding:8px;text-align:right;color:#45483f;border-top:1px solid #e5e2dd;">${CURRENCY} ${opts.subtotal.toFixed(2)}</td>
+      </tr>
+      ${opts.taxAmount > 0 ? `<tr>
+        <td colspan="2" style="padding:8px;text-align:right;color:#45483f;">Tax</td>
+        <td style="padding:8px;text-align:right;color:#45483f;">${CURRENCY} ${opts.taxAmount.toFixed(2)}</td>
+      </tr>` : ""}
+      <tr>
         <td colspan="2" style="padding:12px 8px;text-align:right;font-weight:bold;border-top:2px solid #384527;">Total</td>
-        <td style="padding:12px 8px;text-align:right;font-weight:bold;border-top:2px solid #384527;">${CURRENCY} ${opts.subtotal.toFixed(2)}</td>
+        <td style="padding:12px 8px;text-align:right;font-weight:bold;border-top:2px solid #384527;">${CURRENCY} ${opts.total.toFixed(2)}</td>
       </tr>
     </tbody>
   </table>
@@ -165,6 +176,11 @@ export async function POST(req: NextRequest) {
   if (!authorized(req)) return unauthorized();
 
   const body = await req.json();
+  const subtotal = Number(body.subtotal) || 0;
+  const taxRate = Number(body.taxRate) || 0;
+  const taxAmount = +(Number(body.taxAmount) || 0).toFixed(2);
+  const total = +(subtotal + taxAmount).toFixed(2);
+
   const { data, error } = await supabaseAdmin
     .from("sales")
     .insert({
@@ -175,7 +191,10 @@ export async function POST(req: NextRequest) {
       customer_email: body.customerEmail || null,
       customer_phone: body.customerPhone || null,
       items: body.items || [],
-      subtotal: body.subtotal || 0,
+      subtotal,
+      tax_rate: taxRate,
+      tax_amount: taxAmount,
+      total,
       payment_method: body.paymentMethod || "cash",
       payment_status: body.paymentStatus || "pending",
       fulfillment: body.fulfillment || "pending",
@@ -198,6 +217,8 @@ export async function POST(req: NextRequest) {
       saleDate: data.sale_date,
       items: (body.items as SaleItem[]) || [],
       subtotal: Number(data.subtotal),
+      taxAmount: Number(data.tax_amount),
+      total: Number(data.total),
       paymentMethod: data.payment_method,
       paymentStatus: data.payment_status,
     }).catch((err) => {
@@ -225,7 +246,26 @@ export async function PATCH(req: NextRequest) {
   if (body.customerPhone !== undefined) updates.customer_phone = body.customerPhone || null;
   if (body.items) updates.items = body.items;
   if (body.subtotal !== undefined) updates.subtotal = body.subtotal;
+  if (body.taxRate !== undefined) updates.tax_rate = body.taxRate;
+  if (body.taxAmount !== undefined) updates.tax_amount = +(Number(body.taxAmount) || 0).toFixed(2);
   if (body.notes !== undefined) updates.notes = body.notes;
+
+  // Whenever subtotal or tax_amount changes, recompute total to keep the
+  // ledger aggregations consistent.
+  if (body.subtotal !== undefined || body.taxAmount !== undefined) {
+    const { data: existing } = await supabaseAdmin
+      .from("sales")
+      .select("subtotal, tax_amount")
+      .eq("id", body.id)
+      .single();
+    const newSubtotal = body.subtotal !== undefined
+      ? Number(body.subtotal) || 0
+      : Number(existing?.subtotal) || 0;
+    const newTax = body.taxAmount !== undefined
+      ? Number(body.taxAmount) || 0
+      : Number(existing?.tax_amount) || 0;
+    updates.total = +(newSubtotal + newTax).toFixed(2);
+  }
 
   const { data, error } = await supabaseAdmin
     .from("sales")
