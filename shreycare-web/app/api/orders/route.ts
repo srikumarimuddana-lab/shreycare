@@ -5,6 +5,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { productBySlugQuery } from "@/lib/sanity/queries";
 import { calculateShipping } from "@/lib/cart/shipping";
 import { calculateTax } from "@/lib/cart/tax";
+import { decrementStockForSale } from "@/lib/inventory/decrement-stock";
 import type { CartItem } from "@/lib/cart/types";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -333,7 +334,12 @@ This is an automated message from a no-reply address. For any questions about yo
       });
 
     // Auto-log to Supabase ledger so the admin dashboard shows it.
-    await supabaseAdmin
+    const saleItems = validatedItems.map((i) => ({
+      productName: i.name,
+      quantity: i.quantity,
+      unitPrice: i.price,
+    }));
+    const { data: saleRow, error: dbErr } = await supabaseAdmin
       .from("sales")
       .insert({
         order_number: orderNumber,
@@ -342,11 +348,7 @@ This is an automated message from a no-reply address. For any questions about yo
         customer_name: customer.name,
         customer_email: customer.email,
         customer_phone: customer.phone,
-        items: validatedItems.map((i) => ({
-          productName: i.name,
-          quantity: i.quantity,
-          unitPrice: i.price,
-        })),
+        items: saleItems,
         subtotal,
         shipping_amount: shipping,
         tax_rate: tax.rate,
@@ -357,9 +359,16 @@ This is an automated message from a no-reply address. For any questions about yo
         fulfillment: "pending",
         notes: customer.notes || null,
       })
-      .then(({ error: dbErr }) => {
-        if (dbErr) console.error("[orders] Supabase insert failed:", dbErr);
+      .select("id")
+      .single();
+
+    if (dbErr) {
+      console.error("[orders] Supabase insert failed:", dbErr);
+    } else if (saleRow?.id) {
+      decrementStockForSale(saleRow.id, saleItems).catch((err) => {
+        console.error("[orders] decrementStockForSale failed:", err);
       });
+    }
 
     return NextResponse.json({ success: true, orderNumber });
   } catch (error) {

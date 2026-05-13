@@ -41,3 +41,9 @@ export const siteSettingsQuery = `*[_type == "siteSettings"][0] {
 export const hairOilProductsQuery = `*[_type == "product" && category == "hair-oil" && inStock == true] | order(sortOrder asc) {
   _id, name, "slug": slug.current, description, price, images, tags, bottleCount, qualifiesForFreeShipping
 }`;
+
+// Admin-only: returns ALL products regardless of inStock so the inventory
+// setup form can register out-of-stock products too.
+export const allProductsAdminQuery = `*[_type == "product"] | order(name asc) {
+  _id, name, "slug": slug.current, price, category, inStock, bottleCount
+}`;

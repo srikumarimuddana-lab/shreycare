@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { supabaseAdmin } from "@/lib/supabase";
+import { decrementStockForSale } from "@/lib/inventory/decrement-stock";
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -206,6 +207,13 @@ export async function POST(req: NextRequest) {
   if (error) {
     console.error("[admin/sales] POST error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Fire-and-forget stock decrement for each item in the sale.
+  if (data?.id) {
+    decrementStockForSale(data.id, (body.items as SaleItem[]) || []).catch((err) => {
+      console.error("[admin/sales] decrementStockForSale failed:", err);
+    });
   }
 
   // Fire-and-forget email receipt when an email is provided.
