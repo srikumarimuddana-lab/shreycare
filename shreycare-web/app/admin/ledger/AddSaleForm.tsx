@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useToast } from "@/components/ui/ToastProvider";
+import { SK_PST_RATE } from "@/lib/cart/tax";
 
 interface LineItem {
   productName: string;
@@ -38,10 +39,14 @@ export function AddSaleForm({ onDone }: { onDone: (emailed: boolean) => void }) 
   const [paymentStatus, setPaymentStatus] = useState("paid");
   const [items, setItems] = useState<LineItem[]>([{ productName: "", quantity: 1, unitPrice: 0 }]);
   const [notes, setNotes] = useState("");
+  const [applyPst, setApplyPst] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   const subtotal = items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
+  const taxRate = applyPst ? SK_PST_RATE : 0;
+  const taxAmount = +(subtotal * taxRate).toFixed(2);
+  const total = +(subtotal + taxAmount).toFixed(2);
 
   function updateItem(idx: number, field: keyof LineItem, value: string | number) {
     setItems((prev) =>
@@ -74,6 +79,9 @@ export function AddSaleForm({ onDone }: { onDone: (emailed: boolean) => void }) 
         customerPhone: customerPhone.trim() && customerPhone.trim() !== "+1" ? customerPhone.trim() : null,
         items: items.filter((i) => i.productName),
         subtotal,
+        taxRate,
+        taxAmount,
+        total,
         paymentMethod,
         paymentStatus,
         fulfillment: "delivered",
@@ -196,16 +204,35 @@ export function AddSaleForm({ onDone }: { onDone: (emailed: boolean) => void }) 
         <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className={fieldClass} />
       </div>
 
-      <div className="flex items-center justify-between pt-2">
-        <p className="text-lg font-bold text-primary">Subtotal: ${subtotal.toFixed(2)}</p>
-        {error && <p className="text-error text-sm">{error}</p>}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="bg-primary text-on-primary px-8 py-2.5 rounded-md font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-60"
-        >
-          {submitting ? "Saving..." : "Save sale"}
-        </button>
+      <div className="flex items-center gap-2">
+        <input
+          id="apply-pst"
+          type="checkbox"
+          checked={applyPst}
+          onChange={(e) => setApplyPst(e.target.checked)}
+          className="h-4 w-4 accent-primary"
+        />
+        <label htmlFor="apply-pst" className="text-sm text-on-surface">
+          Apply Saskatchewan PST ({(SK_PST_RATE * 100).toFixed(0)}%)
+        </label>
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 pt-2 border-t border-outline-variant">
+        <div className="space-y-0.5 text-sm">
+          <p className="text-on-surface-variant">Subtotal: <span className="text-on-surface font-medium">${subtotal.toFixed(2)}</span></p>
+          <p className="text-on-surface-variant">Tax: <span className="text-on-surface font-medium">${taxAmount.toFixed(2)}</span></p>
+          <p className="text-lg font-bold text-primary">Total: ${total.toFixed(2)}</p>
+        </div>
+        <div className="flex items-center gap-3">
+          {error && <p className="text-error text-sm">{error}</p>}
+          <button
+            type="submit"
+            disabled={submitting}
+            className="bg-primary text-on-primary px-8 py-2.5 rounded-md font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-60"
+          >
+            {submitting ? "Saving..." : "Save sale"}
+          </button>
+        </div>
       </div>
     </form>
   );
