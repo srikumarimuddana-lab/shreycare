@@ -11,6 +11,15 @@ interface SaleItem {
   unitPrice: number;
 }
 
+interface ShippingAddress {
+  line1?: string;
+  line2?: string | null;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+}
+
 interface Sale {
   id: string;
   order_number: string;
@@ -19,6 +28,7 @@ interface Sale {
   customer_name: string;
   customer_email: string | null;
   customer_phone: string | null;
+  shipping_address?: ShippingAddress | null;
   items: SaleItem[];
   subtotal: number;
   tax_rate: number;
@@ -64,6 +74,21 @@ interface Summary {
     online: ChannelBreakdown;
     offline: ChannelBreakdown;
   };
+}
+
+// Format a structured shipping address into display-ready lines, skipping any
+// empty parts. Returns [] when there's no usable address (e.g. offline sales
+// or legacy orders saved before addresses were persisted).
+function addressLines(a?: ShippingAddress | null): string[] {
+  if (!a) return [];
+  const lines: string[] = [];
+  if (a.line1) lines.push(a.line1);
+  if (a.line2) lines.push(a.line2);
+  const cityState = [a.city, a.state].filter(Boolean).join(", ");
+  const cityLine = [cityState, a.postalCode].filter(Boolean).join(" ").trim();
+  if (cityLine) lines.push(cityLine);
+  if (a.country) lines.push(a.country);
+  return lines;
 }
 
 // Effective total for a sale row: prefer the stored `total`, fall back to
@@ -167,6 +192,7 @@ export function LedgerDashboard() {
         customerName: sale.customer_name,
         customerEmail: sale.customer_email,
         customerPhone: sale.customer_phone,
+        shippingAddress: sale.shipping_address,
         paymentMethod: sale.payment_method,
         paymentStatus: sale.payment_status,
         fulfillment: sale.fulfillment,
@@ -192,7 +218,7 @@ export function LedgerDashboard() {
       return;
     }
     const header = [
-      "Order Number", "Type", "Date", "Customer", "Email", "Phone",
+      "Order Number", "Type", "Date", "Customer", "Email", "Phone", "Address",
       "Items", "Subtotal", "Tax", "Total", "Payment Method",
       "Payment Status", "Fulfillment", "Notes",
     ];
@@ -203,6 +229,7 @@ export function LedgerDashboard() {
       s.customer_name,
       s.customer_email ?? "",
       s.customer_phone ?? "",
+      addressLines(s.shipping_address).join(", "),
       (s.items as SaleItem[])
         ?.map((i) => `${i.productName} x${i.quantity} @$${i.unitPrice}`)
         .join("; ") ?? "",
@@ -442,7 +469,9 @@ export function LedgerDashboard() {
             </tr>
           </thead>
           <tbody className="divide-y divide-outline-variant/50">
-            {sales.map((s) => (
+            {sales.map((s) => {
+              const addr = addressLines(s.shipping_address);
+              return (
               <tr key={s.id} className="hover:bg-surface-container-low/50 transition-colors">
                 <td className="px-4 py-3.5 font-mono text-xs text-primary font-semibold">{s.order_number}</td>
                 <td className="px-4 py-3.5">
@@ -455,6 +484,12 @@ export function LedgerDashboard() {
                   <div className="text-on-surface font-medium">{s.customer_name}</div>
                   {s.customer_phone && (
                     <div className="text-on-surface-variant text-xs">{s.customer_phone}</div>
+                  )}
+                  {addr.length > 0 && (
+                    <div className="text-on-surface-variant text-xs mt-0.5 flex items-start gap-1 max-w-[15rem]">
+                      <span className="material-symbols-outlined text-sm leading-4 shrink-0">location_on</span>
+                      <span>{addr.join(", ")}</span>
+                    </div>
                   )}
                 </td>
                 <td className="px-4 py-3.5 text-right font-bold text-on-surface">
@@ -510,7 +545,8 @@ export function LedgerDashboard() {
                   </div>
                 </td>
               </tr>
-            ))}
+              );
+            })}
             {sales.length === 0 && (
               <tr>
                 <td colSpan={9} className="px-4 py-16 text-center text-on-surface-variant">
@@ -533,6 +569,7 @@ export function LedgerDashboard() {
         )}
         {sales.map((s) => {
           const expanded = expandedId === s.id;
+          const addr = addressLines(s.shipping_address);
           return (
             <div
               key={s.id}
@@ -575,6 +612,16 @@ export function LedgerDashboard() {
                     <div className="text-sm">
                       <span className="text-on-surface-variant">Email: </span>
                       <a href={`mailto:${s.customer_email}`} className="text-primary">{s.customer_email}</a>
+                    </div>
+                  )}
+                  {addr.length > 0 && (
+                    <div className="text-sm">
+                      <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-1">Shipping address</p>
+                      <div className="text-on-surface not-italic">
+                        {addr.map((line, i) => (
+                          <div key={i}>{line}</div>
+                        ))}
+                      </div>
                     </div>
                   )}
                   {(s.items as SaleItem[])?.length > 0 && (
@@ -698,6 +745,13 @@ function EditSaleModal({
     onChange({ ...sale, ...recompute(items) });
   }
 
+  function updateAddress(field: keyof ShippingAddress, value: string) {
+    const current: ShippingAddress = sale.shipping_address ?? {};
+    onChange({ ...sale, shipping_address: { ...current, [field]: value } as ShippingAddress });
+  }
+
+  const addr: ShippingAddress = sale.shipping_address ?? {};
+
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-on-background/50" onClick={onCancel} />
@@ -773,6 +827,48 @@ function EditSaleModal({
               <option value="delivered">Delivered</option>
               <option value="cancelled">Cancelled</option>
             </select>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className={labelClass}>Shipping address</label>
+          <input
+            value={addr.line1 ?? ""}
+            onChange={(e) => updateAddress("line1", e.target.value)}
+            className={fieldClass}
+            placeholder="Address line 1"
+          />
+          <input
+            value={addr.line2 ?? ""}
+            onChange={(e) => updateAddress("line2", e.target.value)}
+            className={fieldClass}
+            placeholder="Address line 2 (optional)"
+          />
+          <div className="grid grid-cols-2 gap-2">
+            <input
+              value={addr.city ?? ""}
+              onChange={(e) => updateAddress("city", e.target.value)}
+              className={fieldClass}
+              placeholder="City"
+            />
+            <input
+              value={addr.state ?? ""}
+              onChange={(e) => updateAddress("state", e.target.value)}
+              className={fieldClass}
+              placeholder="Province / State"
+            />
+            <input
+              value={addr.postalCode ?? ""}
+              onChange={(e) => updateAddress("postalCode", e.target.value)}
+              className={fieldClass}
+              placeholder="Postal code"
+            />
+            <input
+              value={addr.country ?? ""}
+              onChange={(e) => updateAddress("country", e.target.value)}
+              className={fieldClass}
+              placeholder="Country"
+            />
           </div>
         </div>
 

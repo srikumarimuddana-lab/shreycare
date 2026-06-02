@@ -191,6 +191,7 @@ export async function POST(req: NextRequest) {
       customer_name: body.customerName,
       customer_email: body.customerEmail || null,
       customer_phone: body.customerPhone || null,
+      shipping_address: body.shippingAddress || null,
       items: body.items || [],
       subtotal,
       tax_rate: taxRate,
@@ -252,6 +253,7 @@ export async function PATCH(req: NextRequest) {
   if (body.customerName) updates.customer_name = body.customerName;
   if (body.customerEmail !== undefined) updates.customer_email = body.customerEmail || null;
   if (body.customerPhone !== undefined) updates.customer_phone = body.customerPhone || null;
+  if (body.shippingAddress !== undefined) updates.shipping_address = body.shippingAddress || null;
   if (body.items) updates.items = body.items;
   if (body.subtotal !== undefined) updates.subtotal = body.subtotal;
   if (body.taxRate !== undefined) updates.tax_rate = body.taxRate;
