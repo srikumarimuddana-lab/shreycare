@@ -28,7 +28,7 @@ const manrope = Manrope({
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://shreycare.com";
 const SITE_DESCRIPTION =
-  "Shop the best ayurvedic hair oil in Canada. ShreyCare Organics crafts cold-pressed, organic hair oils with bhringraj, amla, and rare herbs. Free Canadian shipping on qualifying orders.";
+  "Shop ayurvedic hair oil in Canada. ShreyCare Organics crafts cold-pressed, organic hair oils with bhringraj, amla, and rare herbs. Free Canadian shipping on qualifying orders.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     "herbal hair oil",
     "bhringraj hair oil",
     "amla hair oil Canada",
-    "natural hair oil for hair growth",
+    "natural hair oil for fuller-looking hair",
     "cold-pressed hair oil",
     "hair oil for hair fall",
     "hair oil for dry scalp",
@@ -108,6 +108,7 @@ export default function RootLayout({
         {/* AI assistant discovery hints */}
         <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM site index" />
         <link rel="alternate" type="text/plain" href="/ai.txt" title="AI usage policy" />
+        <link rel="alternate" type="application/json" href="/api/feed/openai-products" title="OpenAI product feed" />
         <Script id="consent-default" strategy="beforeInteractive">
           {`
             window.dataLayer = window.dataLayer || [];

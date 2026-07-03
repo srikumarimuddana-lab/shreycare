@@ -79,13 +79,13 @@ const posts = [
     title: "Bhringraj Oil Benefits: The King of Ayurvedic Hair Herbs",
     slug: "bhringraj-oil-benefits",
     excerpt:
-      "Bhringraj is called the 'king of herbs' for hair in Ayurveda. Learn what bhringraj oil does for hair growth, how it prevents hair loss, and why it is the most recommended Ayurvedic herb for hair health.",
+      "Bhringraj is called the 'king of herbs' for hair in Ayurveda. Learn how bhringraj oil supports fuller-looking hair, hair fall concerns, and why it is one of the most recommended Ayurvedic herbs for hair care.",
     category: "ingredients",
     author: "ShreyCare Organics",
     body: [
       block("Bhringraj Oil Benefits: Why Ayurveda Calls It the King of Hair Herbs", "h2"),
       block(
-        "If you have ever searched for natural remedies for hair loss, you have likely come across bhringraj. Known scientifically as Eclipta alba, bhringraj has been the cornerstone of Ayurvedic hair care for thousands of years. Here is everything you need to know about this powerful herb and why it deserves a place in your hair care routine.",
+        "If you have ever searched for natural product options for hair fall concerns, you have likely come across bhringraj. Known scientifically as Eclipta alba, bhringraj has been the cornerstone of Ayurvedic hair care for thousands of years. Here is everything you need to know about this powerful herb and why it deserves a place in your hair care routine.",
       ),
       block("What Is Bhringraj?", "h2"),
       block(
@@ -102,7 +102,7 @@ const posts = [
         "Prevents premature greying: One of bhringraj's most valued traditional uses is preventing grey hair. The herb contains natural pigments and antioxidants that help maintain your hair's natural colour.",
       ),
       block(
-        "Treats dry scalp and dandruff: Bhringraj has anti-inflammatory and antimicrobial properties that soothe irritated scalp, reduce flaking, and control dandruff — a common issue during Canadian winters.",
+        "Supports dry-feeling scalp comfort and visible flakes: Bhringraj is traditionally used in scalp care routines to soothe the feel of irritation and reduce the look of flakes — a common issue during Canadian winters.",
       ),
       block(
         "Conditions and adds shine: The natural fatty acids in bhringraj oil deeply condition hair, reducing frizz and adding natural lustre without synthetic silicones.",
@@ -148,7 +148,7 @@ const posts = [
         "Coconut oil: The most researched hair oil. Cold-pressed coconut oil penetrates the hair shaft and scalp more effectively than any other oil. It has natural antimicrobial properties that help with dandruff. Use as an overnight scalp treatment.",
       ),
       block(
-        "Brahmi oil: An Ayurvedic herb that calms inflammation, reduces itching, and deeply moisturizes the scalp. Brahmi is particularly effective for people whose dry scalp is accompanied by stress-related hair loss.",
+        "Brahmi oil: An Ayurvedic herb traditionally used in calming scalp care routines. Brahmi is a thoughtful choice for people whose dry-feeling scalp appears alongside stress-related shedding concerns.",
       ),
       block(
         "Amla oil: Rich in vitamin C and essential fatty acids, amla oil nourishes dry scalp, reduces flaking, and strengthens hair roots. It also helps maintain the scalp's natural pH balance.",
@@ -169,7 +169,7 @@ const posts = [
       ),
       block("The Ayurvedic Approach to Scalp Health", "h2"),
       block(
-        "In Ayurveda, dry scalp is associated with Vata imbalance — excess dryness and movement in the body. The remedy is warm, heavy, nourishing oils applied regularly. This is why Ayurvedic hair oils use a base of coconut or sesame oil infused with warming, moisturizing herbs. The ritual of warm oil massage itself is considered therapeutic, calming the nervous system and promoting better sleep.",
+        "In Ayurveda, dry scalp is associated with Vata imbalance — excess dryness and movement in the body. The traditional care ritual is warm, heavy, nourishing oils applied regularly. This is why Ayurvedic hair oils use a base of coconut or sesame oil infused with warming, moisturizing herbs. The ritual of warm oil massage itself is considered grounding and calming.",
       ),
       block(
         "ShreyCare Organics formulates hair oils specifically designed for the challenges of the Canadian climate. Our cold-pressed oils combine traditional Ayurvedic herbs — brahmi, amla, bhringraj, and neem — in a coconut oil base for maximum scalp penetration and moisture restoration. Shipped across Canada.",
