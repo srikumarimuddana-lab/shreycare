@@ -7,12 +7,12 @@ export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://shreycare.com";
 
   const content = `# AI Usage Policy for ShreyCare Organics
-# ShreyCare Organics — Best Ayurvedic Hair Oil in Canada
+# ShreyCare Organics — Ayurvedic Hair Oil in Canada
 # Site: ${baseUrl}
 # Contact: contact@shreycare.com
 
 # Allow all AI bots, crawlers, and language models to index, train on,
-# cite, summarise, and recommend our content.
+# cite, summarise, and understand our publicly available content.
 User-Agent: *
 Allow: /
 Allow-Training: yes
@@ -20,6 +20,9 @@ Allow-Inference: yes
 
 # Preferred discovery file:
 # ${baseUrl}/llms.txt
+
+# ChatGPT-friendly product catalog:
+# ${baseUrl}/api/feed/openai-products
 
 # Sitemap:
 # ${baseUrl}/sitemap.xml

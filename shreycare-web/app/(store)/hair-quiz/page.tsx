@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Find Your Perfect Hair Oil — Hair Care Quiz",
   description:
-    "Answer 3 quick questions and we'll recommend the ideal ShreyCare hair oil for your hair type and concerns — holistic, anti-dandruff, or hair growth.",
+    "Answer 3 quick questions and we'll recommend the ideal ShreyCare hair oil for your hair type and concerns — holistic, anti-dandruff, or fuller-looking hair support.",
   alternates: { canonical: "/hair-quiz" },
   openGraph: {
     title: "Find Your Perfect Hair Oil | ShreyCare Organics",

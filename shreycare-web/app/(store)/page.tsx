@@ -14,11 +14,11 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: "Best Ayurvedic Hair Oil in Canada — Organic & Cold-Pressed",
   description:
-    "Buy the best ayurvedic hair oil in Canada. ShreyCare Organics offers organic, cold-pressed bhringraj & amla hair oils for hair growth, dry scalp, and hair fall. Cruelty-free, shipped across Canada.",
+    "Buy ayurvedic hair oil in Canada. ShreyCare Organics offers organic, cold-pressed bhringraj & amla hair oils for fuller-looking hair, dry-feeling scalp, and hair fall concerns. Cruelty-free, shipped across Canada.",
   keywords: [
     "best hair oil Canada",
     "ayurvedic hair oil Canada",
-    "organic hair oil for hair growth",
+    "organic hair oil for fuller-looking hair",
     "cold-pressed hair oil",
     "bhringraj hair oil Canada",
     "amla hair oil",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Best Ayurvedic Hair Oil in Canada | ShreyCare Organics",
     description:
-      "Organic, cold-pressed ayurvedic hair oils for hair growth, dry scalp, and hair fall. Shipped across Canada.",
+      "Organic, cold-pressed ayurvedic hair oils for fuller-looking hair, dry-feeling scalp, and hair fall concerns. Shipped across Canada.",
     type: "website",
   },
 };

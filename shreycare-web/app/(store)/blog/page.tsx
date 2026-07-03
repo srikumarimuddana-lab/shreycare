@@ -9,7 +9,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Blog — Ayurvedic Hair Care Tips & Ingredient Guides",
   description:
-    "Learn how to use ayurvedic hair oil, discover bhringraj & amla benefits, and get expert tips for hair growth, dry scalp, and natural hair care. By ShreyCare Organics Canada.",
+    "Learn how to use ayurvedic hair oil, discover bhringraj & amla benefits, and get tips for fuller-looking hair, dry-feeling scalp, and natural hair care. By ShreyCare Organics Canada.",
   alternates: { canonical: "/blog" },
 };
 
