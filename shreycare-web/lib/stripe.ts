@@ -12,3 +12,17 @@ export function getStripe(): Stripe {
   }
   return _stripe;
 }
+
+export function isStripeConfigured(): boolean {
+  return Boolean(process.env.STRIPE_SECRET_KEY);
+}
+
+// Live vs test is derived from the secret key prefix so the admin UI can make
+// it impossible to mistake which environment real charges are hitting.
+export function getStripeMode(): "live" | "test" | "unconfigured" {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) return "unconfigured";
+  return key.startsWith("sk_live_") || key.startsWith("rk_live_")
+    ? "live"
+    : "test";
+}

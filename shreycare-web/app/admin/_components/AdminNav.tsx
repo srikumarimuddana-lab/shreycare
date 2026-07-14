@@ -8,6 +8,8 @@ const tabs = [
   { href: "/admin/ledger", label: "Ledger", icon: "receipt_long", match: (p: string) => p.startsWith("/admin/ledger") },
   { href: "/admin/inventory", label: "Inventory", icon: "inventory_2", match: (p: string) => p.startsWith("/admin/inventory") },
   { href: "/admin/customers", label: "Customers", icon: "groups", match: (p: string) => p.startsWith("/admin/customers") },
+  { href: "/admin/payments", label: "Payments", icon: "credit_card", match: (p: string) => p.startsWith("/admin/payments") },
+  { href: "/admin/settings", label: "Settings", icon: "settings", match: (p: string) => p.startsWith("/admin/settings") },
 ];
 
 export function AdminNav() {

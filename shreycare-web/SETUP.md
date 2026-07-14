@@ -24,11 +24,51 @@ npm install
 1. Go to https://dashboard.stripe.com/ and create an account
 2. Get your test keys from the Developers section
 3. Fill in `.env.local`:
-   - `STRIPE_SECRET_KEY` (starts with `sk_test_`)
+   - `STRIPE_SECRET_KEY` (starts with `sk_test_`; use `sk_live_` for real charges)
    - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (starts with `pk_test_`)
-4. Set up a webhook endpoint pointing to `your-url/api/webhooks/stripe`
-   - Events: `checkout.session.completed`
-   - Note the webhook signing secret -> `STRIPE_WEBHOOK_SECRET`
+4. Set up the webhook endpoint. The **easiest** way is from the app itself:
+   deploy first, then open `/admin/settings` → "Add endpoint". It creates the
+   endpoint in Stripe subscribed to exactly the events the site handles and
+   shows the signing secret once — copy it into `STRIPE_WEBHOOK_SECRET` and
+   redeploy.
+
+   To do it manually in the Stripe Dashboard instead, point a webhook at
+   `your-url/api/webhooks/stripe` subscribed to these events:
+   - `checkout.session.completed`
+   - `checkout.session.async_payment_succeeded`
+   - `checkout.session.async_payment_failed`
+   - `checkout.session.expired`
+   - `payment_intent.payment_failed`
+   - `charge.refunded`
+   - `charge.dispute.created`
+   - `charge.dispute.closed`
+
+   Copy the webhook signing secret → `STRIPE_WEBHOOK_SECRET`.
+
+### How payments work
+
+- **Card (Stripe):** the order is written to the ledger as `pending`, the
+  customer pays on Stripe Checkout, and the signed webhook flips the order to
+  `paid`. The browser redirect is never trusted as proof of payment — the
+  webhook is the source of truth, verified against Stripe on the success page.
+- **e-Transfer / cash:** the order is placed `pending` and the team emails
+  payment instructions (unchanged from before).
+- **QR / pay link:** from the ledger, any unpaid order has a QR code and a
+  shareable `/pay/<token>` link that starts a card payment for that exact
+  order — for in-person or follow-up card collection.
+- **Refunds:** issue full or partial refunds from the ledger; they go through
+  Stripe and the ledger converges via the `charge.refunded` webhook.
+- **Edit locking:** once Stripe has captured a charge, that order's amounts and
+  payment status mirror the processor and can't be hand-edited — adjust via
+  Refund. Cash/e-transfer orders stay fully editable.
+- **Analytics & audit:** `/admin/payments` shows revenue by method, refunds,
+  disputes, recent Stripe events, and a full order audit trail.
+
+### Required database migration
+
+Run `supabase/migrations/2026-07-13_stripe_payments.sql` in the Supabase SQL
+editor. It adds the Stripe columns and per-order pay token to `sales`, plus the
+`stripe_webhook_events` (idempotency + audit) and `order_audit_log` tables.
 
 ## 4. Set up NextAuth
 

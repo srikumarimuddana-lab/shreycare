@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import { sanityClient } from "@/lib/sanity/client";
 import { supabaseAdmin } from "@/lib/supabase";
-import { productBySlugQuery } from "@/lib/sanity/queries";
-import { calculateShipping } from "@/lib/cart/shipping";
-import { calculateTax } from "@/lib/cart/tax";
 import { decrementStockForSale } from "@/lib/inventory/decrement-stock";
-import type { CartItem } from "@/lib/cart/types";
+import { priceOrder } from "@/lib/payments/pricing";
+import { generateUniqueOrderNumber } from "@/lib/payments/order-number";
+import { logOrderAudit } from "@/lib/payments/audit";
+import {
+  validateOrderPayload,
+  toShippingAddress,
+  type OrderPayload,
+} from "@/lib/payments/types";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -21,22 +24,6 @@ const FROM_EMAIL =
   "ShreyCare Organics <no-reply@shreycare.com>";
 const CURRENCY = process.env.NEXT_PUBLIC_STORE_CURRENCY || "CAD";
 
-interface OrderPayload {
-  customer: {
-    name: string;
-    email: string;
-    phone: string;
-    addressLine1: string;
-    addressLine2?: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    country: string;
-    notes?: string;
-  };
-  items: CartItem[];
-}
-
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, "&amp;")
@@ -45,100 +32,25 @@ function escapeHtml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function randomCode(): string {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let code = "";
-  for (let i = 0; i < 6; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return `SC-${code}`;
-}
-
-async function generateUniqueOrderNumber(): Promise<string> {
-  for (let attempt = 0; attempt < 10; attempt++) {
-    const num = randomCode();
-    const { data } = await supabaseAdmin
-      .from("sales")
-      .select("id")
-      .eq("order_number", num)
-      .limit(1);
-    if (!data || data.length === 0) return num;
-  }
-  return `SC-${Date.now().toString(36).toUpperCase()}`;
-}
-
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as OrderPayload;
+    const invalid = validateOrderPayload(body);
+    if (invalid) {
+      return NextResponse.json({ error: invalid }, { status: 400 });
+    }
     const { customer, items } = body;
 
-    if (!customer?.name || !customer?.email || !customer?.phone) {
-      return NextResponse.json(
-        { error: "Name, email, and phone are required." },
-        { status: 400 },
-      );
-    }
-    if (
-      !customer.addressLine1 ||
-      !customer.city ||
-      !customer.state ||
-      !customer.postalCode ||
-      !customer.country
-    ) {
-      return NextResponse.json(
-        { error: "Complete shipping address is required." },
-        { status: 400 },
-      );
-    }
-    if (!Array.isArray(items) || items.length === 0) {
-      return NextResponse.json(
-        { error: "Your cart is empty." },
-        { status: 400 },
-      );
-    }
-
-    // Re-fetch each product from Sanity so we can't be tricked by a
-    // client-side price tamper, and so the email shows the authoritative
-    // current price.
-    const validatedItems = await Promise.all(
-      items.map(async (item) => {
-        const product = await sanityClient.fetch(productBySlugQuery, {
-          slug: item.slug,
-        });
-        if (!product) {
-          throw new Error(`Product not found: ${item.name}`);
-        }
-        return {
-          name: product.name as string,
-          slug: product.slug as string,
-          price: product.price as number,
-          quantity: Math.max(1, Math.floor(item.quantity)),
-          inStock: product.inStock as boolean,
-          bottleCount: (product.bottleCount as number) ?? 1,
-          qualifiesForFreeShipping: (product.qualifiesForFreeShipping as boolean) ?? false,
-        };
-      }),
-    );
-
-    const subtotal = validatedItems.reduce(
-      (sum, i) => sum + i.price * i.quantity,
-      0,
-    );
-
-    // Server-side shipping and tax — never trust client values.
-    const isLocalDelivery = customer.city.trim().toLowerCase() === "regina";
-    const totalBottles = validatedItems.reduce(
-      (sum, i) => sum + i.quantity * i.bottleCount,
-      0,
-    );
-    const hasBundle = validatedItems.some((i) => i.qualifiesForFreeShipping);
-    const shipping =
-      isLocalDelivery || hasBundle || totalBottles >= 4
-        ? 0
-        : calculateShipping(totalBottles);
-    const province = isLocalDelivery ? "SK" : customer.state;
-    const tax = calculateTax(subtotal + shipping, province);
-    const total = +(subtotal + shipping + tax.amount).toFixed(2);
+    // Server-side pricing shared with the Stripe checkout flow — item prices
+    // come from Sanity, shipping and tax are computed here, so client-side
+    // tampering can never change what an order is worth.
+    const priced = await priceOrder(items, {
+      city: customer.city,
+      state: customer.state,
+    });
+    const validatedItems = priced.items;
+    const { subtotal, shipping, isLocalDelivery, total } = priced;
+    const tax = { rate: priced.taxRate, amount: priced.taxAmount };
 
     const orderNumber = await generateUniqueOrderNumber();
     const placedAt = new Date().toISOString();
@@ -348,14 +260,7 @@ This is an automated message from a no-reply address. For any questions about yo
         customer_name: customer.name,
         customer_email: customer.email,
         customer_phone: customer.phone,
-        shipping_address: {
-          line1: customer.addressLine1,
-          line2: customer.addressLine2 || null,
-          city: customer.city,
-          state: customer.state,
-          postalCode: customer.postalCode,
-          country: customer.country,
-        },
+        shipping_address: toShippingAddress(customer),
         items: saleItems,
         subtotal,
         shipping_amount: shipping,
@@ -376,6 +281,13 @@ This is an automated message from a no-reply address. For any questions about yo
       decrementStockForSale(saleRow.id, saleItems).catch((err) => {
         console.error("[orders] decrementStockForSale failed:", err);
       });
+      logOrderAudit({
+        saleId: saleRow.id,
+        orderNumber,
+        actor: "customer",
+        action: "order_created",
+        details: { channel: "etransfer_checkout", total },
+      }).catch(() => {});
     }
 
     return NextResponse.json({ success: true, orderNumber });

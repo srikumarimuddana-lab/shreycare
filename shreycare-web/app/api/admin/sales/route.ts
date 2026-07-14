@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { supabaseAdmin } from "@/lib/supabase";
 import { decrementStockForSale } from "@/lib/inventory/decrement-stock";
+import { logOrderAudit } from "@/lib/payments/audit";
+import {
+  isFinanciallyLocked,
+  lockedFieldsInUpdate,
+  MANUAL_PAYMENT_STATUSES,
+  type PaymentStatus,
+} from "@/lib/payments/status";
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET;
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -151,6 +158,7 @@ export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const type = url.searchParams.get("type");
   const status = url.searchParams.get("status");
+  const method = url.searchParams.get("method");
   const from = url.searchParams.get("from");
   const to = url.searchParams.get("to");
 
@@ -162,6 +170,7 @@ export async function GET(req: NextRequest) {
 
   if (type) query = query.eq("type", type);
   if (status) query = query.eq("payment_status", status);
+  if (method) query = query.eq("payment_method", method);
   if (from) query = query.gte("sale_date", from);
   if (to) query = query.lte("sale_date", `${to}T23:59:59Z`);
 
@@ -215,6 +224,13 @@ export async function POST(req: NextRequest) {
     decrementStockForSale(data.id, (body.items as SaleItem[]) || []).catch((err) => {
       console.error("[admin/sales] decrementStockForSale failed:", err);
     });
+    logOrderAudit({
+      saleId: data.id,
+      orderNumber: data.order_number,
+      actor: "admin",
+      action: "order_created",
+      details: { channel: "manual_entry", total: Number(data.total) },
+    }).catch(() => {});
   }
 
   // Fire-and-forget email receipt when an email is provided.
@@ -246,6 +262,44 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "id required" }, { status: 400 });
   }
 
+  const { data: existing, error: fetchErr } = await supabaseAdmin
+    .from("sales")
+    .select("*")
+    .eq("id", body.id)
+    .maybeSingle();
+  if (fetchErr || !existing) {
+    return NextResponse.json({ error: "Order not found" }, { status: 404 });
+  }
+
+  // Orders whose money actually moved through Stripe mirror the processor:
+  // their financial fields can't be hand-edited. Refunds go through the
+  // refund endpoint; contact info, address, fulfillment and notes stay open.
+  if (isFinanciallyLocked(existing)) {
+    const locked = lockedFieldsInUpdate(body);
+    if (locked.length > 0) {
+      return NextResponse.json(
+        {
+          error:
+            "This order was paid through Stripe, so its amounts and payment status mirror the actual charge. Use Refund to adjust it.",
+          lockedFields: locked,
+        },
+        { status: 409 },
+      );
+    }
+  }
+
+  // Admins can only set the manual statuses; Stripe-driven states (failed,
+  // expired, disputed, partially_refunded) come exclusively from webhooks.
+  if (
+    body.paymentStatus &&
+    !MANUAL_PAYMENT_STATUSES.includes(body.paymentStatus as PaymentStatus)
+  ) {
+    return NextResponse.json(
+      { error: `Payment status "${body.paymentStatus}" can only be set by Stripe.` },
+      { status: 400 },
+    );
+  }
+
   const updates: Record<string, unknown> = {};
   if (body.paymentStatus) updates.payment_status = body.paymentStatus;
   if (body.fulfillment) updates.fulfillment = body.fulfillment;
@@ -260,21 +314,17 @@ export async function PATCH(req: NextRequest) {
   if (body.taxAmount !== undefined) updates.tax_amount = +(Number(body.taxAmount) || 0).toFixed(2);
   if (body.notes !== undefined) updates.notes = body.notes;
 
-  // Whenever subtotal or tax_amount changes, recompute total to keep the
-  // ledger aggregations consistent.
+  // Whenever subtotal or tax_amount changes, recompute total (keeping any
+  // shipping charge) so the ledger aggregations stay consistent.
   if (body.subtotal !== undefined || body.taxAmount !== undefined) {
-    const { data: existing } = await supabaseAdmin
-      .from("sales")
-      .select("subtotal, tax_amount")
-      .eq("id", body.id)
-      .single();
     const newSubtotal = body.subtotal !== undefined
       ? Number(body.subtotal) || 0
-      : Number(existing?.subtotal) || 0;
+      : Number(existing.subtotal) || 0;
     const newTax = body.taxAmount !== undefined
       ? Number(body.taxAmount) || 0
-      : Number(existing?.tax_amount) || 0;
-    updates.total = +(newSubtotal + newTax).toFixed(2);
+      : Number(existing.tax_amount) || 0;
+    const shipping = Number(existing.shipping_amount) || 0;
+    updates.total = +(newSubtotal + shipping + newTax).toFixed(2);
   }
 
   const { data, error } = await supabaseAdmin
@@ -288,6 +338,26 @@ export async function PATCH(req: NextRequest) {
     console.error("[admin/sales] PATCH error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  // Audit only what actually changed, with before/after values.
+  const changes: Record<string, { from: unknown; to: unknown }> = {};
+  for (const key of Object.keys(updates)) {
+    const before = existing[key as keyof typeof existing];
+    const after = updates[key];
+    if (JSON.stringify(before) !== JSON.stringify(after)) {
+      changes[key] = { from: before, to: after };
+    }
+  }
+  if (Object.keys(changes).length > 0) {
+    logOrderAudit({
+      saleId: existing.id,
+      orderNumber: existing.order_number,
+      actor: "admin",
+      action: "order_updated",
+      details: { changes },
+    }).catch(() => {});
+  }
+
   return NextResponse.json(data);
 }
 
@@ -299,6 +369,24 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: "id required" }, { status: 400 });
   }
 
+  const { data: existing } = await supabaseAdmin
+    .from("sales")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  if (!existing) {
+    return NextResponse.json({ error: "Order not found" }, { status: 404 });
+  }
+
+  // Never delete the record of a real Stripe charge — refund it instead so
+  // the ledger keeps matching the processor.
+  if (isFinanciallyLocked(existing)) {
+    return NextResponse.json(
+      { error: "This order has a Stripe charge attached. Refund it instead of deleting, so the ledger matches Stripe." },
+      { status: 409 },
+    );
+  }
+
   const { error } = await supabaseAdmin
     .from("sales")
     .delete()
@@ -308,5 +396,21 @@ export async function DELETE(req: NextRequest) {
     console.error("[admin/sales] DELETE error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  logOrderAudit({
+    saleId: existing.id,
+    orderNumber: existing.order_number,
+    actor: "admin",
+    action: "order_deleted",
+    details: {
+      snapshot: {
+        customer_name: existing.customer_name,
+        total: Number(existing.total),
+        payment_method: existing.payment_method,
+        payment_status: existing.payment_status,
+      },
+    },
+  }).catch(() => {});
+
   return NextResponse.json({ ok: true });
 }
