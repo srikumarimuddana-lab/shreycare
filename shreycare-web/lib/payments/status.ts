@@ -66,6 +66,33 @@ export function isFinanciallyLocked(sale: EditLockSale): boolean {
   return sale.payment_status !== "pending" && sale.payment_status !== "expired" && sale.payment_status !== "failed";
 }
 
+// Default lifetime of a shareable payment link (the /pay/<token> page). The
+// underlying Stripe Checkout session is minted fresh on each visit (Stripe
+// caps those at 24h), so this longer window governs how long the link a
+// customer received by email/QR stays usable.
+export const PAY_LINK_TTL_DAYS = 7;
+
+export function payLinkExpiryFromNow(now: Date): string {
+  return new Date(now.getTime() + PAY_LINK_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString();
+}
+
+// A pay link is usable only while unpaid AND before its expiry. A missing
+// expiry (legacy rows created before the column existed) is treated as
+// non-expiring so those orders stay payable.
+export function isPayLinkExpired(
+  expiresAt: string | null | undefined,
+  now: Date,
+): boolean {
+  if (!expiresAt) return false;
+  return new Date(expiresAt).getTime() <= now.getTime();
+}
+
+export const PAYABLE_STATUSES = ["pending", "failed", "expired"] as const;
+
+export function isPayableStatus(status: string): boolean {
+  return (PAYABLE_STATUSES as readonly string[]).includes(status);
+}
+
 export const FINANCIAL_FIELDS = [
   "items",
   "subtotal",

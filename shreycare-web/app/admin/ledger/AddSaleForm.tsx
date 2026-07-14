@@ -35,6 +35,8 @@ export function AddSaleForm({ onDone }: { onDone: (emailed: boolean) => void }) 
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerPhone, setCustomerPhone] = useState("+1 ");
   const [saleDate, setSaleDate] = useState(nowLocal());
+  // "stripe_link" is a UI-only choice: it books the order as an unpaid Stripe
+  // order and emails the customer an invoice with a Pay-now link.
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [paymentStatus, setPaymentStatus] = useState("paid");
   const [items, setItems] = useState<LineItem[]>([{ productName: "", quantity: 1, unitPrice: 0 }]);
@@ -62,10 +64,25 @@ export function AddSaleForm({ onDone }: { onDone: (emailed: boolean) => void }) 
     setItems((prev) => prev.filter((_, i) => i !== idx));
   }
 
+  const sendStripeLink = paymentMethod === "stripe_link";
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
     setError("");
+
+    if (sendStripeLink && !customerEmail.trim()) {
+      setError("A customer email is required to send a payment link.");
+      toast("Add a customer email to send a payment link.", "error");
+      setSubmitting(false);
+      return;
+    }
+
+    // A Stripe payment link books the order as unpaid and pending; cash /
+    // interac / other keep the admin-chosen status. Unpaid link orders aren't
+    // "delivered" yet.
+    const effectiveMethod = sendStripeLink ? "stripe" : paymentMethod;
+    const effectiveStatus = sendStripeLink ? "pending" : paymentStatus;
 
     const res = await fetch("/api/admin/sales", {
       method: "POST",
@@ -82,9 +99,9 @@ export function AddSaleForm({ onDone }: { onDone: (emailed: boolean) => void }) 
         taxRate,
         taxAmount,
         total,
-        paymentMethod,
-        paymentStatus,
-        fulfillment: "delivered",
+        paymentMethod: effectiveMethod,
+        paymentStatus: effectiveStatus,
+        fulfillment: sendStripeLink || effectiveStatus !== "paid" ? "pending" : "delivered",
         notes: notes || null,
       }),
     });
@@ -96,6 +113,28 @@ export function AddSaleForm({ onDone }: { onDone: (emailed: boolean) => void }) 
       setSubmitting(false);
       return;
     }
+
+    // For a payment-link sale, immediately email the invoice with the Pay-now
+    // link (7-day expiry). The sale is already saved either way.
+    if (sendStripeLink) {
+      const created = await res.json();
+      const inv = await fetch(`/api/admin/sales/${created.id}/send-invoice`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (inv.ok) {
+        toast(`Sale saved. Payment link emailed to ${customerEmail.trim()}.`, "success");
+      } else {
+        const data = await inv.json().catch(() => ({}));
+        toast(
+          `Sale saved, but the payment link email failed: ${data.error || "unknown error"}. Resend it from the ledger.`,
+          "error",
+        );
+      }
+      onDone(false);
+      return;
+    }
+
     onDone(!!customerEmail.trim());
   }
 
@@ -145,16 +184,34 @@ export function AddSaleForm({ onDone }: { onDone: (emailed: boolean) => void }) 
             <option value="cash">Cash</option>
             <option value="interac">Interac</option>
             <option value="other">Other</option>
+            <option value="stripe_link">Stripe payment link (email customer)</option>
           </select>
         </div>
         <div>
           <label className="block text-xs font-semibold text-primary uppercase tracking-widest mb-1">Payment status</label>
-          <select value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)} className={fieldClass}>
-            <option value="paid">Paid</option>
-            <option value="pending">Pending</option>
-          </select>
+          {sendStripeLink ? (
+            <div className={`${fieldClass} flex items-center text-on-surface-variant bg-surface-container-low`}>
+              Pending — customer pays via link
+            </div>
+          ) : (
+            <select value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)} className={fieldClass}>
+              <option value="paid">Paid</option>
+              <option value="pending">Pending</option>
+            </select>
+          )}
         </div>
       </div>
+
+      {sendStripeLink && (
+        <div className="flex items-start gap-2 bg-primary/5 border border-primary/20 rounded-md px-4 py-3 text-sm text-primary">
+          <span className="material-symbols-outlined text-lg leading-5">link</span>
+          <span>
+            An invoice with a secure <strong>Pay-now</strong> card link will be
+            emailed to the customer. The link is valid for 7 days; you can resend
+            it anytime from the ledger. The order stays pending until they pay.
+          </span>
+        </div>
+      )}
 
       <div className="space-y-2">
         <label className="block text-xs font-semibold text-primary uppercase tracking-widest">Items</label>
@@ -230,7 +287,11 @@ export function AddSaleForm({ onDone }: { onDone: (emailed: boolean) => void }) 
             disabled={submitting}
             className="bg-primary text-on-primary px-8 py-2.5 rounded-md font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-60"
           >
-            {submitting ? "Saving..." : "Save sale"}
+            {submitting
+              ? "Saving..."
+              : sendStripeLink
+                ? "Save & email payment link"
+                : "Save sale"}
           </button>
         </div>
       </div>

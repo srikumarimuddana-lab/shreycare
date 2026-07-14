@@ -8,6 +8,10 @@ import {
   isFinanciallyLocked,
   lockedFieldsInUpdate,
   MANUAL_PAYMENT_STATUSES,
+  isPayLinkExpired,
+  payLinkExpiryFromNow,
+  isPayableStatus,
+  PAY_LINK_TTL_DAYS,
 } from "./status.ts";
 
 describe("shouldMarkPaid", () => {
@@ -119,5 +123,41 @@ describe("MANUAL_PAYMENT_STATUSES", () => {
     assert.ok(!MANUAL_PAYMENT_STATUSES.includes("disputed" as never));
     assert.ok(!MANUAL_PAYMENT_STATUSES.includes("partially_refunded" as never));
     assert.deepEqual([...MANUAL_PAYMENT_STATUSES], ["pending", "paid", "refunded"]);
+  });
+});
+
+describe("pay-link expiry", () => {
+  const now = new Date("2026-07-14T00:00:00Z");
+
+  it("defaults to a 7-day window", () => {
+    assert.equal(PAY_LINK_TTL_DAYS, 7);
+    const expiry = new Date(payLinkExpiryFromNow(now));
+    const days = (expiry.getTime() - now.getTime()) / (24 * 60 * 60 * 1000);
+    assert.equal(days, 7);
+  });
+
+  it("treats a future expiry as live and a past one as expired", () => {
+    assert.equal(isPayLinkExpired("2026-07-20T00:00:00Z", now), false);
+    assert.equal(isPayLinkExpired("2026-07-10T00:00:00Z", now), true);
+  });
+
+  it("treats the exact expiry instant as expired (<=)", () => {
+    assert.equal(isPayLinkExpired("2026-07-14T00:00:00Z", now), true);
+  });
+
+  it("treats a missing expiry as non-expiring (legacy rows)", () => {
+    assert.equal(isPayLinkExpired(null, now), false);
+    assert.equal(isPayLinkExpired(undefined, now), false);
+  });
+});
+
+describe("isPayableStatus", () => {
+  it("is true only for pending / failed / expired", () => {
+    for (const s of ["pending", "failed", "expired"]) {
+      assert.equal(isPayableStatus(s), true, s);
+    }
+    for (const s of ["paid", "refunded", "partially_refunded", "disputed"]) {
+      assert.equal(isPayableStatus(s), false, s);
+    }
   });
 });

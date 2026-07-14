@@ -55,7 +55,16 @@ npm install
   payment instructions (unchanged from before).
 - **QR / pay link:** from the ledger, any unpaid order has a QR code and a
   shareable `/pay/<token>` link that starts a card payment for that exact
-  order — for in-person or follow-up card collection.
+  order — for in-person or follow-up card collection. Pay links are valid for
+  **7 days** by default (re-sending an invoice refreshes the window).
+- **Offline sales & invoices:** admins can add an offline sale and choose
+  *Cash*, *Interac*, or *Stripe payment link* — the last books the order as
+  unpaid and emails the customer an invoice with a Pay-now card link. Every
+  order has a downloadable invoice PDF, and invoices can be (re-)sent to the
+  customer from the ledger at any time.
+- **Recreate order:** a cancelled order can be recreated as a fresh offline
+  order (same items/customer) to keep the ledger balanced when a sale actually
+  happened offline.
 - **Refunds:** issue full or partial refunds from the ledger; they go through
   Stripe and the ledger converges via the `charge.refunded` webhook.
 - **Edit locking:** once Stripe has captured a charge, that order's amounts and
@@ -64,11 +73,15 @@ npm install
 - **Analytics & audit:** `/admin/payments` shows revenue by method, refunds,
   disputes, recent Stripe events, and a full order audit trail.
 
-### Required database migration
+### Required database migrations
 
-Run `supabase/migrations/2026-07-13_stripe_payments.sql` in the Supabase SQL
-editor. It adds the Stripe columns and per-order pay token to `sales`, plus the
-`stripe_webhook_events` (idempotency + audit) and `order_audit_log` tables.
+Run these in the Supabase SQL editor, in order:
+
+1. `supabase/migrations/2026-07-13_stripe_payments.sql` — Stripe columns and
+   per-order pay token on `sales`, plus `stripe_webhook_events` (idempotency +
+   audit) and `order_audit_log` tables.
+2. `supabase/migrations/2026-07-14_pay_link_expiry_invoices.sql` — 7-day pay
+   link expiry and invoice-tracking columns on `sales`.
 
 ## 4. Set up NextAuth
 

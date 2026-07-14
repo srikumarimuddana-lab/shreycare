@@ -40,6 +40,8 @@ interface Sale {
   notes: string | null;
   stripe_payment_intent_id?: string | null;
   amount_refunded?: number | string | null;
+  pay_link_expires_at?: string | null;
+  invoice_count?: number | null;
 }
 
 // Orders whose money moved through Stripe mirror the processor — their
@@ -228,6 +230,85 @@ export function LedgerDashboard() {
       fetchData();
     } else {
       toast(data.error || "Refund failed.", "error");
+    }
+  }
+
+  async function downloadInvoice(sale: Sale) {
+    try {
+      const res = await fetch(`/api/admin/sales/${sale.id}/invoice`);
+      if (!res.ok) {
+        toast("Could not generate the invoice PDF.", "error");
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `invoice-${sale.order_number}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast("Could not download the invoice.", "error");
+    }
+  }
+
+  async function sendInvoice(sale: Sale) {
+    let email = sale.customer_email ?? "";
+    if (!email) {
+      const input = prompt(`Email the invoice for ${sale.order_number} to:`);
+      if (input === null) return;
+      email = input.trim();
+      if (!email) return;
+    }
+    const unpaid = isPayable(sale);
+    const verb = sale.invoice_count && sale.invoice_count > 0 ? "Resend" : "Send";
+    if (
+      !confirm(
+        `${verb} invoice ${sale.order_number} to ${email}?` +
+          (unpaid ? "\n\nIt will include a Pay-now card link valid for 7 days." : ""),
+      )
+    )
+      return;
+
+    const res = await fetch(`/api/admin/sales/${sale.id}/send-invoice`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      toast(
+        data.withPayLink
+          ? `Invoice + payment link sent to ${data.sentTo}.`
+          : `Invoice sent to ${data.sentTo}.`,
+        "success",
+      );
+      fetchData();
+    } else {
+      toast(data.error || "Failed to send invoice.", "error");
+    }
+  }
+
+  async function recreateOrder(sale: Sale) {
+    if (
+      !confirm(
+        `Recreate a new order from ${sale.order_number}?\n\n` +
+          `This creates a fresh offline order (paid, cash) with the same items and customer — ` +
+          `useful to rebalance the ledger after a cancellation. The original is left unchanged.`,
+      )
+    )
+      return;
+    const res = await fetch(`/api/admin/sales/${sale.id}/duplicate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      toast(`Created ${data.orderNumber} from ${sale.order_number}.`, "success");
+      fetchData();
+    } else {
+      toast(data.error || "Failed to recreate order.", "error");
     }
   }
 
@@ -654,6 +735,29 @@ export function LedgerDashboard() {
                         </button>
                       )}
                     <button
+                      onClick={() => downloadInvoice(s)}
+                      className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors"
+                      title="Download invoice PDF"
+                    >
+                      <span className="material-symbols-outlined text-lg">picture_as_pdf</span>
+                    </button>
+                    <button
+                      onClick={() => sendInvoice(s)}
+                      className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors"
+                      title={isPayable(s) ? "Email invoice + payment link" : "Email invoice"}
+                    >
+                      <span className="material-symbols-outlined text-lg">forward_to_inbox</span>
+                    </button>
+                    {s.fulfillment === "cancelled" && (
+                      <button
+                        onClick={() => recreateOrder(s)}
+                        className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors"
+                        title="Recreate order (ledger balance)"
+                      >
+                        <span className="material-symbols-outlined text-lg">restart_alt</span>
+                      </button>
+                    )}
+                    <button
                       onClick={() => setEditingSale({ ...s })}
                       className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors"
                       title="Edit"
@@ -792,17 +896,59 @@ export function LedgerDashboard() {
                       </select>
                     </div>
                   </div>
-                  <div className="flex gap-2 pt-2">
+                  <div className="grid grid-cols-2 gap-2 pt-2">
+                    {isPayable(s) && (
+                      <button
+                        onClick={() => setQrSale(s)}
+                        className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-primary text-primary text-sm font-semibold hover:bg-primary/5 transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-lg">qr_code_2</span>
+                        Pay QR / link
+                      </button>
+                    )}
+                    {isStripeLocked(s) &&
+                      ["paid", "partially_refunded"].includes(s.payment_status) && (
+                        <button
+                          onClick={() => refundSale(s)}
+                          className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-orange-600 text-orange-700 text-sm font-semibold hover:bg-orange-50 transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-lg">currency_exchange</span>
+                          Refund
+                        </button>
+                      )}
+                    <button
+                      onClick={() => downloadInvoice(s)}
+                      className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-outline text-on-surface-variant text-sm font-semibold hover:bg-surface-container transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-lg">picture_as_pdf</span>
+                      Invoice
+                    </button>
+                    <button
+                      onClick={() => sendInvoice(s)}
+                      className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-outline text-on-surface-variant text-sm font-semibold hover:bg-surface-container transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-lg">forward_to_inbox</span>
+                      {isPayable(s) ? "Send link" : "Send invoice"}
+                    </button>
+                    {s.fulfillment === "cancelled" && (
+                      <button
+                        onClick={() => recreateOrder(s)}
+                        className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-primary text-primary text-sm font-semibold hover:bg-primary/5 transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-lg">restart_alt</span>
+                        Recreate
+                      </button>
+                    )}
                     <button
                       onClick={() => setEditingSale({ ...s })}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-primary text-primary text-sm font-semibold hover:bg-primary/5 transition-colors"
+                      className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-primary text-primary text-sm font-semibold hover:bg-primary/5 transition-colors"
                     >
                       <span className="material-symbols-outlined text-lg">edit</span>
                       Edit
                     </button>
                     <button
                       onClick={() => deleteSale(s.id, s.order_number)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-error text-error text-sm font-semibold hover:bg-error-container transition-colors"
+                      className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-error text-error text-sm font-semibold hover:bg-error-container transition-colors"
                     >
                       <span className="material-symbols-outlined text-lg">delete</span>
                       Delete

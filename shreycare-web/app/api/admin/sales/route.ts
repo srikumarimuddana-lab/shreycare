@@ -233,8 +233,13 @@ export async function POST(req: NextRequest) {
     }).catch(() => {});
   }
 
-  // Fire-and-forget email receipt when an email is provided.
-  if (body.customerEmail && data) {
+  // Fire-and-forget email receipt when an email is provided. Skip it for
+  // unpaid Stripe orders — those get an invoice with a Pay-now link instead
+  // (sent separately by the caller), and a "receipt" would be misleading.
+  const isPendingStripe =
+    (body.paymentMethod || "cash") === "stripe" &&
+    (body.paymentStatus || "pending") !== "paid";
+  if (body.customerEmail && data && !isPendingStripe) {
     sendReceipt({
       to: body.customerEmail,
       customerName: body.customerName,

@@ -3,6 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { isStripeConfigured } from "@/lib/stripe";
 import { createOrReuseCheckoutSession } from "@/lib/payments/stripe-checkout";
 import { logOrderAudit } from "@/lib/payments/audit";
+import { isPayLinkExpired } from "@/lib/payments/status";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 const UUID_RE =
@@ -38,7 +39,7 @@ export async function POST(
   const { data: sale, error } = await supabaseAdmin
     .from("sales")
     .select(
-      "id, order_number, customer_email, items, shipping_amount, tax_amount, tax_rate, total, payment_status, fulfillment, stripe_session_id",
+      "id, order_number, customer_email, items, shipping_amount, tax_amount, tax_rate, total, payment_status, fulfillment, pay_link_expires_at, stripe_session_id",
     )
     .eq("pay_token", token)
     .maybeSingle();
@@ -53,6 +54,12 @@ export async function POST(
     return NextResponse.json(
       { error: "This order has already been paid." },
       { status: 409 },
+    );
+  }
+  if (isPayLinkExpired(sale.pay_link_expires_at, new Date())) {
+    return NextResponse.json(
+      { error: "This payment link has expired. Please contact us for a new one." },
+      { status: 410 },
     );
   }
 

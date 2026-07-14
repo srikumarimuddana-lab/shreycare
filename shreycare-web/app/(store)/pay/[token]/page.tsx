@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabase";
+import { isPayableStatus, isPayLinkExpired } from "@/lib/payments/status";
 import { PayButton } from "./PayButton";
 
 export const metadata: Metadata = {
@@ -29,7 +30,7 @@ export default async function PayPage({
         await supabaseAdmin
           .from("sales")
           .select(
-            "id, order_number, customer_name, items, subtotal, shipping_amount, tax_amount, total, payment_status, fulfillment",
+            "id, order_number, customer_name, items, subtotal, shipping_amount, tax_amount, total, payment_status, fulfillment, pay_link_expires_at",
           )
           .eq("pay_token", token)
           .maybeSingle()
@@ -48,9 +49,11 @@ export default async function PayPage({
     );
   }
 
+  const linkExpired = isPayLinkExpired(sale.pay_link_expires_at, new Date());
   const payable =
-    ["pending", "failed", "expired"].includes(sale.payment_status) &&
-    sale.fulfillment !== "cancelled";
+    isPayableStatus(sale.payment_status) &&
+    sale.fulfillment !== "cancelled" &&
+    !linkExpired;
   const items = (sale.items ?? []) as SaleItem[];
 
   return (
@@ -63,7 +66,9 @@ export default async function PayPage({
           ? `Hi ${sale.customer_name}, review your order below and pay securely by card.`
           : sale.fulfillment === "cancelled"
             ? "This order was cancelled and can no longer be paid."
-            : "This order has already been paid — thank you!"}
+            : linkExpired && isPayableStatus(sale.payment_status)
+              ? "This payment link has expired. Please contact us and we'll send you a fresh one."
+              : "This order has already been paid — thank you!"}
       </p>
 
       <div className="bg-surface-container-lowest border border-outline-variant/60 rounded-xl shadow-sm overflow-hidden text-left">
