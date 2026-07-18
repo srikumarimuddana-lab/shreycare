@@ -29,14 +29,30 @@ function nowLocal(): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function AddSaleForm({ onDone }: { onDone: (emailed: boolean) => void }) {
+// A freshly-created order row, enough for the ledger to pop a payment QR for
+// it right after saving.
+export interface CreatedSale {
+  id: string;
+  order_number: string;
+  total: number;
+  subtotal: number;
+  tax_amount: number;
+  [key: string]: unknown;
+}
+
+export function AddSaleForm({
+  onDone,
+}: {
+  onDone: (result: { emailed: boolean; qrSale?: CreatedSale }) => void;
+}) {
   const toast = useToast();
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerPhone, setCustomerPhone] = useState("+1 ");
   const [saleDate, setSaleDate] = useState(nowLocal());
   // "stripe_link" is a UI-only choice: it books the order as an unpaid Stripe
-  // order and emails the customer an invoice with a Pay-now link.
+  // order the customer pays by card via a QR (shown in person) and/or an
+  // emailed Pay-now link.
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [paymentStatus, setPaymentStatus] = useState("paid");
   const [items, setItems] = useState<LineItem[]>([{ productName: "", quantity: 1, unitPrice: 0 }]);
@@ -64,25 +80,21 @@ export function AddSaleForm({ onDone }: { onDone: (emailed: boolean) => void }) 
     setItems((prev) => prev.filter((_, i) => i !== idx));
   }
 
-  const sendStripeLink = paymentMethod === "stripe_link";
+  // Stripe card payment: the customer pays by card/debit via QR or link. Email
+  // is optional — with an email we also send the invoice + Pay-now link; either
+  // way we pop a QR to show in person.
+  const stripePay = paymentMethod === "stripe_link";
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
     setError("");
 
-    if (sendStripeLink && !customerEmail.trim()) {
-      setError("A customer email is required to send a payment link.");
-      toast("Add a customer email to send a payment link.", "error");
-      setSubmitting(false);
-      return;
-    }
-
-    // A Stripe payment link books the order as unpaid and pending; cash /
-    // interac / other keep the admin-chosen status. Unpaid link orders aren't
-    // "delivered" yet.
-    const effectiveMethod = sendStripeLink ? "stripe" : paymentMethod;
-    const effectiveStatus = sendStripeLink ? "pending" : paymentStatus;
+    // A Stripe card order is booked unpaid and pending; cash / interac / other
+    // keep the admin-chosen status. Unpaid orders aren't "delivered" yet.
+    const effectiveMethod = stripePay ? "stripe" : paymentMethod;
+    const effectiveStatus = stripePay ? "pending" : paymentStatus;
+    const email = customerEmail.trim();
 
     const res = await fetch("/api/admin/sales", {
       method: "POST",
@@ -92,7 +104,7 @@ export function AddSaleForm({ onDone }: { onDone: (emailed: boolean) => void }) 
         type: "offline",
         date: new Date(saleDate).toISOString(),
         customerName,
-        customerEmail: customerEmail.trim() || null,
+        customerEmail: email || null,
         customerPhone: customerPhone.trim() && customerPhone.trim() !== "+1" ? customerPhone.trim() : null,
         items: items.filter((i) => i.productName),
         subtotal,
@@ -101,7 +113,7 @@ export function AddSaleForm({ onDone }: { onDone: (emailed: boolean) => void }) 
         total,
         paymentMethod: effectiveMethod,
         paymentStatus: effectiveStatus,
-        fulfillment: sendStripeLink || effectiveStatus !== "paid" ? "pending" : "delivered",
+        fulfillment: stripePay || effectiveStatus !== "paid" ? "pending" : "delivered",
         notes: notes || null,
       }),
     });
@@ -114,28 +126,32 @@ export function AddSaleForm({ onDone }: { onDone: (emailed: boolean) => void }) 
       return;
     }
 
-    // For a payment-link sale, immediately email the invoice with the Pay-now
-    // link (7-day expiry). The sale is already saved either way.
-    if (sendStripeLink) {
-      const created = await res.json();
-      const inv = await fetch(`/api/admin/sales/${created.id}/send-invoice`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (inv.ok) {
-        toast(`Sale saved. Payment link emailed to ${customerEmail.trim()}.`, "success");
+    // Stripe card order: pop a QR to show in person, and — if we have an email
+    // — also send the invoice with the Pay-now link (7-day expiry).
+    if (stripePay) {
+      const created = (await res.json()) as CreatedSale;
+      if (email) {
+        const inv = await fetch(`/api/admin/sales/${created.id}/send-invoice`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (inv.ok) {
+          toast(`Sale saved. Payment link emailed to ${email}. Show the QR to pay in person.`, "success");
+        } else {
+          const data = await inv.json().catch(() => ({}));
+          toast(
+            `Sale saved, but the email failed: ${data.error || "unknown error"}. You can still show the QR or resend from the ledger.`,
+            "error",
+          );
+        }
       } else {
-        const data = await inv.json().catch(() => ({}));
-        toast(
-          `Sale saved, but the payment link email failed: ${data.error || "unknown error"}. Resend it from the ledger.`,
-          "error",
-        );
+        toast("Sale saved. Show the QR for the customer to pay by card.", "success");
       }
-      onDone(false);
+      onDone({ emailed: Boolean(email), qrSale: created });
       return;
     }
 
-    onDone(!!customerEmail.trim());
+    onDone({ emailed: !!customerEmail.trim() });
   }
 
   return (
@@ -184,14 +200,14 @@ export function AddSaleForm({ onDone }: { onDone: (emailed: boolean) => void }) 
             <option value="cash">Cash</option>
             <option value="interac">Interac</option>
             <option value="other">Other</option>
-            <option value="stripe_link">Stripe payment link (email customer)</option>
+            <option value="stripe_link">Stripe card — QR / payment link</option>
           </select>
         </div>
         <div>
           <label className="block text-xs font-semibold text-primary uppercase tracking-widest mb-1">Payment status</label>
-          {sendStripeLink ? (
+          {stripePay ? (
             <div className={`${fieldClass} flex items-center text-on-surface-variant bg-surface-container-low`}>
-              Pending — customer pays via link
+              Pending — customer pays by card
             </div>
           ) : (
             <select value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)} className={fieldClass}>
@@ -202,13 +218,14 @@ export function AddSaleForm({ onDone }: { onDone: (emailed: boolean) => void }) 
         </div>
       </div>
 
-      {sendStripeLink && (
+      {stripePay && (
         <div className="flex items-start gap-2 bg-primary/5 border border-primary/20 rounded-md px-4 py-3 text-sm text-primary">
-          <span className="material-symbols-outlined text-lg leading-5">link</span>
+          <span className="material-symbols-outlined text-lg leading-5">qr_code_2</span>
           <span>
-            An invoice with a secure <strong>Pay-now</strong> card link will be
-            emailed to the customer. The link is valid for 7 days; you can resend
-            it anytime from the ledger. The order stays pending until they pay.
+            After saving, a <strong>payment QR</strong> appears — show it to the
+            customer to scan and pay by credit or debit card. Email is{" "}
+            <strong>optional</strong>: add one to also send the invoice with a
+            Pay-now link (valid 7 days). The order stays pending until they pay.
           </span>
         </div>
       )}
@@ -289,8 +306,8 @@ export function AddSaleForm({ onDone }: { onDone: (emailed: boolean) => void }) 
           >
             {submitting
               ? "Saving..."
-              : sendStripeLink
-                ? "Save & email payment link"
+              : stripePay
+                ? "Save & show payment QR"
                 : "Save sale"}
           </button>
         </div>
