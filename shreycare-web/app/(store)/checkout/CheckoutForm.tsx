@@ -62,6 +62,7 @@ export function CheckoutForm() {
   const toast = useToast();
   const { state, total, bottleCount, hasFreeShipping, clearCart } = useCart();
   const [customer, setCustomer] = useState<CustomerInput>(initial);
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "etransfer">("card");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -115,6 +116,22 @@ export function CheckoutForm() {
     };
 
     try {
+      if (paymentMethod === "card") {
+        // Stripe Checkout: the order is recorded server-side as pending and
+        // the cart is cleared on the success page after Stripe redirects back.
+        const res = await fetch("/api/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.url) {
+          throw new Error(data.error || "Unable to start card payment.");
+        }
+        window.location.href = data.url;
+        return;
+      }
+
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -246,6 +263,35 @@ export function CheckoutForm() {
           )}
         </div>
 
+        {/* Payment method */}
+        <div className={sectionCard}>
+          <h2 className="font-headline text-lg text-primary border-b border-outline-variant/40 pb-3">
+            Payment
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <PaymentOption
+              selected={paymentMethod === "card"}
+              onSelect={() => setPaymentMethod("card")}
+              icon="credit_card"
+              title="Pay by card"
+              description="Secure checkout with Stripe. Visa, Mastercard, Amex — paid instantly."
+            />
+            <PaymentOption
+              selected={paymentMethod === "etransfer"}
+              onSelect={() => setPaymentMethod("etransfer")}
+              icon="account_balance"
+              title="Interac e-Transfer"
+              description="Place the order now — we'll email you e-Transfer instructions."
+            />
+          </div>
+          {paymentMethod === "card" && (
+            <p className="text-xs text-on-surface-variant flex items-start gap-2">
+              <span className="material-symbols-outlined text-sm leading-4 mt-0.5">lock</span>
+              You&apos;ll be redirected to Stripe&apos;s secure payment page. We never see or store your card details.
+            </p>
+          )}
+        </div>
+
         {/* Order notes */}
         <div className={sectionCard}>
           <h2 className="font-headline text-lg text-primary border-b border-outline-variant/40 pb-3">
@@ -253,7 +299,7 @@ export function CheckoutForm() {
             <span className="text-on-surface-variant font-sans font-normal text-sm">(optional)</span>
           </h2>
           <textarea id="notes" rows={3}
-            placeholder="Preferred payment method (Interac e-Transfer or cash), delivery instructions, or anything else."
+            placeholder="Delivery instructions or anything else we should know."
             value={customer.notes} onChange={(e) => update("notes", e.target.value)}
             className={fieldClass} />
         </div>
@@ -372,17 +418,64 @@ export function CheckoutForm() {
             disabled={submitting}
             className="w-full bg-primary text-on-primary py-4 rounded-lg font-bold text-base hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {submitting ? "Placing order…" : "Place order"}
+            {submitting
+              ? paymentMethod === "card"
+                ? "Redirecting to secure payment…"
+                : "Placing order…"
+              : paymentMethod === "card"
+                ? "Continue to payment"
+                : "Place order"}
           </button>
           <p className="text-xs text-on-surface-variant text-center leading-relaxed">
             By placing this order you agree to our{" "}
             <Link href="/policies/privacy" className="underline hover:text-primary">
               Privacy Policy
             </Link>
-            . Our team will email you payment instructions after you submit.
+            .{" "}
+            {paymentMethod === "card"
+              ? "Payments are processed securely by Stripe."
+              : "Our team will email you payment instructions after you submit."}
           </p>
         </div>
       </aside>
     </form>
+  );
+}
+
+function PaymentOption({
+  selected,
+  onSelect,
+  icon,
+  title,
+  description,
+}: {
+  selected: boolean;
+  onSelect: () => void;
+  icon: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={selected}
+      className={`text-left rounded-xl border-2 p-4 transition-colors ${
+        selected
+          ? "border-primary bg-primary/5"
+          : "border-outline-variant/60 hover:border-primary/40"
+      }`}
+    >
+      <span className="flex items-center gap-2 mb-1">
+        <span className={`material-symbols-outlined text-xl ${selected ? "text-primary" : "text-on-surface-variant"}`}>
+          {icon}
+        </span>
+        <span className="font-bold text-sm text-on-surface">{title}</span>
+        {selected && (
+          <span className="material-symbols-outlined text-lg text-primary ml-auto">check_circle</span>
+        )}
+      </span>
+      <span className="block text-xs text-on-surface-variant leading-relaxed">{description}</span>
+    </button>
   );
 }

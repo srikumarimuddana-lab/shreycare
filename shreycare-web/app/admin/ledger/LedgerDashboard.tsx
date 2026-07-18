@@ -38,6 +38,29 @@ interface Sale {
   payment_status: string;
   fulfillment: string;
   notes: string | null;
+  stripe_payment_intent_id?: string | null;
+  amount_refunded?: number | string | null;
+  pay_link_expires_at?: string | null;
+  invoice_count?: number | null;
+}
+
+// Orders whose money moved through Stripe mirror the processor — their
+// amounts and payment state can't be hand-edited (the API enforces this
+// too); refunds go through the Refund action.
+function isStripeLocked(s: Sale): boolean {
+  return (
+    s.payment_method === "stripe" &&
+    Boolean(s.stripe_payment_intent_id) &&
+    !["pending", "expired", "failed"].includes(s.payment_status)
+  );
+}
+
+// Statuses from which an order can still be taken to payment via QR / link.
+function isPayable(s: Sale): boolean {
+  return (
+    ["pending", "failed", "expired"].includes(s.payment_status) &&
+    s.fulfillment !== "cancelled"
+  );
 }
 
 interface ChannelBreakdown {
@@ -103,10 +126,16 @@ const statusBadge: Record<string, string> = {
   paid: "bg-green-100 text-green-800",
   pending: "bg-yellow-100 text-yellow-800",
   refunded: "bg-red-100 text-red-800",
+  partially_refunded: "bg-orange-100 text-orange-800",
+  failed: "bg-red-100 text-red-800",
+  expired: "bg-surface-container text-on-surface-variant",
+  disputed: "bg-red-100 text-red-800",
   shipped: "bg-blue-100 text-blue-800",
   delivered: "bg-green-100 text-green-800",
   cancelled: "bg-red-100 text-red-800",
 };
+
+const statusLabel = (s: string) => s.replace(/_/g, " ");
 
 const selectClass =
   "px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-outline-variant/50 cursor-pointer bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary/20";
@@ -120,14 +149,17 @@ export function LedgerDashboard() {
   const [showForm, setShowForm] = useState(false);
   const [filterType, setFilterType] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [filterMethod, setFilterMethod] = useState("");
   const [filterFrom, setFilterFrom] = useState("");
   const [filterTo, setFilterTo] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [qrSale, setQrSale] = useState<Sale | null>(null);
 
   const fetchData = useCallback(async () => {
     const params = new URLSearchParams();
     if (filterType) params.set("type", filterType);
     if (filterStatus) params.set("status", filterStatus);
+    if (filterMethod) params.set("method", filterMethod);
     if (filterFrom) params.set("from", filterFrom);
     if (filterTo) params.set("to", filterTo);
 
@@ -146,7 +178,7 @@ export function LedgerDashboard() {
     setSales(Array.isArray(salesData) ? salesData : []);
     setSummary(summaryData);
     setLoading(false);
-  }, [filterType, filterStatus, filterFrom, filterTo, router]);
+  }, [filterType, filterStatus, filterMethod, filterFrom, filterTo, router]);
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchData(); }, [fetchData]);
@@ -164,7 +196,119 @@ export function LedgerDashboard() {
       toast(`${label} updated to ${value}.`, "success");
       fetchData();
     } else {
-      toast("Update failed. Please try again.", "error");
+      const data = await res.json().catch(() => ({}));
+      toast(data.error || "Update failed. Please try again.", "error");
+      fetchData();
+    }
+  }
+
+  async function refundSale(sale: Sale) {
+    const remaining =
+      saleTotal(sale) - Number(sale.amount_refunded ?? 0);
+    const input = prompt(
+      `Refund order ${sale.order_number} via Stripe.\n\n` +
+        `Refundable: $${remaining.toFixed(2)}\n` +
+        `Enter an amount for a partial refund, or leave as-is for a full refund.`,
+      remaining.toFixed(2),
+    );
+    if (input === null) return;
+    const amount = Number(input);
+    if (!Number.isFinite(amount) || amount <= 0 || amount > remaining) {
+      toast(`Enter an amount between $0.01 and $${remaining.toFixed(2)}.`, "error");
+      return;
+    }
+    if (!confirm(`Refund $${amount.toFixed(2)} to the customer's card? This cannot be undone.`)) return;
+
+    const res = await fetch(`/api/admin/sales/${sale.id}/refund`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      toast(`Refunded $${amount.toFixed(2)} on ${sale.order_number}.`, "success");
+      fetchData();
+    } else {
+      toast(data.error || "Refund failed.", "error");
+    }
+  }
+
+  async function downloadInvoice(sale: Sale) {
+    try {
+      const res = await fetch(`/api/admin/sales/${sale.id}/invoice`);
+      if (!res.ok) {
+        toast("Could not generate the invoice PDF.", "error");
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `invoice-${sale.order_number}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast("Could not download the invoice.", "error");
+    }
+  }
+
+  async function sendInvoice(sale: Sale) {
+    let email = sale.customer_email ?? "";
+    if (!email) {
+      const input = prompt(`Email the invoice for ${sale.order_number} to:`);
+      if (input === null) return;
+      email = input.trim();
+      if (!email) return;
+    }
+    const unpaid = isPayable(sale);
+    const verb = sale.invoice_count && sale.invoice_count > 0 ? "Resend" : "Send";
+    if (
+      !confirm(
+        `${verb} invoice ${sale.order_number} to ${email}?` +
+          (unpaid ? "\n\nIt will include a Pay-now card link valid for 7 days." : ""),
+      )
+    )
+      return;
+
+    const res = await fetch(`/api/admin/sales/${sale.id}/send-invoice`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      toast(
+        data.withPayLink
+          ? `Invoice + payment link sent to ${data.sentTo}.`
+          : `Invoice sent to ${data.sentTo}.`,
+        "success",
+      );
+      fetchData();
+    } else {
+      toast(data.error || "Failed to send invoice.", "error");
+    }
+  }
+
+  async function recreateOrder(sale: Sale) {
+    if (
+      !confirm(
+        `Recreate a new order from ${sale.order_number}?\n\n` +
+          `This creates a fresh offline order (paid, cash) with the same items and customer — ` +
+          `useful to rebalance the ledger after a cancellation. The original is left unchanged.`,
+      )
+    )
+      return;
+    const res = await fetch(`/api/admin/sales/${sale.id}/duplicate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      toast(`Created ${data.orderNumber} from ${sale.order_number}.`, "success");
+      fetchData();
+    } else {
+      toast(data.error || "Failed to recreate order.", "error");
     }
   }
 
@@ -184,31 +328,39 @@ export function LedgerDashboard() {
   }
 
   async function saveEdit(sale: Sale) {
+    // Financial fields are locked once Stripe has captured the charge; only
+    // send the always-editable fields for those orders so the PATCH doesn't
+    // 409 on the locked ones.
+    const payload: Record<string, unknown> = {
+      id: sale.id,
+      customerName: sale.customer_name,
+      customerEmail: sale.customer_email,
+      customerPhone: sale.customer_phone,
+      shippingAddress: sale.shipping_address,
+      fulfillment: sale.fulfillment,
+      notes: sale.notes,
+    };
+    if (!isStripeLocked(sale)) {
+      payload.paymentMethod = sale.payment_method;
+      payload.paymentStatus = sale.payment_status;
+      payload.items = sale.items;
+      payload.subtotal = sale.subtotal;
+      payload.taxRate = sale.tax_rate;
+      payload.taxAmount = sale.tax_amount;
+    }
+
     const res = await fetch("/api/admin/sales", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id: sale.id,
-        customerName: sale.customer_name,
-        customerEmail: sale.customer_email,
-        customerPhone: sale.customer_phone,
-        shippingAddress: sale.shipping_address,
-        paymentMethod: sale.payment_method,
-        paymentStatus: sale.payment_status,
-        fulfillment: sale.fulfillment,
-        notes: sale.notes,
-        items: sale.items,
-        subtotal: sale.subtotal,
-        taxRate: sale.tax_rate,
-        taxAmount: sale.tax_amount,
-      }),
+      body: JSON.stringify(payload),
     });
     if (res.ok) {
       toast("Sale updated.", "success");
       setEditingSale(null);
       fetchData();
     } else {
-      toast("Update failed.", "error");
+      const data = await res.json().catch(() => ({}));
+      toast(data.error || "Update failed.", "error");
     }
   }
 
@@ -418,15 +570,31 @@ export function LedgerDashboard() {
             <option value="">All statuses</option>
             <option value="pending">Pending</option>
             <option value="paid">Paid</option>
+            <option value="failed">Failed</option>
+            <option value="expired">Expired</option>
+            <option value="partially_refunded">Partially refunded</option>
             <option value="refunded">Refunded</option>
+            <option value="disputed">Disputed</option>
           </select>
-          {(filterFrom || filterTo || filterType || filterStatus) && (
+          <select
+            value={filterMethod}
+            onChange={(e) => setFilterMethod(e.target.value)}
+            className={selectClass}
+          >
+            <option value="">All methods</option>
+            <option value="stripe">Card (Stripe)</option>
+            <option value="interac">e-Transfer</option>
+            <option value="cash">Cash</option>
+            <option value="other">Other</option>
+          </select>
+          {(filterFrom || filterTo || filterType || filterStatus || filterMethod) && (
             <button
               onClick={() => {
                 setFilterFrom("");
                 setFilterTo("");
                 setFilterType("");
                 setFilterStatus("");
+                setFilterMethod("");
               }}
               className="text-error text-xs font-semibold hover:underline px-2 py-1.5"
             >
@@ -502,17 +670,36 @@ export function LedgerDashboard() {
                 </td>
                 <td className="px-4 py-3.5 capitalize text-on-surface-variant text-xs font-medium">
                   {s.payment_method}
+                  {Number(s.amount_refunded ?? 0) > 0 && (
+                    <div className="text-[10px] text-red-700">
+                      -${Number(s.amount_refunded).toFixed(2)} refunded
+                    </div>
+                  )}
                 </td>
                 <td className="px-4 py-3.5">
-                  <select
-                    value={s.payment_status}
-                    onChange={(e) => updateSale(s.id, "paymentStatus", e.target.value)}
-                    className={`${selectClass} ${statusBadge[s.payment_status] || ""}`}
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="paid">Paid</option>
-                    <option value="refunded">Refunded</option>
-                  </select>
+                  {isStripeLocked(s) ? (
+                    <span
+                      className={`inline-block px-2.5 py-1.5 rounded-lg text-xs font-semibold capitalize ${statusBadge[s.payment_status] || ""}`}
+                      title="Set by Stripe — use Refund to adjust"
+                    >
+                      {statusLabel(s.payment_status)} 🔒
+                    </span>
+                  ) : (
+                    <select
+                      value={s.payment_status}
+                      onChange={(e) => updateSale(s.id, "paymentStatus", e.target.value)}
+                      className={`${selectClass} ${statusBadge[s.payment_status] || ""}`}
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="paid">Paid</option>
+                      <option value="refunded">Refunded</option>
+                      {!["pending", "paid", "refunded"].includes(s.payment_status) && (
+                        <option value={s.payment_status} disabled>
+                          {statusLabel(s.payment_status)}
+                        </option>
+                      )}
+                    </select>
+                  )}
                 </td>
                 <td className="px-4 py-3.5">
                   <select
@@ -528,6 +715,48 @@ export function LedgerDashboard() {
                 </td>
                 <td className="px-4 py-3.5">
                   <div className="flex items-center justify-center gap-1">
+                    {isPayable(s) && (
+                      <button
+                        onClick={() => setQrSale(s)}
+                        className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors"
+                        title="Payment QR / link"
+                      >
+                        <span className="material-symbols-outlined text-lg">qr_code_2</span>
+                      </button>
+                    )}
+                    {isStripeLocked(s) &&
+                      ["paid", "partially_refunded"].includes(s.payment_status) && (
+                        <button
+                          onClick={() => refundSale(s)}
+                          className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-orange-700 transition-colors"
+                          title="Refund via Stripe"
+                        >
+                          <span className="material-symbols-outlined text-lg">currency_exchange</span>
+                        </button>
+                      )}
+                    <button
+                      onClick={() => downloadInvoice(s)}
+                      className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors"
+                      title="Download invoice PDF"
+                    >
+                      <span className="material-symbols-outlined text-lg">picture_as_pdf</span>
+                    </button>
+                    <button
+                      onClick={() => sendInvoice(s)}
+                      className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors"
+                      title={isPayable(s) ? "Email invoice + payment link" : "Email invoice"}
+                    >
+                      <span className="material-symbols-outlined text-lg">forward_to_inbox</span>
+                    </button>
+                    {s.fulfillment === "cancelled" && (
+                      <button
+                        onClick={() => recreateOrder(s)}
+                        className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors"
+                        title="Recreate order (ledger balance)"
+                      >
+                        <span className="material-symbols-outlined text-lg">restart_alt</span>
+                      </button>
+                    )}
                     <button
                       onClick={() => setEditingSale({ ...s })}
                       className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors"
@@ -595,8 +824,8 @@ export function LedgerDashboard() {
                       incl. ${Number(s.tax_amount).toFixed(2)} tax
                     </div>
                   )}
-                  <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold mt-1 ${statusBadge[s.payment_status] || ""}`}>
-                    {s.payment_status}
+                  <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold mt-1 capitalize ${statusBadge[s.payment_status] || ""}`}>
+                    {statusLabel(s.payment_status)}
                   </span>
                 </div>
               </button>
@@ -667,17 +896,59 @@ export function LedgerDashboard() {
                       </select>
                     </div>
                   </div>
-                  <div className="flex gap-2 pt-2">
+                  <div className="grid grid-cols-2 gap-2 pt-2">
+                    {isPayable(s) && (
+                      <button
+                        onClick={() => setQrSale(s)}
+                        className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-primary text-primary text-sm font-semibold hover:bg-primary/5 transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-lg">qr_code_2</span>
+                        Pay QR / link
+                      </button>
+                    )}
+                    {isStripeLocked(s) &&
+                      ["paid", "partially_refunded"].includes(s.payment_status) && (
+                        <button
+                          onClick={() => refundSale(s)}
+                          className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-orange-600 text-orange-700 text-sm font-semibold hover:bg-orange-50 transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-lg">currency_exchange</span>
+                          Refund
+                        </button>
+                      )}
+                    <button
+                      onClick={() => downloadInvoice(s)}
+                      className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-outline text-on-surface-variant text-sm font-semibold hover:bg-surface-container transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-lg">picture_as_pdf</span>
+                      Invoice
+                    </button>
+                    <button
+                      onClick={() => sendInvoice(s)}
+                      className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-outline text-on-surface-variant text-sm font-semibold hover:bg-surface-container transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-lg">forward_to_inbox</span>
+                      {isPayable(s) ? "Send link" : "Send invoice"}
+                    </button>
+                    {s.fulfillment === "cancelled" && (
+                      <button
+                        onClick={() => recreateOrder(s)}
+                        className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-primary text-primary text-sm font-semibold hover:bg-primary/5 transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-lg">restart_alt</span>
+                        Recreate
+                      </button>
+                    )}
                     <button
                       onClick={() => setEditingSale({ ...s })}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-primary text-primary text-sm font-semibold hover:bg-primary/5 transition-colors"
+                      className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-primary text-primary text-sm font-semibold hover:bg-primary/5 transition-colors"
                     >
                       <span className="material-symbols-outlined text-lg">edit</span>
                       Edit
                     </button>
                     <button
                       onClick={() => deleteSale(s.id, s.order_number)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-error text-error text-sm font-semibold hover:bg-error-container transition-colors"
+                      className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-error text-error text-sm font-semibold hover:bg-error-container transition-colors"
                     >
                       <span className="material-symbols-outlined text-lg">delete</span>
                       Delete
@@ -699,6 +970,95 @@ export function LedgerDashboard() {
           onCancel={() => setEditingSale(null)}
         />
       )}
+
+      {/* ── Payment QR modal ── */}
+      {qrSale && (
+        <PaymentQrModal sale={qrSale} onClose={() => setQrSale(null)} />
+      )}
+    </div>
+  );
+}
+
+// Fetches a payment QR + pay link for an order and lets the admin show it in
+// person or copy the link to send. Uses the server QR endpoint so the link
+// always resolves to the public /pay/<token> page.
+function PaymentQrModal({ sale, onClose }: { sale: Sale; onClose: () => void }) {
+  const toast = useToast();
+  const [state, setState] = useState<
+    { status: "loading" } | { status: "error"; message: string } | { status: "ready"; svg: string; url: string }
+  >({ status: "loading" });
+
+  useEffect(() => {
+    let active = true;
+    fetch(`/api/admin/sales/${sale.id}/qr`)
+      .then(async (res) => {
+        const data = await res.json();
+        if (!active) return;
+        if (!res.ok) {
+          setState({ status: "error", message: data.error || "Could not generate QR." });
+        } else {
+          setState({ status: "ready", svg: data.svg, url: data.url });
+        }
+      })
+      .catch(() => active && setState({ status: "error", message: "Could not generate QR." }));
+    return () => {
+      active = false;
+    };
+  }, [sale.id]);
+
+  function copyLink() {
+    if (state.status !== "ready") return;
+    navigator.clipboard.writeText(state.url).then(
+      () => toast("Payment link copied.", "success"),
+      () => toast("Copy failed — select the link manually.", "error"),
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-on-background/50" onClick={onClose} />
+      <div className="relative bg-surface-container-lowest rounded-xl shadow-botanical-lg border border-outline-variant w-full max-w-sm p-6 space-y-4 text-center">
+        <div className="flex items-center justify-between">
+          <h2 className="font-headline text-lg text-primary font-bold">
+            Pay {sale.order_number}
+          </h2>
+          <button onClick={onClose} className="text-on-surface-variant hover:text-primary text-2xl leading-none">&times;</button>
+        </div>
+        <p className="text-sm text-on-surface-variant">
+          Scan to pay ${saleTotal(sale).toFixed(2)} by card, or share the link.
+        </p>
+
+        {state.status === "loading" && (
+          <div className="py-16 text-sm text-on-surface-variant">Generating QR…</div>
+        )}
+        {state.status === "error" && (
+          <div className="py-8 text-sm text-error">{state.message}</div>
+        )}
+        {state.status === "ready" && (
+          <>
+            <div
+              className="mx-auto w-56 h-56 [&>svg]:w-full [&>svg]:h-full"
+              // QR SVG is generated server-side by the qrcode library from a
+              // trusted URL — not user input.
+              dangerouslySetInnerHTML={{ __html: state.svg }}
+            />
+            <div className="flex items-center gap-2">
+              <input
+                readOnly
+                value={state.url}
+                className="flex-1 text-xs font-mono bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 overflow-x-auto"
+                onFocus={(e) => e.currentTarget.select()}
+              />
+              <button
+                onClick={copyLink}
+                className="bg-primary text-on-primary px-4 py-2 rounded-lg text-xs font-bold hover:opacity-90"
+              >
+                Copy
+              </button>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
@@ -751,6 +1111,7 @@ function EditSaleModal({
   }
 
   const addr: ShippingAddress = sale.shipping_address ?? {};
+  const locked = isStripeLocked(sale);
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
@@ -762,6 +1123,19 @@ function EditSaleModal({
           </h2>
           <button onClick={onCancel} className="text-on-surface-variant hover:text-primary text-2xl">&times;</button>
         </div>
+
+        {locked && (
+          <div className="flex items-start gap-2 bg-blue-50 border border-blue-200 text-blue-900 rounded-lg px-4 py-3 text-sm">
+            <span className="material-symbols-outlined text-lg leading-5">lock</span>
+            <span>
+              This order was paid through Stripe, so its items, amounts and
+              payment status mirror the actual charge and can&apos;t be edited
+              here. You can still update contact details, address, fulfillment
+              and notes. To change what was charged, issue a{" "}
+              <strong>Refund</strong> from the ledger.
+            </span>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -796,6 +1170,7 @@ function EditSaleModal({
               value={sale.payment_method}
               onChange={(e) => onChange({ ...sale, payment_method: e.target.value })}
               className={fieldClass}
+              disabled={locked}
             >
               <option value="cash">Cash</option>
               <option value="interac">Interac</option>
@@ -809,10 +1184,16 @@ function EditSaleModal({
               value={sale.payment_status}
               onChange={(e) => onChange({ ...sale, payment_status: e.target.value })}
               className={fieldClass}
+              disabled={locked}
             >
               <option value="pending">Pending</option>
               <option value="paid">Paid</option>
               <option value="refunded">Refunded</option>
+              {!["pending", "paid", "refunded"].includes(sale.payment_status) && (
+                <option value={sale.payment_status} disabled>
+                  {statusLabel(sale.payment_status)}
+                </option>
+              )}
             </select>
           </div>
           <div>
@@ -881,6 +1262,7 @@ function EditSaleModal({
                 onChange={(e) => updateItem(idx, "productName", e.target.value)}
                 className={`${fieldClass} col-span-6`}
                 placeholder="Product name"
+                disabled={locked}
               />
               <input
                 type="number"
@@ -888,6 +1270,7 @@ function EditSaleModal({
                 value={item.quantity}
                 onChange={(e) => updateItem(idx, "quantity", Number(e.target.value))}
                 className={`${fieldClass} col-span-2 text-center`}
+                disabled={locked}
               />
               <input
                 type="number"
@@ -896,18 +1279,23 @@ function EditSaleModal({
                 value={item.unitPrice || ""}
                 onChange={(e) => updateItem(idx, "unitPrice", Number(e.target.value))}
                 className={`${fieldClass} col-span-3`}
+                disabled={locked}
               />
-              <button
-                onClick={() => removeItem(idx)}
-                className="col-span-1 text-error hover:text-on-error-container text-lg text-center"
-              >
-                &times;
-              </button>
+              {!locked && (
+                <button
+                  onClick={() => removeItem(idx)}
+                  className="col-span-1 text-error hover:text-on-error-container text-lg text-center"
+                >
+                  &times;
+                </button>
+              )}
             </div>
           ))}
-          <button onClick={addItem} className="text-sm text-primary font-semibold hover:underline">
-            + Add item
-          </button>
+          {!locked && (
+            <button onClick={addItem} className="text-sm text-primary font-semibold hover:underline">
+              + Add item
+            </button>
+          )}
         </div>
 
         <div>
