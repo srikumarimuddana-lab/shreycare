@@ -607,14 +607,19 @@ export function LedgerDashboard() {
       {/* ── Add sale form ── */}
       {showForm && (
         <AddSaleForm
-          onDone={(emailed) => {
+          onDone={({ emailed, qrSale }) => {
             setShowForm(false);
-            toast(
-              emailed
-                ? "Sale saved. Receipt emailed to customer."
-                : "Sale saved.",
-              "success",
-            );
+            // A Stripe card order returns the created row so we can pop its
+            // payment QR immediately to show the customer in person. The form
+            // has already toasted its own status in that case.
+            if (qrSale) {
+              setQrSale(qrSale as unknown as Sale);
+            } else {
+              toast(
+                emailed ? "Sale saved. Receipt emailed to customer." : "Sale saved.",
+                "success",
+              );
+            }
             fetchData();
           }}
         />
