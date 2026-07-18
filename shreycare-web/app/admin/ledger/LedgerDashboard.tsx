@@ -4,6 +4,11 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AddSaleForm } from "./AddSaleForm";
 import { useToast } from "@/components/ui/ToastProvider";
+import {
+  ProductCombobox,
+  useAdminProducts,
+  type ProductOption,
+} from "@/components/admin/ProductCombobox";
 
 interface SaleItem {
   productName: string;
@@ -1083,6 +1088,7 @@ function EditSaleModal({
     "w-full px-3 py-2 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20";
   const labelClass =
     "block text-[10px] font-semibold text-primary uppercase tracking-widest mb-1";
+  const products = useAdminProducts();
 
   // Recompute subtotal/tax/total whenever line items change, using the sale's
   // existing tax rate so PST stays proportional after edits.
@@ -1097,6 +1103,13 @@ function EditSaleModal({
   function updateItem(idx: number, field: string, value: string | number) {
     const items = [...(sale.items as SaleItem[])];
     items[idx] = { ...items[idx], [field]: value };
+    onChange({ ...sale, ...recompute(items) });
+  }
+
+  // Picking a product fills its name and current price in one step.
+  function selectProduct(idx: number, p: ProductOption) {
+    const items = [...(sale.items as SaleItem[])];
+    items[idx] = { ...items[idx], productName: p.name, unitPrice: p.price };
     onChange({ ...sale, ...recompute(items) });
   }
 
@@ -1262,12 +1275,15 @@ function EditSaleModal({
           <label className={labelClass}>Items</label>
           {(sale.items as SaleItem[]).map((item, idx) => (
             <div key={idx} className="grid grid-cols-12 gap-2 items-center">
-              <input
+              <ProductCombobox
                 value={item.productName}
-                onChange={(e) => updateItem(idx, "productName", e.target.value)}
-                className={`${fieldClass} col-span-6`}
-                placeholder="Product name"
+                products={products}
+                containerClassName="col-span-6"
+                className={fieldClass}
+                placeholder="Search inventory or type a name…"
                 disabled={locked}
+                onChange={(name) => updateItem(idx, "productName", name)}
+                onSelect={(p) => selectProduct(idx, p)}
               />
               <input
                 type="number"
