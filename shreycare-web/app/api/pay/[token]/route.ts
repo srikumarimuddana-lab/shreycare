@@ -21,7 +21,7 @@ export async function POST(
     return NextResponse.json({ error: "Invalid payment link" }, { status: 404 });
   }
 
-  if (!isStripeConfigured()) {
+  if (!(await isStripeConfigured())) {
     return NextResponse.json(
       { error: "Card payments are not available right now." },
       { status: 503 },

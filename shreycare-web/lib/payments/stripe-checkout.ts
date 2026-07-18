@@ -80,7 +80,7 @@ export async function createOrReuseCheckoutSession(
   sale: PayableSale,
   origin: string,
 ): Promise<{ url: string; sessionId: string; reused: boolean }> {
-  const stripe = getStripe();
+  const stripe = await getStripe();
 
   if (sale.stripe_session_id) {
     try {

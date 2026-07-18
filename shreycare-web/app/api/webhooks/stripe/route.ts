@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { getStripe } from "@/lib/stripe";
+import { getStripe, getStripeWebhookSecret } from "@/lib/stripe";
 import { supabaseAdmin } from "@/lib/supabase";
 import { logOrderAudit } from "@/lib/payments/audit";
 import { notifyAdmin } from "@/lib/payments/emails";
@@ -25,9 +25,9 @@ interface Outcome {
 }
 
 export async function POST(request: NextRequest) {
-  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  const secret = await getStripeWebhookSecret();
   if (!secret) {
-    console.error("[stripe-webhook] STRIPE_WEBHOOK_SECRET is not set");
+    console.error("[stripe-webhook] webhook signing secret is not set (Admin → Settings or STRIPE_WEBHOOK_SECRET)");
     return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
   }
 
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
   let event: Stripe.Event;
   try {
-    event = getStripe().webhooks.constructEvent(body, signature, secret);
+    event = (await getStripe()).webhooks.constructEvent(body, signature, secret);
   } catch {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }

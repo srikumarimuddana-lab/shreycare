@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     ...analytics,
-    stripeMode: getStripeMode(),
+    stripeMode: await getStripeMode(),
     webhookEvents,
     auditLog,
     auditTablesMissing: Boolean(eventsRes.error || auditRes.error),

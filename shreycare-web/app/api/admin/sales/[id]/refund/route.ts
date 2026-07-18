@@ -64,7 +64,7 @@ export async function POST(
   }
 
   try {
-    const refund = await getStripe().refunds.create(
+    const refund = await (await getStripe()).refunds.create(
       {
         payment_intent: sale.stripe_payment_intent_id,
         amount: requestedCents,
