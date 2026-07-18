@@ -23,8 +23,13 @@ npm install
 
 1. Go to https://dashboard.stripe.com/ and create an account
 2. Get your test keys from the Developers section
-3. Fill in `.env.local`:
-   - `STRIPE_SECRET_KEY` (starts with `sk_test_`; use `sk_live_` for real charges)
+3. Provide your Stripe keys **either** in the admin panel **or** in env:
+   - **Admin panel (no redeploy):** open `/admin/settings` → "Stripe API keys"
+     and paste your **secret key** and **webhook signing secret**. They're
+     stored server-side in the `app_settings` table (run the
+     `2026-07-14_app_settings.sql` migration first) and take effect within ~30s.
+   - **Environment (fallback):** `STRIPE_SECRET_KEY` (`sk_test_`/`sk_live_`) and
+     `STRIPE_WEBHOOK_SECRET`. A value saved in the panel overrides the env var.
    - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (starts with `pk_test_`)
 4. Set up the webhook endpoint. The **easiest** way is from the app itself:
    deploy first, then open `/admin/settings` → "Add endpoint". It creates the

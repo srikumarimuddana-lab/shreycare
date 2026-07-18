@@ -22,7 +22,7 @@ export default async function OrderSuccessPage({
 }) {
   const params = await searchParams;
 
-  if (!params.session_id || !isStripeConfigured()) {
+  if (!params.session_id || !(await isStripeConfigured())) {
     return <NotFound />;
   }
 
@@ -30,7 +30,7 @@ export default async function OrderSuccessPage({
   // payment (anyone can craft it). The ledger row is looked up for display.
   let session;
   try {
-    session = await getStripe().checkout.sessions.retrieve(params.session_id);
+    session = await (await getStripe()).checkout.sessions.retrieve(params.session_id);
   } catch {
     return <NotFound />;
   }

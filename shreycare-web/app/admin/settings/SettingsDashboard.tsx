@@ -12,10 +12,14 @@ interface Endpoint {
   created: number;
 }
 
+type SettingSource = "db" | "env" | "none";
+
 interface StripeSettings {
   mode: "live" | "test" | "unconfigured";
   secretKeySet: boolean;
   webhookSecretSet: boolean;
+  secretKeySource: SettingSource;
+  webhookSecretSource: SettingSource;
   siteUrl: string | null;
   resendKeySet: boolean;
   handledEvents: string[];
@@ -37,6 +41,9 @@ export function SettingsDashboard() {
   const [newUrl, setNewUrl] = useState("");
   const [creating, setCreating] = useState(false);
   const [createdSecret, setCreatedSecret] = useState<NewEndpointSecret | null>(null);
+  const [secretKeyInput, setSecretKeyInput] = useState("");
+  const [webhookSecretInput, setWebhookSecretInput] = useState("");
+  const [savingKeys, setSavingKeys] = useState(false);
 
   const fetchData = useCallback(async () => {
     const res = await fetch("/api/admin/settings/stripe");
@@ -53,6 +60,54 @@ export function SettingsDashboard() {
   }, [router]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  async function saveKeys() {
+    const payload: Record<string, string> = {};
+    if (secretKeyInput.trim()) payload.stripeSecretKey = secretKeyInput.trim();
+    if (webhookSecretInput.trim()) payload.stripeWebhookSecret = webhookSecretInput.trim();
+    if (Object.keys(payload).length === 0) {
+      toast("Enter a key to save.", "error");
+      return;
+    }
+    setSavingKeys(true);
+    try {
+      const res = await fetch("/api/admin/settings/stripe", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to save keys.");
+      // Never keep secrets in component state longer than needed.
+      setSecretKeyInput("");
+      setWebhookSecretInput("");
+      toast(`Saved: ${(data.changed as string[]).join(", ")}.`, "success");
+      fetchData();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Failed to save keys.", "error");
+    } finally {
+      setSavingKeys(false);
+    }
+  }
+
+  async function clearKey(which: "secret" | "webhook") {
+    const label = which === "secret" ? "Stripe secret key" : "webhook signing secret";
+    if (!confirm(`Clear the ${label} stored in the panel? Card payments may stop until it's set again (or an environment variable is present).`)) return;
+    const res = await fetch("/api/admin/settings/stripe", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(
+        which === "secret" ? { stripeSecretKey: "" } : { stripeWebhookSecret: "" },
+      ),
+    });
+    if (res.ok) {
+      toast(`${label} cleared.`, "success");
+      fetchData();
+    } else {
+      const data = await res.json().catch(() => ({}));
+      toast(data.error || "Failed to clear.", "error");
+    }
+  }
 
   async function createEndpoint() {
     if (!newUrl) return;
@@ -136,8 +191,8 @@ export function SettingsDashboard() {
             label="Stripe secret key"
             detail={
               settings.secretKeySet
-                ? `Configured — ${settings.mode.toUpperCase()} mode`
-                : "Set STRIPE_SECRET_KEY in your hosting environment to enable card payments."
+                ? `Configured — ${settings.mode.toUpperCase()} mode (${sourceLabel(settings.secretKeySource)})`
+                : "Add your Stripe secret key below to enable card payments."
             }
           />
           <CheckRow
@@ -145,8 +200,8 @@ export function SettingsDashboard() {
             label="Webhook signing secret"
             detail={
               settings.webhookSecretSet
-                ? "Configured — incoming Stripe events are signature-verified."
-                : "Create a webhook endpoint below, then set STRIPE_WEBHOOK_SECRET to its signing secret."
+                ? `Configured — incoming Stripe events are signature-verified (${sourceLabel(settings.webhookSecretSource)}).`
+                : "Create a webhook endpoint below, then paste its signing secret in the keys card."
             }
           />
           <CheckRow
@@ -176,6 +231,75 @@ export function SettingsDashboard() {
         )}
       </div>
 
+      {/* ── Stripe API keys (stored in the panel) ── */}
+      <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 space-y-4">
+        <div>
+          <h2 className="font-headline text-lg text-primary">Stripe API keys</h2>
+          <p className="text-sm text-on-surface-variant mt-1">
+            Save your Stripe keys here to configure payments without redeploying.
+            Keys are stored server-side and never shown again after saving. Find
+            them in your{" "}
+            <span className="font-semibold">Stripe Dashboard → Developers → API keys</span>.
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <label className="block text-[10px] font-semibold text-primary uppercase tracking-widest">
+            Secret key
+          </label>
+          <div className="flex items-center gap-2 text-xs mb-1">
+            <SourcePill source={settings.secretKeySource} />
+            {settings.secretKeySource === "db" && (
+              <button onClick={() => clearKey("secret")} className="text-error font-semibold hover:underline">
+                Clear
+              </button>
+            )}
+          </div>
+          <input
+            type="password"
+            autoComplete="off"
+            value={secretKeyInput}
+            onChange={(e) => setSecretKeyInput(e.target.value)}
+            placeholder={settings.secretKeySet ? "•••••••••• (set — enter a new key to replace)" : "sk_live_… or sk_test_…"}
+            className="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-white text-sm font-mono focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="block text-[10px] font-semibold text-primary uppercase tracking-widest">
+            Webhook signing secret
+          </label>
+          <div className="flex items-center gap-2 text-xs mb-1">
+            <SourcePill source={settings.webhookSecretSource} />
+            {settings.webhookSecretSource === "db" && (
+              <button onClick={() => clearKey("webhook")} className="text-error font-semibold hover:underline">
+                Clear
+              </button>
+            )}
+          </div>
+          <input
+            type="password"
+            autoComplete="off"
+            value={webhookSecretInput}
+            onChange={(e) => setWebhookSecretInput(e.target.value)}
+            placeholder={settings.webhookSecretSet ? "•••••••••• (set — enter a new secret to replace)" : "whsec_…"}
+            className="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-white text-sm font-mono focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+          />
+          <p className="text-xs text-on-surface-variant">
+            Tip: create the webhook endpoint below first, then paste the signing
+            secret it shows you here.
+          </p>
+        </div>
+
+        <button
+          onClick={saveKeys}
+          disabled={savingKeys || (!secretKeyInput.trim() && !webhookSecretInput.trim())}
+          className="bg-primary text-on-primary px-6 py-2.5 rounded-lg font-bold text-sm hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {savingKeys ? "Saving…" : "Save keys"}
+        </button>
+      </div>
+
       {/* ── New endpoint signing secret (shown once) ── */}
       {createdSecret && (
         <div className="bg-green-50 border border-green-300 rounded-xl p-5 space-y-3">
@@ -183,9 +307,10 @@ export function SettingsDashboard() {
             Webhook created — copy its signing secret now
           </h3>
           <p className="text-sm text-green-900">
-            Stripe only reveals this secret once. Add it to your hosting
-            environment as <code className="font-mono text-xs">STRIPE_WEBHOOK_SECRET</code> and
-            redeploy — the webhook rejects unsigned events until then.
+            Stripe only reveals this secret once. Copy it and paste it into the
+            <span className="font-semibold"> Webhook signing secret</span> field
+            in the Stripe API keys card above, then Save — the webhook rejects
+            unsigned events until then. (No redeploy needed.)
           </p>
           <div className="flex items-center gap-2">
             <code className="flex-1 font-mono text-xs bg-white border border-green-300 rounded-lg px-3 py-2 overflow-x-auto">
@@ -298,6 +423,25 @@ export function SettingsDashboard() {
         </div>
       </div>
     </div>
+  );
+}
+
+function sourceLabel(source: SettingSource): string {
+  if (source === "db") return "saved in panel";
+  if (source === "env") return "environment variable";
+  return "not set";
+}
+
+function SourcePill({ source }: { source: SettingSource }) {
+  const styles: Record<SettingSource, string> = {
+    db: "bg-green-100 text-green-800",
+    env: "bg-blue-100 text-blue-800",
+    none: "bg-surface-container text-on-surface-variant",
+  };
+  return (
+    <span className={`inline-block px-2 py-0.5 rounded font-semibold ${styles[source]}`}>
+      {sourceLabel(source)}
+    </span>
   );
 }
 

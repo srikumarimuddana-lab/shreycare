@@ -18,7 +18,7 @@ import { rateLimit, clientIp } from "@/lib/rate-limit";
 // browser redirect is never trusted as proof of payment.
 export async function POST(request: NextRequest) {
   try {
-    if (!isStripeConfigured()) {
+    if (!(await isStripeConfigured())) {
       return NextResponse.json(
         { error: "Card payments are not available right now. Please choose e-Transfer instead." },
         { status: 503 },

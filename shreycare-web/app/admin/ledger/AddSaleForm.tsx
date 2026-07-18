@@ -3,6 +3,11 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/ToastProvider";
 import { SK_PST_RATE } from "@/lib/cart/tax";
+import {
+  ProductCombobox,
+  useAdminProducts,
+  type ProductOption,
+} from "@/components/admin/ProductCombobox";
 
 interface LineItem {
   productName: string;
@@ -60,6 +65,7 @@ export function AddSaleForm({
   const [applyPst, setApplyPst] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const products = useAdminProducts();
 
   const subtotal = items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
   const taxRate = applyPst ? SK_PST_RATE : 0;
@@ -78,6 +84,16 @@ export function AddSaleForm({
 
   function removeItem(idx: number) {
     setItems((prev) => prev.filter((_, i) => i !== idx));
+  }
+
+  // Selecting a product from the dropdown fills both its name and current
+  // price; the admin can still adjust the price after.
+  function selectProduct(idx: number, p: ProductOption) {
+    setItems((prev) =>
+      prev.map((item, i) =>
+        i === idx ? { ...item, productName: p.name, unitPrice: p.price } : item,
+      ),
+    );
   }
 
   // Stripe card payment: the customer pays by card/debit via QR or link. Email
@@ -234,12 +250,15 @@ export function AddSaleForm({
         <label className="block text-xs font-semibold text-primary uppercase tracking-widest">Items</label>
         {items.map((item, idx) => (
           <div key={idx} className="grid grid-cols-12 gap-2 items-center">
-            <input
-              placeholder="Product name"
+            <ProductCombobox
               value={item.productName}
-              onChange={(e) => updateItem(idx, "productName", e.target.value)}
-              className={`${fieldClass} col-span-6`}
-              required
+              products={products}
+              containerClassName="col-span-6"
+              className={fieldClass}
+              placeholder="Search inventory or type a name…"
+              required={idx === 0}
+              onChange={(name) => updateItem(idx, "productName", name)}
+              onSelect={(p) => selectProduct(idx, p)}
             />
             <input
               type="number"
