@@ -51,8 +51,8 @@ export default async function HomePage() {
         ctaText={pageContent?.heroCTA}
       />
       <TrustStrip />
-      <BrandStory />
       <BenefitsTrinity />
+      <BrandStory />
       <FeaturedProducts products={products} />
       <Testimonial testimonial={pageContent?.testimonials?.[0]} />
       <NewsletterSignup />

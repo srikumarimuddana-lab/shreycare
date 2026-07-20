@@ -7,6 +7,21 @@ interface HeroProps {
   ctaText?: string;
 }
 
+// Render the headline upright with the accent word "nature's" italicised in gold,
+// mirroring the mockup (whole line is NOT italic).
+function renderHeadline(text: string) {
+  const parts = text.split(/(nature's)/i);
+  return parts.map((part, i) =>
+    /^nature's$/i.test(part) ? (
+      <em key={i} className="italic font-normal text-secondary">
+        {part}
+      </em>
+    ) : (
+      <span key={i}>{part}</span>
+    )
+  );
+}
+
 export function Hero({
   headline = "Nourish your hair with nature's quiet power.",
   subtext = "Cold-pressed oils and rare Ayurvedic herbs, traditionally processed in small batches to preserve every drop of potency.",
@@ -19,8 +34,8 @@ export function Hero({
           <p className="text-xs md:text-sm uppercase tracking-[0.14em] text-secondary font-semibold">
             Ayurvedic Hair Oil &middot; Made in Regina, SK
           </p>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-headline font-medium text-primary leading-[1.05] tracking-tight italic">
-            {headline}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-headline font-medium text-primary leading-[1.05] tracking-tight">
+            {renderHeadline(headline)}
           </h1>
           <p className="text-base md:text-lg text-on-surface-variant max-w-lg leading-relaxed">
             {subtext}
