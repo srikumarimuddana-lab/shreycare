@@ -60,16 +60,15 @@ export function Hero({
         </div>
         <div className="lg:col-span-6 relative mt-4 lg:mt-0">
           <div className="absolute -top-20 -right-20 w-96 h-96 bg-secondary/10 rounded-full blur-3xl" />
-          <div className="relative z-0 aspect-[4/5] rounded-lg overflow-hidden border border-outline-variant bg-surface-container-lowest shadow-botanical-lg">
-            <Image
+          <Image
               src="/images/hero-product.jpg"
-              alt="ShreyCare Organics botanical hair oil bottle resting on wood with herbs"
+              alt="ShreyCare Organics Botanical Oil"
               fill
-              priority
-              className="object-cover"
+              className="relative z-0 aspect-[4/5] rounded-lg shadow-botanical-lg"
               sizes="(max-width: 1024px) 100vw, 50vw"
+              priority
             />
-          </div>
+         
           <div className="absolute bottom-5 left-5 md:-bottom-8 md:-left-8 z-20 bg-surface-container-lowest border border-outline-variant p-5 md:p-6 rounded-lg shadow-botanical max-w-[15rem]">
             <p className="text-primary italic font-headline text-lg leading-snug">
               &ldquo;A ritual for the scalp.&rdquo;
