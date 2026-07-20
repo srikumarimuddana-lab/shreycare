@@ -27,7 +27,7 @@ export function BrandStory() {
             <p className="text-secondary-container font-semibold uppercase tracking-[0.14em] text-sm">
               Our Philosophy
             </p>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-headline font-medium leading-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-headline font-medium leading-tight">
               Rooted in nature, blended with Ayurveda.
             </h2>
             <p className="text-inverse-on-surface/75 leading-relaxed text-base md:text-lg">

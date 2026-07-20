@@ -32,7 +32,7 @@ export function NewsletterSignup() {
       <div className="container mx-auto px-6 md:px-10">
         <div className="bg-inverse-surface text-inverse-on-surface rounded-2xl p-8 md:p-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 md:gap-12">
           <div className="md:max-w-md space-y-3 md:space-y-4">
-            <h2 className="text-2xl md:text-3xl font-headline font-medium">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-headline font-medium">
               Join the ShreyCare ritual
             </h2>
             <p className="text-inverse-on-surface/70 text-sm md:text-base leading-relaxed">

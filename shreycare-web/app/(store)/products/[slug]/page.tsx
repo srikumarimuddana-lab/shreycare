@@ -76,7 +76,7 @@ export default async function ProductDetailPage({
   const crossSell = relatedProducts.filter((p) => p._id !== product._id).slice(0, 4);
 
   const mainImage = product.images?.[0]
-    ? urlFor(product.images[0]).width(800).height(1000).url()
+    ? urlFor(product.images[0]).width(1000).url()
     : "/images/placeholder-product.jpg";
 
   const schemaImages = (product.images ?? [])
@@ -108,12 +108,12 @@ export default async function ProductDetailPage({
         <div className="container mx-auto px-6 md:px-10 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-20 items-start">
           {/* Asymmetric Image Gallery logic inspired by mockup */}
           <div className="lg:col-span-7 space-y-4">
-            <div className="aspect-[4/5] bg-surface-container rounded-lg overflow-hidden relative border border-outline-variant shadow-botanical">
+            <div className="aspect-[4/5] bg-surface-container-lowest rounded-lg overflow-hidden relative border border-outline-variant shadow-botanical">
               <Image
                 src={mainImage}
                 alt={product.name}
                 fill
-                className="object-cover"
+                className="object-contain p-4 md:p-6"
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 priority
               />
@@ -121,12 +121,12 @@ export default async function ProductDetailPage({
             {product.images?.length > 1 && (
               <div className="grid grid-cols-2 gap-4">
                 {product.images.slice(1, 3).map((img, i) => (
-                  <div key={i} className="aspect-square bg-surface-container rounded-lg overflow-hidden relative border border-outline-variant">
+                  <div key={i} className="aspect-square bg-surface-container-lowest rounded-lg overflow-hidden relative border border-outline-variant">
                     <Image
-                      src={urlFor(img).width(600).height(600).url()}
+                      src={urlFor(img).width(600).url()}
                       alt={`${product.name} ${i + 2}`}
                       fill
-                      className="object-cover"
+                      className="object-contain p-3"
                       sizes="300px"
                     />
                   </div>
@@ -147,7 +147,7 @@ export default async function ProductDetailPage({
               </h1>
             </div>
 
-            <p className="text-2xl md:text-3xl font-headline font-semibold text-primary">${product.price.toFixed(2)} CAD</p>
+            <p className="text-3xl sm:text-4xl font-headline font-semibold text-primary">${product.price.toFixed(2)} CAD</p>
 
             <p className="text-on-surface-variant text-base md:text-lg leading-relaxed">
               {product.description}
@@ -202,7 +202,7 @@ export default async function ProductDetailPage({
           <div className="bg-surface-container border border-outline-variant p-8 md:p-20 rounded-xl overflow-hidden relative">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
               <div>
-                <h2 className="text-3xl md:text-4xl font-headline font-medium text-primary mb-6 md:mb-8">The Alchemy of Nature</h2>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-headline font-medium text-primary mb-6 md:mb-8">The Alchemy of Nature</h2>
                 <div className="prose prose-sm max-w-none text-on-surface-variant leading-relaxed [&_p]:mb-4 [&_ul]:space-y-4">
                   <PortableText value={product.benefits} />
                 </div>
@@ -226,7 +226,7 @@ export default async function ProductDetailPage({
       {product.howToUse?.length > 0 && (
         <section className="mt-20 md:mt-32 max-w-4xl mx-auto px-6 md:px-10 text-center">
           <span className="text-xs md:text-sm uppercase tracking-[0.14em] text-secondary font-semibold">The Ritual</span>
-          <h2 className="text-3xl md:text-4xl font-headline font-medium text-primary mt-4 mb-10 md:mb-16">How to Use</h2>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-headline font-medium text-primary mt-4 mb-10 md:mb-16">How to Use</h2>
           <div className="prose prose-sm max-w-none text-on-surface-variant leading-relaxed text-left grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
              <PortableText value={product.howToUse} />
           </div>
@@ -236,7 +236,7 @@ export default async function ProductDetailPage({
       {crossSell.length > 0 && (
         <section className="py-20 md:py-32 bg-surface-container mt-20 md:mt-32">
           <div className="container mx-auto px-6 md:px-10">
-            <h2 className="text-3xl md:text-4xl font-headline font-medium text-primary mb-10 md:mb-12 text-center">Complete the Ritual</h2>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-headline font-medium text-primary mb-10 md:mb-12 text-center">Complete the Ritual</h2>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 md:gap-8">
               {crossSell.map((p) => (
                 <ProductCard
@@ -244,7 +244,7 @@ export default async function ProductDetailPage({
                   name={p.name}
                   slug={p.slug}
                   price={p.price}
-                  imageUrl={p.images?.[0] ? urlFor(p.images[0]).width(600).height(800).url() : "/images/placeholder-product.jpg"}
+                  imageUrl={p.images?.[0] ? urlFor(p.images[0]).width(600).url() : "/images/placeholder-product.jpg"}
                   tag={p.tags?.[0]?.replace("-", " ")}
                 />
               ))}

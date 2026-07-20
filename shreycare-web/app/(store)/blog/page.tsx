@@ -19,21 +19,25 @@ export default async function BlogPage() {
   const posts: BlogPost[] = await sanityClient.fetch(allBlogPostsQuery);
 
   return (
-    <section className="py-16 bg-surface min-h-screen">
+    <section className="py-10 md:py-16 bg-surface min-h-screen">
       <div className="container mx-auto px-6 md:px-10">
-        <div className="mb-16">
-          <p className="text-secondary font-bold uppercase tracking-widest text-sm mb-4">
+        <div className="mb-10 md:mb-16">
+          <p className="text-secondary font-semibold uppercase tracking-[0.14em] text-sm mb-3 md:mb-4">
             Our Blog
           </p>
-          <h1 className="text-4xl md:text-5xl font-bold text-primary">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-headline font-medium text-primary leading-[1.05]">
             Ayurvedic Hair Care Tips &amp; Guides
           </h1>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {posts.map((post) => (
-            <Link key={post._id} href={`/blog/${post.slug}`} className="group space-y-4">
-              <div className="aspect-[3/2] bg-surface-container rounded-lg overflow-hidden relative">
+            <Link
+              key={post._id}
+              href={`/blog/${post.slug}`}
+              className="group block bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden hover:-translate-y-1.5 hover:shadow-botanical transition-all duration-500"
+            >
+              <div className="aspect-[3/2] bg-surface-container relative">
                 {post.featuredImage && (
                   <Image
                     src={urlFor(post.featuredImage).width(600).height(400).url()}
@@ -44,17 +48,17 @@ export default async function BlogPage() {
                   />
                 )}
               </div>
-              <div className="space-y-2">
+              <div className="p-5 md:p-6 space-y-2">
                 {post.category && (
-                  <p className="text-xs uppercase tracking-widest text-secondary font-bold">
+                  <p className="text-xs uppercase tracking-[0.14em] text-secondary font-semibold">
                     {post.category.replace("-", " ")}
                   </p>
                 )}
-                <h2 className="text-xl font-bold text-primary group-hover:text-secondary transition-colors">
+                <h2 className="text-xl md:text-2xl font-headline font-semibold text-primary group-hover:text-primary-container transition-colors leading-snug">
                   {post.title}
                 </h2>
                 <p className="text-on-surface-variant text-sm leading-relaxed">{post.excerpt}</p>
-                <p className="text-xs text-on-surface-variant">
+                <p className="text-xs text-on-surface-variant pt-1">
                   {post.publishedAt
                     ? new Date(post.publishedAt).toLocaleDateString("en-CA", {
                         year: "numeric", month: "long", day: "numeric",

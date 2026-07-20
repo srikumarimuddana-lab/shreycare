@@ -27,7 +27,7 @@ export function BenefitsTrinity() {
           <p className="text-xs uppercase tracking-[0.14em] text-secondary font-semibold mb-4">
             The Trinity of Care
           </p>
-          <h2 className="text-3xl md:text-4xl font-headline font-medium text-primary leading-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-headline font-medium text-primary leading-tight">
             Three pillars to restore, revive &amp; protect your crown.
           </h2>
         </div>
