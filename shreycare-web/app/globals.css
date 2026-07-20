@@ -73,4 +73,12 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
+  .ph {
+    background-image: repeating-linear-gradient(
+      45deg,
+      var(--color-outline-variant) 0 2px,
+      transparent 2px 11px
+    );
+    background-color: var(--color-surface-container);
+  }
 }

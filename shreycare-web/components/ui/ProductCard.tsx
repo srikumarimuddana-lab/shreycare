@@ -40,9 +40,9 @@ export function ProductCard({
         )}
       </div>
       <div className="p-4 md:p-5">
-        <h3 className="text-base md:text-xl font-headline font-semibold text-primary leading-tight">{name}</h3>
+        <h3 className="text-lg md:text-xl lg:text-2xl font-headline font-semibold text-primary leading-tight">{name}</h3>
         {subtitle && <p className="hidden md:block text-on-surface-variant text-sm mt-1 line-clamp-2">{subtitle}</p>}
-        <p className="text-secondary font-semibold text-sm md:text-base mt-2 md:mt-4 font-headline">
+        <p className="text-secondary font-semibold text-lg md:text-xl lg:text-2xl mt-2 md:mt-4 font-headline">
           ${price.toFixed(2)} CAD
         </p>
       </div>

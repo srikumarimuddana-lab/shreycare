@@ -16,7 +16,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
             <p className="text-secondary font-semibold uppercase tracking-[0.14em] text-sm mb-3">
               The Collection
             </p>
-            <h2 className="text-3xl md:text-4xl font-headline font-medium text-primary">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-headline font-medium text-primary">
               Curated for your ritual
             </h2>
           </div>

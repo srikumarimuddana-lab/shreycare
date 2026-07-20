@@ -1,6 +1,7 @@
 import { sanityClient } from "@/lib/sanity/client";
 import { featuredProductsQuery, pageContentQuery } from "@/lib/sanity/queries";
 import { Hero } from "@/components/sections/Hero";
+import { TrustStrip } from "@/components/sections/TrustStrip";
 import { BrandStory } from "@/components/sections/BrandStory";
 import { BenefitsTrinity } from "@/components/sections/BenefitsTrinity";
 import { FeaturedProducts } from "@/components/sections/FeaturedProducts";
@@ -49,6 +50,7 @@ export default async function HomePage() {
         subtext={pageContent?.heroSubtext}
         ctaText={pageContent?.heroCTA}
       />
+      <TrustStrip />
       <BrandStory />
       <BenefitsTrinity />
       <FeaturedProducts products={products} />

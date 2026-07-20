@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { Button } from "@/components/ui/Button";
+import { PlaceholderImage } from "@/components/ui/PlaceholderImage";
 
 interface HeroProps {
   headline?: string;
@@ -45,16 +45,10 @@ export function Hero({
         </div>
         <div className="lg:col-span-6 relative mt-4 lg:mt-0">
           <div className="absolute -top-20 -right-20 w-96 h-96 bg-secondary/10 rounded-full blur-3xl" />
-          <div className="relative z-0 aspect-[4/5] bg-surface-container rounded-lg overflow-hidden shadow-botanical-lg">
-            <Image
-              src="/images/hero-product.jpg"
-              alt="ShreyCare Organics Botanical Oil"
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              priority
-            />
-          </div>
+          <PlaceholderImage
+            label="hero product shot — oil bottle on stone"
+            className="relative z-0 aspect-[4/5] rounded-lg shadow-botanical-lg"
+          />
           <div className="absolute bottom-5 left-5 md:-bottom-8 md:-left-8 z-20 bg-surface-container-lowest border border-outline-variant p-5 md:p-6 rounded-lg shadow-botanical max-w-[15rem]">
             <p className="text-primary italic font-headline text-lg leading-snug">
               &ldquo;A ritual for the scalp.&rdquo;

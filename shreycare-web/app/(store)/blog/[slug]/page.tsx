@@ -73,7 +73,7 @@ export default async function BlogPostPage({
     : undefined;
 
   return (
-    <article className="py-16 bg-surface min-h-screen">
+    <article className="py-10 md:py-16 bg-surface min-h-screen">
       <ArticleSchema
         title={post.title}
         slug={post.slug}
@@ -100,14 +100,14 @@ export default async function BlogPostPage({
         </Link>
 
         {post.category && (
-          <p className="text-xs uppercase tracking-widest text-secondary font-bold mb-4">
+          <p className="text-xs uppercase tracking-[0.14em] text-secondary font-semibold mb-4">
             {post.category.replace("-", " ")}
           </p>
         )}
 
-        <h1 className="text-4xl md:text-5xl font-bold text-primary mb-6">{post.title}</h1>
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-headline font-medium text-primary leading-[1.05] mb-6">{post.title}</h1>
 
-        <div className="flex items-center gap-4 text-sm text-on-surface-variant mb-12">
+        <div className="flex items-center gap-4 text-sm text-on-surface-variant mb-10 md:mb-12">
           {post.author && <span>By {post.author}</span>}
           {post.publishedAt && (
             <span>
@@ -119,7 +119,7 @@ export default async function BlogPostPage({
         </div>
 
         {post.featuredImage && (
-          <div className="aspect-[2/1] bg-surface-container rounded-lg overflow-hidden relative mb-12">
+          <div className="aspect-[2/1] bg-surface-container border border-outline-variant rounded-lg overflow-hidden relative mb-10 md:mb-12 shadow-botanical">
             <Image
               src={urlFor(post.featuredImage).width(1200).height(600).url()}
               alt={post.title}
@@ -131,7 +131,7 @@ export default async function BlogPostPage({
           </div>
         )}
 
-        <div className="prose prose-lg max-w-none text-on-surface-variant leading-relaxed [&_h2]:font-headline [&_h2]:text-primary [&_h2]:text-2xl [&_h2]:mt-12 [&_h2]:mb-4 [&_p]:mb-6 [&_a]:text-secondary [&_a]:underline">
+        <div className="prose prose-lg max-w-none text-on-surface-variant leading-relaxed [&_h2]:font-headline [&_h2]:text-primary [&_h2]:text-2xl md:[&_h2]:text-3xl [&_h2]:mt-12 [&_h2]:mb-4 [&_p]:mb-6 [&_a]:text-secondary [&_a]:underline">
           <PortableText value={post.body} />
         </div>
       </div>
