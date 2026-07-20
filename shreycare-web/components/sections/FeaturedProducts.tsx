@@ -9,25 +9,25 @@ interface FeaturedProductsProps {
 
 export function FeaturedProducts({ products }: FeaturedProductsProps) {
   return (
-    <section className="py-32 bg-surface-container-lowest">
+    <section className="py-20 md:py-32 bg-surface">
       <div className="container mx-auto px-6 md:px-10">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-16 gap-6">
           <div>
-            <p className="text-secondary font-bold uppercase tracking-widest text-sm mb-4">
+            <p className="text-secondary font-semibold uppercase tracking-[0.14em] text-sm mb-3">
               The Collection
             </p>
-            <h2 className="text-4xl font-bold text-primary">
-              Curated for Your Ritual
+            <h2 className="text-3xl md:text-4xl font-headline font-medium text-primary">
+              Curated for your ritual
             </h2>
           </div>
           <Link
             href="/products"
-            className="text-primary font-bold border-b border-primary/20 pb-1"
+            className="text-primary font-semibold text-sm border-b border-secondary pb-1"
           >
-            View All Products
+            View all products &rarr;
           </Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 md:gap-8">
           {products.map((product) => (
             <ProductCard
               key={product._id}

@@ -41,7 +41,7 @@ export function MobileMenu({ open, onClose, links }: MobileMenuProps) {
         onClick={onClose}
       />
       {/* Opaque panel so nothing underneath shows through. */}
-      <div className="absolute right-0 top-0 h-full w-[85%] max-w-sm bg-surface shadow-botanical-lg flex flex-col">
+      <div className="absolute right-0 top-0 h-full w-[85%] max-w-sm bg-surface rounded-l-xl shadow-botanical-lg flex flex-col">
         <div className="flex items-center justify-between px-6 py-5 border-b border-outline-variant">
           <Link
             href="/"
@@ -56,7 +56,7 @@ export function MobileMenu({ open, onClose, links }: MobileMenuProps) {
               height={40}
               className="h-10 w-10 object-contain"
             />
-            <span className="font-headline text-lg font-bold text-primary tracking-tighter">
+            <span className="font-headline text-lg font-semibold text-primary tracking-tight">
               ShreyCare
             </span>
           </Link>

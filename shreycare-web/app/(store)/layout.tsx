@@ -1,26 +1,20 @@
-"use client";
+import { sanityClient } from "@/lib/sanity/client";
+import { siteSettingsQuery } from "@/lib/sanity/queries";
+import { StoreChrome } from "@/components/layout/StoreChrome";
+import type { SiteSettings } from "@/types";
 
-import { useState } from "react";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { CartDrawer } from "@/components/layout/CartDrawer";
-import { useCart } from "@/lib/cart/CartContext";
+export const revalidate = 60;
 
-export default function StoreLayout({
+export default async function StoreLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [cartOpen, setCartOpen] = useState(false);
-  const { state } = useCart();
-  const itemCount = state.items.reduce((sum, item) => sum + item.quantity, 0);
+  const settings: SiteSettings | null = await sanityClient.fetch(siteSettingsQuery);
 
   return (
-    <>
-      <Navbar cartItemCount={itemCount} onCartClick={() => setCartOpen(true)} />
-      <main className="pt-20">{children}</main>
-      <Footer />
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
-    </>
+    <StoreChrome announcementText={settings?.announcementBar}>
+      {children}
+    </StoreChrome>
   );
 }

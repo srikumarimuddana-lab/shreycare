@@ -17,11 +17,11 @@ type ButtonProps = ButtonAsButton | ButtonAsLink;
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    "bg-primary text-on-primary px-10 py-4 rounded-md font-bold tracking-tight hover:opacity-90 transition-all active:scale-95",
+    "bg-primary text-on-primary px-8 md:px-10 py-3.5 md:py-4 rounded-md font-semibold tracking-tight text-center hover:bg-primary-container hover:-translate-y-0.5 transition-all active:scale-95",
   secondary:
-    "bg-secondary-container text-on-secondary-container px-10 py-4 rounded-md font-bold tracking-tight hover:opacity-90 transition-all active:scale-95",
+    "bg-secondary-container text-on-secondary-container px-8 md:px-10 py-3.5 md:py-4 rounded-md font-semibold tracking-tight text-center hover:opacity-90 hover:-translate-y-0.5 transition-all active:scale-95",
   tertiary:
-    "text-primary font-bold border-b border-primary/30 pb-1 hover:border-primary transition-all bg-transparent",
+    "text-primary font-semibold border-b border-primary/30 pb-1 hover:border-primary transition-all bg-transparent text-center",
 };
 
 export function Button(props: ButtonProps) {

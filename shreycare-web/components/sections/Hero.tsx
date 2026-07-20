@@ -8,33 +8,44 @@ interface HeroProps {
 }
 
 export function Hero({
-  subtext = "A rich blend of cold-pressed oils and rare herbs, traditionally processed to enhance natural potency and care.",
-  ctaText = "Shop Collection",
+  headline = "Nourish your hair with nature's quiet power.",
+  subtext = "Cold-pressed oils and rare Ayurvedic herbs, traditionally processed in small batches to preserve every drop of potency.",
+  ctaText = "Shop the Collection",
 }: HeroProps) {
   return (
-    <header className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-      <div className="container mx-auto px-6 md:px-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-        <div className="lg:col-span-6 z-10 space-y-8">
-          <p className="text-sm uppercase tracking-widest text-secondary font-bold">
-            The Essence of Purity
+    <header className="relative flex items-center overflow-hidden py-14 md:py-20 lg:min-h-[92vh] lg:py-0">
+      <div className="container mx-auto px-6 md:px-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+        <div className="lg:col-span-6 z-10 space-y-6 md:space-y-8">
+          <p className="text-xs md:text-sm uppercase tracking-[0.14em] text-secondary font-semibold">
+            Ayurvedic Hair Oil &middot; Made in Regina, SK
           </p>
-          <h1 className="text-5xl md:text-7xl font-bold text-primary leading-tight tracking-tighter">
-            Nourish Your Hair with <br />
-            <span className="italic font-normal">Nature&apos;s Essence</span>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-headline font-medium text-primary leading-[1.05] tracking-tight italic">
+            {headline}
           </h1>
-          <p className="text-lg text-on-surface-variant max-w-lg leading-relaxed">
+          <p className="text-base md:text-lg text-on-surface-variant max-w-lg leading-relaxed">
             {subtext}
           </p>
-          <div className="pt-6 flex items-center space-x-8">
+          <div className="pt-2 md:pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-8">
             <Button href="/products">{ctaText}</Button>
             <Button variant="tertiary" href="/about">
               Learn our Process
             </Button>
           </div>
+          <div className="flex gap-8 md:gap-10 items-center pt-2">
+            <div className="flex flex-col">
+              <span className="font-headline text-2xl md:text-3xl text-primary font-semibold">100%</span>
+              <span className="text-[11px] uppercase tracking-[0.12em] text-on-surface-variant mt-0.5">Nature sourced</span>
+            </div>
+            <div className="w-px h-10 bg-outline-variant" />
+            <div className="flex flex-col">
+              <span className="font-headline text-2xl md:text-3xl text-primary font-semibold">0%</span>
+              <span className="text-[11px] uppercase tracking-[0.12em] text-on-surface-variant mt-0.5">Artificial additives</span>
+            </div>
+          </div>
         </div>
-        <div className="lg:col-span-6 relative">
+        <div className="lg:col-span-6 relative mt-4 lg:mt-0">
           <div className="absolute -top-20 -right-20 w-96 h-96 bg-secondary/10 rounded-full blur-3xl" />
-          <div className="relative z-0 aspect-[4/5] bg-surface-container rounded-lg overflow-hidden transform rotate-2">
+          <div className="relative z-0 aspect-[4/5] bg-surface-container rounded-lg overflow-hidden shadow-botanical-lg">
             <Image
               src="/images/hero-product.jpg"
               alt="ShreyCare Organics Botanical Oil"
@@ -44,12 +55,9 @@ export function Hero({
               priority
             />
           </div>
-          <div className="absolute -bottom-10 -left-10 z-20 bg-surface-container-lowest p-8 rounded-lg shadow-botanical max-w-xs transform -rotate-3">
-            <p className="text-primary italic font-headline text-xl">
-              &ldquo;A transformative ritual for the senses and the scalp.&rdquo;
-            </p>
-            <p className="text-xs uppercase tracking-widest mt-4 text-on-surface-variant">
-              &mdash; Vogue Beauty
+          <div className="absolute bottom-5 left-5 md:-bottom-8 md:-left-8 z-20 bg-surface-container-lowest border border-outline-variant p-5 md:p-6 rounded-lg shadow-botanical max-w-[15rem]">
+            <p className="text-primary italic font-headline text-lg leading-snug">
+              &ldquo;A ritual for the scalp.&rdquo;
             </p>
           </div>
         </div>

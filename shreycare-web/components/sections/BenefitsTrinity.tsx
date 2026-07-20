@@ -21,27 +21,28 @@ const benefits = [
 
 export function BenefitsTrinity() {
   return (
-    <section className="py-32 bg-surface">
+    <section className="py-20 md:py-32 bg-surface">
       <div className="container mx-auto px-6 md:px-10">
-        <div className="text-center max-w-2xl mx-auto mb-20">
-          <h2 className="text-4xl font-bold text-primary mb-6">
+        <div className="text-center max-w-2xl mx-auto mb-14 md:mb-20">
+          <p className="text-xs uppercase tracking-[0.14em] text-secondary font-semibold mb-4">
             The Trinity of Care
-          </h2>
-          <p className="text-on-surface-variant">
-            Three pillars of botanical health designed to restore, revive,
-            and protect your crown.
           </p>
+          <h2 className="text-3xl md:text-4xl font-headline font-medium text-primary leading-tight">
+            Three pillars to restore, revive &amp; protect your crown.
+          </h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-7">
           {benefits.map((benefit) => (
             <div
               key={benefit.title}
-              className="bg-surface-container-low p-12 rounded-lg group hover:bg-surface-container-high transition-all duration-500"
+              className="bg-surface-container-lowest border border-outline-variant p-9 md:p-11 rounded-lg group hover:-translate-y-1.5 hover:shadow-botanical transition-all duration-500"
             >
-              <span className="material-symbols-outlined text-4xl text-secondary mb-8 block">
-                {benefit.icon}
-              </span>
-              <h3 className="text-2xl font-bold text-primary mb-4">
+              <div className="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center mb-6">
+                <span className="material-symbols-outlined text-2xl text-primary-container">
+                  {benefit.icon}
+                </span>
+              </div>
+              <h3 className="text-2xl font-headline font-semibold text-primary mb-3">
                 {benefit.title}
               </h3>
               <p className="text-on-surface-variant leading-relaxed">

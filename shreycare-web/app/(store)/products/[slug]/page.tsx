@@ -104,11 +104,11 @@ export default async function ProductDetailPage({
         ]}
         siteUrl={SITE_URL}
       />
-      <section className="py-16">
-        <div className="container mx-auto px-6 md:px-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
+      <section className="py-8 md:py-16">
+        <div className="container mx-auto px-6 md:px-10 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-20 items-start">
           {/* Asymmetric Image Gallery logic inspired by mockup */}
           <div className="lg:col-span-7 space-y-4">
-            <div className="aspect-[4/5] bg-surface-container rounded-lg overflow-hidden relative shadow-botanical">
+            <div className="aspect-[4/5] bg-surface-container rounded-lg overflow-hidden relative border border-outline-variant shadow-botanical">
               <Image
                 src={mainImage}
                 alt={product.name}
@@ -121,7 +121,7 @@ export default async function ProductDetailPage({
             {product.images?.length > 1 && (
               <div className="grid grid-cols-2 gap-4">
                 {product.images.slice(1, 3).map((img, i) => (
-                  <div key={i} className="aspect-square bg-surface-container rounded-lg overflow-hidden relative shadow-sm">
+                  <div key={i} className="aspect-square bg-surface-container rounded-lg overflow-hidden relative border border-outline-variant">
                     <Image
                       src={urlFor(img).width(600).height(600).url()}
                       alt={`${product.name} ${i + 2}`}
@@ -135,40 +135,30 @@ export default async function ProductDetailPage({
             )}
           </div>
 
-          <div className="lg:col-span-5 space-y-8 lg:py-8 sticky top-32">
+          <div className="lg:col-span-5 space-y-6 md:space-y-8 lg:py-8 lg:sticky lg:top-28">
             <div>
               {product.tags?.[0] && (
-                <span className="font-label text-xs uppercase tracking-widest text-secondary font-bold">
+                <span className="text-xs uppercase tracking-[0.14em] text-secondary font-semibold">
                   {product.tags[0].replace("-", " ")}
                 </span>
               )}
-              <h1 className="text-5xl lg:text-6xl font-headline tracking-tighter text-primary mt-4 leading-tight">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-headline font-medium tracking-tight text-primary mt-3 md:mt-4 leading-[1.05]">
                 {product.name}
               </h1>
             </div>
 
-            <div className="flex items-center space-x-2">
-              <div className="flex text-secondary">
-                {[...Array(4)].map((_, i) => (
-                  <span key={i} className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                ))}
-                <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0" }}>star</span>
-              </div>
-              <span className="text-sm text-on-surface-variant">(128 Reviews)</span>
-            </div>
+            <p className="text-2xl md:text-3xl font-headline font-semibold text-primary">${product.price.toFixed(2)} CAD</p>
 
-            <p className="text-3xl font-headline text-on-background">${product.price.toFixed(2)} CAD</p>
-            
-            <p className="text-on-surface-variant text-lg leading-relaxed">
+            <p className="text-on-surface-variant text-base md:text-lg leading-relaxed">
               {product.description}
             </p>
 
             {product.ingredients?.length > 0 && (
-              <div className="space-y-4 border-t border-outline-variant/30 pt-8">
-                <h2 className="text-sm uppercase tracking-widest text-primary font-bold">Key Ingredients</h2>
+              <div className="space-y-4 border-t border-outline-variant pt-6 md:pt-8">
+                <h2 className="text-xs uppercase tracking-[0.14em] text-primary font-semibold">Key Ingredients</h2>
                 <div className="flex flex-wrap gap-2">
                   {product.ingredients.map((ing, i) => (
-                    <span key={`${ing}-${i}`} className="bg-surface-container-low px-4 py-2 rounded-md text-sm text-on-surface-variant">
+                    <span key={`${ing}-${i}`} className="bg-surface-container-low border border-outline-variant px-4 py-2 rounded-md text-sm text-on-surface-variant">
                       {ing}
                     </span>
                   ))}
@@ -176,7 +166,7 @@ export default async function ProductDetailPage({
               </div>
             )}
 
-            <div className="pt-4">
+            <div className="pt-2 md:pt-4">
               <AddToCartButton
                 productId={product._id}
                 name={product.name}
@@ -190,15 +180,15 @@ export default async function ProductDetailPage({
             </div>
 
             {/* Standard Benefit Icons */}
-            <div className="grid grid-cols-3 gap-4 pt-12 border-t border-outline-variant/30">
+            <div className="grid grid-cols-3 gap-4 pt-10 md:pt-12 border-t border-outline-variant">
               {[
                 { icon: "eco", label: "100% Organic" },
                 { icon: "cruelty_free", label: "Cruelty Free" },
                 { icon: "spa", label: "Herb-Crafted" }
               ].map((item) => (
                 <div key={item.label} className="text-center">
-                  <span className="material-symbols-outlined text-secondary text-3xl">{item.icon}</span>
-                  <p className="font-label text-[10px] uppercase tracking-tighter mt-2">{item.label}</p>
+                  <span className="material-symbols-outlined text-secondary text-2xl md:text-3xl">{item.icon}</span>
+                  <p className="text-[10px] uppercase tracking-tight text-on-surface-variant mt-2">{item.label}</p>
                 </div>
               ))}
             </div>
@@ -208,21 +198,21 @@ export default async function ProductDetailPage({
 
       {/* Benefits Section - Alchemy of Nature */}
       {product.benefits?.length > 0 && (
-        <section className="mt-32 container mx-auto px-6 md:px-10">
-          <div className="bg-surface-container p-12 md:p-20 rounded-xl overflow-hidden relative">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <section className="mt-20 md:mt-32 container mx-auto px-6 md:px-10">
+          <div className="bg-surface-container border border-outline-variant p-8 md:p-20 rounded-xl overflow-hidden relative">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
               <div>
-                <h2 className="text-4xl font-headline text-primary mb-8">The Alchemy of Nature</h2>
+                <h2 className="text-3xl md:text-4xl font-headline font-medium text-primary mb-6 md:mb-8">The Alchemy of Nature</h2>
                 <div className="prose prose-sm max-w-none text-on-surface-variant leading-relaxed [&_p]:mb-4 [&_ul]:space-y-4">
                   <PortableText value={product.benefits} />
                 </div>
               </div>
               <div className="relative">
-                <div className="aspect-[4/5] bg-surface-container-highest rounded-lg overflow-hidden transform lg:rotate-2 shadow-2xl">
-                  <Image 
-                    src="/images/ingredients.jpg" 
-                    alt="Botanical Ingredients" 
-                    fill 
+                <div className="aspect-[4/5] bg-surface-container-highest rounded-lg overflow-hidden shadow-botanical-lg">
+                  <Image
+                    src="/images/ingredients.jpg"
+                    alt="Botanical Ingredients"
+                    fill
                     className="object-cover"
                   />
                 </div>
@@ -234,20 +224,20 @@ export default async function ProductDetailPage({
 
       {/* How to Use - The Ritual */}
       {product.howToUse?.length > 0 && (
-        <section className="mt-32 max-w-4xl mx-auto px-6 md:px-10 text-center">
-          <span className="font-label text-sm uppercase tracking-[0.2em] text-secondary">The Ritual</span>
-          <h2 className="text-4xl font-headline text-primary mt-4 mb-16">How to Use</h2>
-          <div className="prose prose-sm max-w-none text-on-surface-variant leading-relaxed text-left grid grid-cols-1 md:grid-cols-2 gap-12">
+        <section className="mt-20 md:mt-32 max-w-4xl mx-auto px-6 md:px-10 text-center">
+          <span className="text-xs md:text-sm uppercase tracking-[0.14em] text-secondary font-semibold">The Ritual</span>
+          <h2 className="text-3xl md:text-4xl font-headline font-medium text-primary mt-4 mb-10 md:mb-16">How to Use</h2>
+          <div className="prose prose-sm max-w-none text-on-surface-variant leading-relaxed text-left grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
              <PortableText value={product.howToUse} />
           </div>
         </section>
       )}
 
       {crossSell.length > 0 && (
-        <section className="py-32 bg-surface-container mt-32">
+        <section className="py-20 md:py-32 bg-surface-container mt-20 md:mt-32">
           <div className="container mx-auto px-6 md:px-10">
-            <h2 className="text-4xl font-headline text-primary mb-12 text-center">Complete the Atelier Ritual</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+            <h2 className="text-3xl md:text-4xl font-headline font-medium text-primary mb-10 md:mb-12 text-center">Complete the Ritual</h2>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 md:gap-8">
               {crossSell.map((p) => (
                 <ProductCard
                   key={p._id}
