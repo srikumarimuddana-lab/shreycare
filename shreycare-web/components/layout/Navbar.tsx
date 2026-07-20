@@ -52,6 +52,16 @@ export function Navbar({ cartItemCount, onCartClick }: NavbarProps) {
           </div>
 
           <div className="flex items-center space-x-5 md:space-x-6">
+            <Link
+              href="/products"
+              className="text-primary hover:opacity-80 transition-opacity duration-200"
+              aria-label="Search products"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="7" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </Link>
             <button
               onClick={onCartClick}
               className="relative text-primary hover:opacity-80 transition-transform duration-200 active:scale-95"

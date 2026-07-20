@@ -28,7 +28,7 @@ export function Hero({
   ctaText = "Shop the Collection",
 }: HeroProps) {
   return (
-    <header className="relative flex items-center overflow-hidden py-14 md:py-20 lg:min-h-[92vh] lg:py-0">
+    <header className="relative flex items-center overflow-hidden py-12 md:py-16 lg:py-24">
       <div className="container mx-auto px-6 md:px-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
         <div className="lg:col-span-6 z-10 space-y-6 md:space-y-8">
           <p className="text-xs md:text-sm uppercase tracking-[0.14em] text-secondary font-semibold">
