@@ -28,8 +28,8 @@ export function Hero({
   ctaText = "Shop the Collection",
 }: HeroProps) {
   return (
-    <header className="relative flex items-center overflow-hidden py-12 md:py-16 lg:py-24">
-      <div className="container mx-auto px-6 md:px-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+    <header className="relative flex items-center overflow-hidden py-10 md:py-14 lg:py-16">
+      <div className="max-w-[1240px] mx-auto px-6 md:px-10 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center w-full">
         <div className="lg:col-span-6 z-10 space-y-6 md:space-y-8">
           <p className="text-xs md:text-sm uppercase tracking-[0.14em] text-secondary font-semibold">
             Ayurvedic Hair Oil &middot; Made in Regina, SK
@@ -60,7 +60,7 @@ export function Hero({
         </div>
         <div className="lg:col-span-6 relative mt-4 lg:mt-0">
           <div className="absolute -top-20 -right-20 w-96 h-96 bg-secondary/10 rounded-full blur-3xl" />
-          <div className="relative z-0 aspect-[4/5] rounded-lg overflow-hidden border border-outline-variant bg-surface-container-lowest shadow-botanical-lg">
+          <div className="relative z-0 aspect-[4/5] lg:aspect-auto lg:h-[520px] rounded-lg overflow-hidden border border-outline-variant bg-surface-container-lowest shadow-botanical-lg">
             <Image
               src="/images/hero-product.jpg"
               alt="ShreyCare Organics botanical hair oil bottle resting on wood with herbs"
