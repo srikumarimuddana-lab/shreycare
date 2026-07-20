@@ -23,12 +23,12 @@ export function ProductCard({
       href={`/products/${slug}`}
       className="group block bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden hover:-translate-y-1.5 hover:shadow-botanical transition-all duration-500"
     >
-      <div className="aspect-square bg-surface-container relative">
+      <div className="aspect-square bg-surface-container-lowest relative">
         <Image
           src={imageUrl}
           alt={name}
           fill
-          className="object-cover group-hover:scale-105 transition-transform duration-700"
+          className="object-contain p-3 md:p-4 group-hover:scale-105 transition-transform duration-700"
           sizes="(max-width: 768px) 50vw, (max-width: 1024px) 50vw, 25vw"
         />
         {tag && (

@@ -37,7 +37,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
               price={product.price}
               imageUrl={
                 product.images?.[0]
-                  ? urlFor(product.images[0]).width(600).height(800).url()
+                  ? urlFor(product.images[0]).width(600).url()
                   : "/images/placeholder-product.jpg"
               }
               tag={product.tags?.[0]?.replace("-", " ")}
