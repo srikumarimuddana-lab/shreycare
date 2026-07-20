@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { PlaceholderImage } from "@/components/ui/PlaceholderImage";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -79,10 +78,15 @@ export default function AboutPage() {
               guided by the same herbal wisdom that has nourished generations.
             </p>
           </div>
-          <PlaceholderImage
-            label="hand-harvested herbs and botanicals"
-            className="aspect-video rounded-lg"
-          />
+          <div className="aspect-video rounded-lg overflow-hidden relative border border-inverse-on-surface/15 shadow-botanical-lg">
+            <Image
+              src="/images/ingredients.jpg"
+              alt="Hand-harvested herbs and botanicals prepared for cold-pressed extraction"
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+            />
+          </div>
         </div>
       </section>
     </div>

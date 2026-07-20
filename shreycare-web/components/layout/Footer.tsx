@@ -100,9 +100,15 @@ export function Footer() {
             Cookie Preferences
           </button>
           <div className="flex md:justify-end space-x-3">
-            <span className="material-symbols-outlined text-secondary-container w-9 h-9 rounded-full border border-inverse-on-surface/20 flex items-center justify-center text-lg">spa</span>
-            <span className="material-symbols-outlined text-secondary-container w-9 h-9 rounded-full border border-inverse-on-surface/20 flex items-center justify-center text-lg">eco</span>
-            <span className="material-symbols-outlined text-secondary-container w-9 h-9 rounded-full border border-inverse-on-surface/20 flex items-center justify-center text-lg">fluid_med</span>
+            <span className="w-9 h-9 rounded-full border border-inverse-on-surface/20 flex items-center justify-center">
+              <span className="material-symbols-outlined text-secondary-container text-lg leading-none">spa</span>
+            </span>
+            <span className="w-9 h-9 rounded-full border border-inverse-on-surface/20 flex items-center justify-center">
+              <span className="material-symbols-outlined text-secondary-container text-lg leading-none">eco</span>
+            </span>
+            <span className="w-9 h-9 rounded-full border border-inverse-on-surface/20 flex items-center justify-center">
+              <span className="material-symbols-outlined text-secondary-container text-lg leading-none">fluid_med</span>
+            </span>
           </div>
         </div>
       </div>

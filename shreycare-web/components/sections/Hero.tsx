@@ -62,12 +62,12 @@ export function Hero({
           <div className="absolute -top-20 -right-20 w-96 h-96 bg-secondary/10 rounded-full blur-3xl" />
           <div className="relative z-0 aspect-[4/5] rounded-lg overflow-hidden border border-outline-variant bg-surface-container-lowest shadow-botanical-lg">
             <Image
-              src="/images/hero-product.svg"
-              alt="ShreyCare Organics botanical hair oil bottle resting on stone with herbs"
+              src="/images/hero-product.jpg"
+              alt="ShreyCare Organics botanical hair oil bottle resting on wood with herbs"
               fill
-              unoptimized
               priority
               className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 50vw"
             />
           </div>
           <div className="absolute bottom-5 left-5 md:-bottom-8 md:-left-8 z-20 bg-surface-container-lowest border border-outline-variant p-5 md:p-6 rounded-lg shadow-botanical max-w-[15rem]">
