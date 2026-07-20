@@ -23,20 +23,21 @@ export function AddToCartButton({
   const { addItem, bottleCount: cartBottleCount, hasFreeShipping } = useCart();
   const toast = useToast();
   const [added, setAdded] = useState(false);
+  const [qty, setQty] = useState(1);
 
   if (!inStock) {
     return (
-      <button disabled className="w-full bg-surface-container-high text-on-surface-variant py-4 rounded-md font-bold cursor-not-allowed">
+      <button disabled className="w-full bg-surface-container-high text-on-surface-variant py-4 rounded-md font-semibold cursor-not-allowed">
         Out of Stock
       </button>
     );
   }
 
   function handleAdd() {
-    addItem({ productId, name, slug, price, quantity: 1, image, bottleCount, qualifiesForFreeShipping });
+    addItem({ productId, name, slug, price, quantity: qty, image, bottleCount, qualifiesForFreeShipping });
     setAdded(true);
 
-    const newCount = cartBottleCount + bottleCount;
+    const newCount = cartBottleCount + bottleCount * qty;
     const until = bottlesUntilFreeShipping(newCount);
 
     if (qualifiesForFreeShipping || newCount >= 4) {
@@ -47,15 +48,37 @@ export function AddToCartButton({
       toast(`${name} added to cart.`, "success");
     }
 
+    setQty(1);
     setTimeout(() => setAdded(false), 2000);
   }
 
   return (
-    <button
-      onClick={handleAdd}
-      className="w-full bg-primary text-on-primary py-4 rounded-md font-bold hover:opacity-90 transition-all active:scale-[0.98]"
-    >
-      {added ? "Added to Cart ✓" : "Add to Cart"}
-    </button>
+    <div className="flex gap-3 items-stretch">
+      <div className="flex items-center border border-outline-variant rounded-md bg-surface-container-lowest">
+        <button
+          type="button"
+          onClick={() => setQty((q) => Math.max(1, q - 1))}
+          aria-label="Decrease quantity"
+          className="w-11 md:w-12 h-full text-lg text-primary hover:bg-surface-container-high transition-colors rounded-l-md"
+        >
+          &minus;
+        </button>
+        <span className="w-9 text-center font-semibold text-primary" aria-live="polite">{qty}</span>
+        <button
+          type="button"
+          onClick={() => setQty((q) => q + 1)}
+          aria-label="Increase quantity"
+          className="w-11 md:w-12 h-full text-lg text-primary hover:bg-surface-container-high transition-colors rounded-r-md"
+        >
+          +
+        </button>
+      </div>
+      <button
+        onClick={handleAdd}
+        className="flex-1 bg-primary text-on-primary py-4 rounded-md font-semibold hover:bg-primary-container transition-all active:scale-[0.98]"
+      >
+        {added ? "Added to Bag ✓" : `Add to Bag — $${(price * qty).toFixed(2)}`}
+      </button>
+    </div>
   );
 }

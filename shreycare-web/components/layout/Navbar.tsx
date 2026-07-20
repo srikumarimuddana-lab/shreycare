@@ -23,41 +23,41 @@ export function Navbar({ cartItemCount, onCartClick }: NavbarProps) {
 
   return (
     <>
-      <nav className="fixed top-0 w-full z-50 bg-surface/80 glass-nav">
-        <div className="flex justify-between items-center px-6 md:px-10 py-6 max-w-[1440px] mx-auto">
-          <Link href="/" className="flex items-center gap-3" aria-label="ShreyCare Organics home">
+      <nav className="sticky top-0 z-50 bg-surface/86 glass-nav border-b border-outline-variant">
+        <div className="flex justify-between items-center px-6 md:px-10 py-4 md:py-5 max-w-[1440px] mx-auto">
+          <Link href="/" className="flex items-center gap-2.5 md:gap-3" aria-label="ShreyCare Organics home">
             <Image
               src="/images/logo.png"
               alt="ShreyCare Organics — Hair Oil, Ayurvedic"
               width={180}
               height={180}
               priority
-              className="h-12 w-12 md:h-14 md:w-14 object-contain"
+              className="h-10 w-10 md:h-12 md:w-12 object-contain"
             />
-            <span className="font-headline text-2xl font-bold text-primary tracking-tighter">
-              ShreyCare Organics
+            <span className="font-headline text-xl md:text-2xl font-semibold text-primary tracking-tight">
+              ShreyCare <span className="italic font-normal text-secondary">Organics</span>
             </span>
           </Link>
 
-          <div className="hidden md:flex space-x-12 items-center">
+          <div className="hidden md:flex space-x-10 items-center">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="font-headline text-lg tracking-tight text-on-surface-variant hover:text-primary transition-colors duration-300"
+                className="font-body text-sm font-medium tracking-tight text-on-surface-variant hover:text-primary transition-colors duration-300"
               >
                 {link.label}
               </Link>
             ))}
           </div>
 
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-5 md:space-x-6">
             <button
               onClick={onCartClick}
               className="relative text-primary hover:opacity-80 transition-transform duration-200 active:scale-95"
               aria-label="Open cart"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
                 <line x1="3" y1="6" x2="21" y2="6"/>
                 <path d="M16 10a4 4 0 01-8 0"/>
@@ -71,7 +71,7 @@ export function Navbar({ cartItemCount, onCartClick }: NavbarProps) {
 
             <button
               onClick={() => setMobileOpen(true)}
-              className="md:hidden text-primary"
+              className="md:hidden text-primary p-1 -mr-1"
               aria-label="Open menu"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

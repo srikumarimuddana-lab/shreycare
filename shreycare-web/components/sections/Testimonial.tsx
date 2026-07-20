@@ -15,23 +15,22 @@ export function Testimonial({
   testimonial = defaultTestimonial,
 }: TestimonialProps) {
   return (
-    <section className="py-32 bg-primary text-on-primary relative overflow-hidden">
-      <div className="absolute top-0 right-0 opacity-10 pointer-events-none transform translate-x-1/4 -translate-y-1/4">
-        <span className="material-symbols-outlined text-[40rem]">spa</span>
-      </div>
-      <div className="container mx-auto px-6 md:px-10 relative z-10">
-        <div className="max-w-4xl mx-auto text-center space-y-12">
-          <span className="material-symbols-outlined text-6xl text-secondary block">
+    <section className="py-20 md:py-32 bg-surface-container border-y border-outline-variant">
+      <div className="container mx-auto px-6 md:px-10">
+        <div className="max-w-3xl mx-auto text-center space-y-8 md:space-y-10">
+          <span className="material-symbols-outlined text-4xl md:text-5xl text-secondary block">
             format_quote
           </span>
-          <h2 className="text-3xl md:text-5xl font-headline italic leading-relaxed">
+          <h2 className="text-2xl md:text-4xl font-headline italic font-medium text-primary leading-snug">
             &ldquo;{testimonial.quote}&rdquo;
           </h2>
-          <div className="space-y-2">
-            <p className="uppercase tracking-[0.2em] font-bold text-secondary">
+          <div className="space-y-1">
+            <p className="uppercase tracking-[0.14em] font-semibold text-primary text-sm">
               {testimonial.name}
             </p>
-            <p className="text-sm opacity-60">{testimonial.title}</p>
+            {testimonial.title && (
+              <p className="text-xs text-on-surface-variant">{testimonial.title}</p>
+            )}
           </div>
         </div>
       </div>
