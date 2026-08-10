@@ -37,11 +37,11 @@ export function BrandStory() {
             </p>
             <div className="grid grid-cols-2 gap-8 pt-2">
               <div>
-                <p className="text-4xl font-headline text-secondary-container">Traditionaly Infused</p>
+                <p className="text-2xl font-headline text-secondary-container">Traditionaly Infused</p>
                
               </div>
               <div>
-                <p className="text-4xl font-headline text-secondary-container">Herbal Hair Oil</p>
+                <p className="text-2xl font-headline text-secondary-container">Herbal Hair Oil</p>
              
               </div>
             </div>
