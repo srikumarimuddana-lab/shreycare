@@ -37,16 +37,12 @@ export function BrandStory() {
             </p>
             <div className="grid grid-cols-2 gap-8 pt-2">
               <div>
-                <p className="text-4xl font-headline text-secondary-container">100%</p>
-                <p className="text-xs text-inverse-on-surface/60 uppercase tracking-[0.1em] mt-1">
-                  Nature Sourced
-                </p>
+                <p className="text-4xl font-headline text-secondary-container">Traditionaly Infused</p>
+               
               </div>
               <div>
-                <p className="text-4xl font-headline text-secondary-container">0%</p>
-                <p className="text-xs text-inverse-on-surface/60 uppercase tracking-[0.1em] mt-1">
-                  Artificial Additives
-                </p>
+                <p className="text-4xl font-headline text-secondary-container">Herbal Hair Oil</p>
+             
               </div>
             </div>
           </div>
