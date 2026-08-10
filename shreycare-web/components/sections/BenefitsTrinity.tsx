@@ -1,21 +1,21 @@
 const benefits = [
   {
     icon: "eco",
-    title: "Lush Growth",
+    title: "Healthy Hair Growth",
     description:
-      "Infused botanical blend that nourishes roots for fuller, healthier-looking hair growth.",
+      "A powerful blend of nourishing oils and herbal ingredients designed to support scalp care, reduce the appearance of hair fall, and promote fuller-looking, healthier hair.",
   },
   {
     icon: "flare",
     title: "Radiant Shine",
     description:
-      "Herbal mix that smooths strands and restores natural glossy, mirror-like shine.",
+      "A nourishing mix that helps improve dry, dull hair, smooth strands, restore softness, and enhance natural shine.",
   },
   {
     icon: "shield_with_heart",
     title: "Deep Strength",
     description:
-      "Potent plant actives that strengthen hair follicles and help reduce breakage over time.",
+      "Rich ingredients help strengthen hair, reduce the appearance of breakage, support thinning hair concerns, and improve the look of hair volume over time.",
   },
 ];
 
@@ -25,10 +25,10 @@ export function BenefitsTrinity() {
       <div className="container mx-auto px-6 md:px-10">
         <div className="text-center max-w-2xl mx-auto mb-14 md:mb-20">
           <p className="text-xs uppercase tracking-[0.14em] text-secondary font-semibold mb-4">
-            The Trinity of Care
+            Why Choose Shreycare?
           </p>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-headline font-medium text-primary leading-tight">
-            Three pillars to restore, revive &amp; protect your crown.
+            Targeted Care. Powerful Ingredients. &amp; Healthier-Looking Hair.
           </h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-7">
