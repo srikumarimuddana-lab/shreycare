@@ -23,9 +23,9 @@ function renderHeadline(text: string) {
 }
 
 export function Hero({
-  headline = "Nourish your hair with nature's quiet power.",
-  subtext = "Cold-pressed oils and rare Ayurvedic herbs, traditionally processed in small batches to preserve every drop of potency.",
-  ctaText = "Shop the Collection",
+  headline = "Your Hair is unique. Your care should be too.",
+  subtext = "Take our 60-second Hair Quiz and find a personalized natural care routine designed around your unique hair concerns — from hair fall and thinning to dryness, weakness and scalp care.",
+  ctaText = "Shop our Products",
 }: HeroProps) {
   return (
     <header className="relative flex items-center overflow-hidden py-12 md:py-16 lg:py-24">
@@ -42,8 +42,8 @@ export function Hero({
           </p>
           <div className="pt-2 md:pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-8">
             <Button href="/products">{ctaText}</Button>
-            <Button variant="tertiary" href="/about">
-              Learn our Process
+            <Button variant="tertiary" href="/hair-quiz">
+              Take Hair Quiz
             </Button>
           </div>
           <div className="flex gap-8 md:gap-10 items-center pt-2">
