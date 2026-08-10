@@ -1,9 +1,8 @@
 const items = [
-  { icon: "eco", label: "Certified Organic" },
+  { icon: "eco", label: "Ayurvedic-Inspired" },
   { icon: "cruelty_free", label: "Cruelty-Free" },
   { icon: "science", label: "Zero Additives" },
-  { icon: "recycling", label: "Refillable Glass" },
-  { icon: "water_drop", label: "Cold-Pressed" },
+  { icon: "water_drop", label: "Handmade in Canada" },
 ];
 
 export function TrustStrip() {
